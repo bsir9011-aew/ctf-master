@@ -14,4 +14,4 @@ Mobile-first PWA teaching Linux and CTF through interactive, causal labs. Progre
 - Do not bloat validation. Before a PR: `npm run build` and manual smoke test for the changed mission. Add focused automated tests when engine becomes more complex.
 
 ## Near-term priority
-Next PR: implement richer process failure analysis or networking fundamentals while preserving 12 missions and 12 review variants. No host shell, no OS process APIs, no network calls to execute commands. Prefer one carefully tested slice per PR.
+Next PR: introduce topology-centric networking or packet analysis only after manual mobile QA. Preserve 14 missions and 16 review variants. NEVER execute user-supplied commands against the host or real network. Keep simulation deterministic and validate actual subnet/gateway effects.
