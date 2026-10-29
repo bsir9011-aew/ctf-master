@@ -29,5 +29,33 @@ export const missions: Mission[] = [
     briefing: 'Administrator schowal flage w katalogu domowym. Znajdz ja i odczytaj jej zawartosc. Nie dostaniesz nazwy pliku.',
     hints: ['Nie wszystko widac w zwyklej liscie plikow.', 'Sprawdz opcje -a polecenia ls.', 'Uzyj ls -la, poszukaj ukrytego katalogu, a potem cat.'],
     success: (_state, events) => events.some(e => e.ok && e.command === 'cat' && e.target === '/home/player/.vault/flag.txt')
+  },
+  {
+    id: 'log-hunt', title: 'Slad w logach', category: 'Linux Investigator',
+    briefing: 'Na testowym serwerze odnotowano nieudane logowanie. Odszukaj w /var/log/auth.log wpis zawierajacy DENIED i odczytaj go.',
+    hints: ['Zdarzenia uwierzytelniania sa zapisane w /var/log.', 'grep wyszukuje tekst w pliku. cat wyswietla cala zawartosc.', 'Sprobuj grep DENIED /var/log/auth.log.'],
+    success: (_state, events) => events.some(e => e.ok && e.target === '/var/log/auth.log' && e.output.includes('DENIED'))
+  },
+  {
+    id: 'evidence-search', title: 'Znajdz dowod', category: 'Linux Investigator',
+    briefing: 'W katalogu documents schowano plik evidence-47.txt. Odszukaj jego sciezke i odczytaj tresc.',
+    hints: ['W podkatalogach documents jest wiecej zawartosci niz na pierwszym poziomie.', 'find pozwala przeszukiwac katalogi rekurencyjnie.', 'find ~/documents -name "evidence-*.txt", a potem cat SCIEZKA.'],
+    success: (_state, events) => events.some(e => e.ok && e.command === 'cat' && e.target === '/home/player/documents/cases/evidence-47.txt')
+  },
+  {
+    id: 'backup-evidence', title: 'Zachowaj kopie', category: 'Linux Investigator',
+    briefing: 'Wykonaj kopie /var/log/auth.log do ~/documents/auth-backup.log. Oryginal ma pozostac bez zmian.',
+    hints: ['Musisz zachowac zawartosc dwoch plikow.', 'cp kopiuje plik bez usuwania zrodla.', 'cp /var/log/auth.log ~/documents/auth-backup.log'],
+    success: (state) => Object.hasOwn(state.files, '/home/player/documents/auth-backup.log') &&
+      Object.hasOwn(state.files, '/var/log/auth.log') &&
+      state.files['/home/player/documents/auth-backup.log'] === state.files['/var/log/auth.log']
+  },
+  {
+    id: 'safe-cleanup', title: 'Porzadek po incydencie', category: 'Linux Investigator',
+    briefing: 'Przenies ~/downloads/incident.tmp do ~/documents/incident.txt i usun niepotrzebny ~/downloads/stale.tmp. Nie kasuj zachowanego dowodu.',
+    hints: ['Przeniesienie pliku zmienia jego lokalizacje.', 'mv przenosi, rm usuwa pojedynczy plik.', 'mv ~/downloads/incident.tmp ~/documents/incident.txt, a potem rm ~/downloads/stale.tmp.'],
+    success: (state) => state.files['/home/player/documents/incident.txt'] === 'incident-47: save this evidence before cleanup' &&
+      !Object.hasOwn(state.files, '/home/player/downloads/incident.tmp') &&
+      !Object.hasOwn(state.files, '/home/player/downloads/stale.tmp')
   }
 ];

@@ -14,4 +14,4 @@ Mobile-first PWA teaching Linux and CTF through interactive, causal labs. Progre
 - Do not bloat validation. Before a PR: `npm run build` and manual smoke test for the changed mission. Add focused automated tests when engine becomes more complex.
 
 ## Near-term priority
-PR #1: split simulation engine into filesystem + parser, add focused unit tests and a second challenge variant, while retaining existing 3 missions and mobile layout.
+Next PR: improve learning feedback and command discovery, then expand permissions/process simulation. Keep changes incremental; 7 existing missions must remain compatible.

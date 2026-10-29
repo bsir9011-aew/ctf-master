@@ -15,11 +15,12 @@
 - [ ] Parser: cytowanie, potoki, przekierowania, status wyjscia
 - [ ] Drag and drop polecen oraz warianty scenariuszy
 - [ ] Powtorki bledow
-- [ ] Testy logiki symulatora
+- [x] Testy logiki symulatora
 
 ## Etap 1 - Linux Administrator
 - [ ] chmod/chown, uzytkownicy, grupy, ACL
-- [ ] grep/find, procesy, uslugi i logi
+- [x] grep/find i pierwsze misje logow
+- [ ] Procesy, uslugi i zaawansowana diagnostyka
 - [ ] Diagnostyka awarii i zadania bez podanych komend
 
 ## Etap 2 - CTF Rookie
