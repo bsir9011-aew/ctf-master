@@ -53,7 +53,7 @@ test('coaching classifies errors without suggesting complete solutions', () => {
   const unknown = explainError(executeLinux(initialLinux(), 'not-a-command'));
   const noMatch = explainError(executeLinux(initialLinux(), 'grep nonexistent /var/log/app.log'));
   assert.match(wrongPath.guidance, /pwd/);
-  assert.match(unknown.guidance, /symulator/);
+  assert.match(unknown.guidance, /Bash/);
   assert.match(noMatch.guidance, /-i/);
   assert.equal(explainError(executeLinux(initialLinux(), 'pwd')), null);
 });
