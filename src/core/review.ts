@@ -95,7 +95,7 @@ function recoveryCase(): ReviewScenario {
     briefing:'Odczytaj wpis AUDIT w ~/documents/audit-review.log. Na poczatku konto player nie ma prawa odczytu. Nie przyznawaj praw grupie ani pozostalym.',
     hints:['Brak odczytu nie oznacza, ze plik nie istnieje.', 'stat i chmod pozwalaja zidentyfikowac i naprawic problem.', 'Nadaj tylko wlascicielowi prawo odczytu, potem otworz plik.'],
     dirs:[], files:{[path]:'AUDIT: training event'}, permissions:{[path]:0o000},
-    success:(state,events) => modeOf(state,path) === 0o400 && readExact(events,path,'AUDIT')
+    success:(state,events) => (modeOf(state,path) & 0o477) === 0o400 && readExact(events,path,'AUDIT')
   };
 }
 
