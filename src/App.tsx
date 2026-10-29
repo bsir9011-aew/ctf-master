@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { executeLinux, initialLinux, type CommandResult, type LinuxState } from './core/linux';
 import { missions } from './core/missions';
+import PacketPath from './components/PacketPath';
 import { explainError, markHelp, revealHint, restoreLearning, trackCommand, type LearningMap } from './core/learning';
 import {
   addReviewHint, availableReviews, createReviewAttempt, getReviewScenario, markReviewHelp,
@@ -113,6 +114,7 @@ export default function App() {
   const [mode,setMode] = useState<'missions'|'review'>('missions');
   const [command,setCommand] = useState('');
   const [feedback,setFeedback] = useState('');
+  const [packetExpanded,setPacketExpanded] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const mission = missions[session.missionIndex];
@@ -129,6 +131,10 @@ export default function App() {
   const coach = lastResult ? explainError(lastResult) : null;
   const shownHints = review ? review.hints : stats.hints;
   const hints = reviewCase ? reviewCase.hints : mission.hints;
+  const networkingMission = ['gateway-repair','dns-repair','packet-layers'].includes(mission.id);
+  const networkingReview = !!review && ['routes','dns','tcp-path'].includes(review.skill);
+  const showPacket = mode === 'missions' ? networkingMission : networkingReview;
+  const packetNetwork = review ? review.state.network : session.state.network;
 
   useEffect(() => {
     try { localStorage.setItem(STORAGE,JSON.stringify(session)); } catch { /* private storage or quota */ }
@@ -163,7 +169,7 @@ export default function App() {
     if (index > unlocked || index >= missions.length) return;
     setSession(old => ({...old,missionIndex:index,events:[],
       lines:[{output:'Misja: ' + missions[index].title + '. Wpisz help, jesli potrzebujesz listy komend.',ok:true}]}));
-    setMode('missions'); setCommand(''); setFeedback('');
+    setMode('missions'); setCommand(''); setFeedback(''); setPacketExpanded(false);
   }
 
   function startReview(skill:ReviewSkill) {
@@ -172,7 +178,7 @@ export default function App() {
       ...old,reviewAttempt:old.reviewAttempt?.skill === skill && !old.reviewAttempt.completed
         ? old.reviewAttempt : createReviewAttempt(skill,old.reviewHistory)
     }));
-    setMode('review'); setCommand(''); setFeedback('');
+    setMode('review'); setCommand(''); setFeedback(''); setPacketExpanded(false);
   }
 
   function reveal() {
@@ -188,15 +194,30 @@ export default function App() {
       : {...old,learning:markHelp(old.learning,missions[old.missionIndex].id)});
   }
 
+  function togglePacket() {
+    if (!packetExpanded) {
+      // Revealing detailed diagnosis is educational assistance, not a free first-solve shortcut.
+      setSession(old => {
+        if (mode === 'review') {
+          return old.reviewAttempt && !old.reviewAttempt.completed
+            ? {...old,reviewAttempt:markReviewHelp(old.reviewAttempt)} : old;
+        }
+        return old.completed.includes(old.missionIndex)
+          ? old : {...old,learning:markHelp(old.learning,missions[old.missionIndex].id)};
+      });
+    }
+    setPacketExpanded(!packetExpanded);
+  }
+
   function reset() {
     if (!window.confirm('Zresetować wszystkie misje, powtórki i zapisany postęp?')) return;
-    setSession(blankSession()); setMode('missions'); setCommand(''); setFeedback('');
+    setSession(blankSession()); setMode('missions'); setCommand(''); setFeedback(''); setPacketExpanded(false);
   }
 
   return <div className="app-shell">
     <header className="topbar">
       <div className="brand-mark" aria-hidden="true">&gt;_</div>
-      <div><strong>CTF MASTER</strong><span>Linux Networking / MVP 0.8</span></div>
+      <div><strong>CTF MASTER</strong><span>Linux Networking / MVP 0.9</span></div>
       <span className="offline-tag">LOCAL SIM</span>
     </header>
     <main>
@@ -207,9 +228,9 @@ export default function App() {
       </section>
       <nav className="mode-switch" aria-label="Tryby nauki">
         <button className={mode === 'missions' ? 'active' : ''} aria-pressed={mode === 'missions'}
-          onClick={() => {setMode('missions');setCommand('');setFeedback('');}}>Misje</button>
+          onClick={() => {setMode('missions');setCommand('');setFeedback('');setPacketExpanded(false);}}>Misje</button>
         <button className={mode === 'review' ? 'active' : ''} aria-pressed={mode === 'review'}
-          onClick={() => {setMode('review');setCommand('');setFeedback('');}}>Powtórki</button>
+          onClick={() => {setMode('review');setCommand('');setFeedback('');setPacketExpanded(false);}}>Powtórki</button>
       </nav>
 
       {mode === 'missions' ? <>
@@ -268,12 +289,16 @@ export default function App() {
               {' '}Wynik umiejętności: {session.reviewHistory[review.skill]?.streak ?? 0}/2.</span>
             <button onClick={() => startReview(review.skill)}>Następny wariant →</button>
           </div>}
-          {!review.completed && <button className="text-button" onClick={() => setSession(old => ({
-            ...old,reviewAttempt:old.reviewAttempt ? createReviewAttempt(old.reviewAttempt.skill,old.reviewHistory) : null
-          }))}>Zacznij bieżący wariant od nowa</button>}
+          {!review.completed && <button className="text-button" onClick={() => {
+            setPacketExpanded(false);
+            setSession(old => ({
+              ...old,reviewAttempt:old.reviewAttempt ? createReviewAttempt(old.reviewAttempt.skill,old.reviewHistory) : null
+            }));
+          }}>Zacznij bieżący wariant od nowa</button>}
         </section>}
       </>}
 
+      {showPacket && <PacketPath network={packetNetwork} expanded={packetExpanded} onToggle={togglePacket}/>}
       {(mode === 'missions' || review) && <>
         <section className="terminal" aria-label="Symulowany terminal">
           <div className="terminal-bar"><div className="dots"><i/><i/><i/></div>

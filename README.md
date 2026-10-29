@@ -11,9 +11,9 @@ npm run dev
 
 W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefonie otworz adres podgladu; mozna zainstalowac aplikacje jako PWA. Build produkcyjny: `npm run build`. Testy symulatora: `npm test` (Node.js 22+).
 
-## Co dziala w MVP 0.8
+## Co dziala w MVP 0.9
 
-- 16 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP.
+- 16 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
 - Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `chmod`, `stat`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
 - Walidacja efektu zadania, nie porownywanie odpowiedzi 1:1.
@@ -75,3 +75,11 @@ Nowe polecenia: `resolvectl dns eth0 [IP]` (odczyt lub zmiana resolvera), `nsloo
 Nowe laboratoria: naprawa DNS oraz odroznienie lacznosci ICMP od otwartego portu TCP. Dwa nowe obszary powtorek (4 warianty), ktore wykorzystuja rozne fikcyjne domeny `.test`, adresy routerow, serwerow DNS i porty.
 
 Symulacja nie wykonuje zapytan DNS ani TCP w prawdziwej sieci, nie implementuje pelnego ARP, UDP, retransmisji, NAT, TLS ani TCP handshake w czasie rzeczywistym. Uzywa rezerwowanych adresow dokumentacyjnych. `ss` dotyczy fikcyjnych lokalnych uslug, podczas gdy `nc -z` sprawdza fikcyjne porty zdalnego hosta. Postep jest przechowywany lokalnie i przenoszony ze starszych wersji.
+
+## Wizualizacja drogi pakietu (MVP 0.9)
+
+W zadaniach dotyczacych routingu, DNS i TCP (oraz odpowiednich powtorkach) dostepny jest responsywny schemat **komputer → przelacznik → router → serwer**. Schemat jest pogladowy, a rozbudowana analiza bierze aktualne dane z wirtualnego systemu: adres IPv4/prefiks, brame, stan eth0, skonfigurowany DNS, tablice ARP oraz port zdalnego serwera.
+
+Przycisk **Pokaż analizę (pomoc)** odkrywa etapy rozumowania i miejsce, w ktorym polaczenie sie zatrzymuje. W nieukonczonej misji lub powtorce odkrycie analizy jest traktowane jak skorzystanie z podpowiedzi (wynik pierwszego samodzielnego zaliczenia nie jest przyznawany). Panel domyslnie jest zwiniety i nie zmienia stanu sieci. Zmiany wykonuje sie wylacznie komendami terminala; schemat od razu odswieza sie po takim poleceniu.
+
+W analizie mozna przejsc miedzy hostem podanym jako IPv4 lub domena oraz porownywac porty TCP. Podane etapy to **kolejnosc diagnostyczna**, nie zapis rzeczywistej kolejnosci pakietow. Przelacznik jest elementem pogladowym (brak jeszcze implementacji VLAN, ARP po stronie switcha, fizycznych portow ani tablicy MAC). Model nie wysyla zadnych prawdziwych pakietow i nie tworzy ruchu sieciowego. Test interfejsu na telefonie pozostaje do wykonania.

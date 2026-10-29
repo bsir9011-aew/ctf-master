@@ -24,3 +24,54 @@
 .review-choice span{font-size:12px;color:#c2d1de}
 .review-choice:hover{border-color:#b4e6ff}
 @media(max-width:530px){.review-hub{padding:15px}.review-grid{grid-template-columns:1fr}.review-choice{min-height:88px}}
+
+
+/* Packet path inspector: responsive, keyboard accessible and read-only. */
+.packet-panel{padding:19px;background:#111e2a;border:1px solid #385164;border-radius:17px;min-width:0}
+.packet-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.packet-heading h3{font-size:18px;line-height:1.3;margin:0 0 7px;color:#ecf5fa}
+.packet-heading p:not(.eyebrow){color:#9bb1c2;font-size:12px;margin:0;line-height:1.5}
+.packet-reveal{border:1px solid #567e70;background:#1d4037;color:#baf4d4;border-radius:9px;padding:11px 13px;font-size:12px;font-weight:700;min-height:40px}
+.packet-reveal:focus-visible,.packet-controls button:focus-visible,.packet-controls select:focus-visible{outline:3px solid #8de8b7;outline-offset:2px}
+.packet-flow{display:flex;align-items:stretch;gap:4px;margin:19px 0 2px}
+.packet-flow-item{flex:1;min-width:0;display:flex;align-items:center;gap:5px}
+.packet-flow-item:last-child{flex:none;width:22%}
+.packet-node{position:relative;flex:1;min-width:0;min-height:79px;border:1px solid #35536a;background:#182b37;border-radius:11px;padding:11px 9px;display:flex;flex-direction:column;gap:6px;justify-content:center}
+.packet-node-blocked{border-color:#e4a777;background:#392c29}
+.packet-node-index{color:#91bbaa;font-size:10px;font-weight:800}
+.packet-node strong{font-size:12px;white-space:normal}
+.packet-node code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#b3f0d1;font-size:11px;overflow-wrap:anywhere}
+.packet-node small{font-size:10px;color:#acc0ce;line-height:1.4;overflow-wrap:anywhere}
+.packet-arrow{flex:none;color:#87cfaa;font-weight:900;font-size:18px}
+.packet-detail{border-top:1px solid #324b5c;margin-top:18px;padding-top:16px}
+.packet-controls{display:flex;align-items:end;gap:13px;flex-wrap:wrap}
+.packet-controls fieldset{border:0;padding:0;margin:0;display:flex;align-items:center;gap:6px}
+.packet-controls legend,.packet-controls label{font-size:11px;color:#b6cddd;font-weight:700}
+.packet-controls fieldset button{border:1px solid #506274;background:#192d3c;color:#ccdce7;padding:9px 11px;border-radius:8px;margin-top:6px;font-size:12px}
+.packet-controls fieldset button.selected{background:#255540;border-color:#75cea1;color:#ddffe8}
+.packet-controls label{display:flex;flex-direction:column;gap:6px}
+.packet-controls select{border:1px solid #506274;background:#192d3c;color:#e7f0f7;padding:9px;border-radius:8px;font-size:12px;max-width:100%}
+.packet-target{color:#bbd2e2;font-size:12px;overflow-wrap:anywhere}
+.packet-conclusion{margin:14px 0;padding:11px 13px;border-radius:8px;font-size:13px;font-weight:700;line-height:1.5}
+.packet-conclusion.packet-bad{background:#342a29;color:#f4c8a0;border:1px solid #72564b}
+.packet-conclusion.packet-good{background:#1a382f;color:#b1f4ce;border:1px solid #437c5f}
+.packet-stages{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.packet-stage{border:1px solid #3c5262;border-left:4px solid #5a7182;border-radius:10px;background:#152734;padding:12px;min-width:0}
+.packet-stage.packet-ok{border-left-color:#80d9a9}
+.packet-stage.packet-blocked{border-left-color:#efae78;background:#2d292c}
+.packet-stage.packet-waiting{border-left-color:#7badcc}
+.packet-stage>div{display:flex;align-items:start;justify-content:space-between;gap:8px}
+.packet-stage strong{font-size:12px;color:#e5f0f8}
+.packet-stage span{font-size:10px;color:#bad2db;font-weight:800;white-space:nowrap}
+.packet-stage p{color:#b1c3d2;font-size:11px;line-height:1.55;margin:8px 0 0;overflow-wrap:anywhere}
+.packet-disclaimer{font-size:11px;color:#9bb1c2;line-height:1.6;margin:13px 0 0}
+@media(max-width:650px){
+ .packet-panel{padding:14px}
+ .packet-flow{flex-direction:column;gap:2px}
+ .packet-flow-item,.packet-flow-item:last-child{width:100%;flex:1;flex-direction:column;gap:2px}
+ .packet-node{width:100%;min-height:56px;align-items:center;text-align:center;padding:8px 10px}
+ .packet-node strong{font-size:13px}
+ .packet-arrow{transform:rotate(90deg);font-size:17px;line-height:22px}
+ .packet-stages{grid-template-columns:1fr}
+ .packet-heading .packet-reveal{width:100%}
+}

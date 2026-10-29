@@ -29,7 +29,8 @@
 - [x] Pierwsza diagnostyka awarii uslugi i procesow bez podanych komend
 - [x] Podstawy IP, prefiksu, bramy, ping, ss i diagnozy portow
 - [x] Pierwsze scenariusze DNS, ARP cache, diagnostyki TCP i trasy pakietu
-- [ ] VLAN, ACL i wizualna analiza pakietow oraz pelniejsza symulacja TCP
+- [x] Responsywny widok drogi pakietu oraz etapow diagnostyki oparty na stanie symulatora
+- [ ] VLAN, ACL, tablica MAC przelacznika i pelniejsza symulacja TCP
 - [ ] Zaawansowane scenariusze przyczynowe
 
 ## Etap 2 - CTF Rookie
