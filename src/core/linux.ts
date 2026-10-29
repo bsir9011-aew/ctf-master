@@ -174,13 +174,7 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
       if (pattern !== null && pattern.length > 128) return done('find: wzorzec jest za dlugi', false);
       const root = argPath(from);
       if (!exists(root)) return done('find: sciezka nie istnieje', false);
-      const glob = pattern === null ? null : new RegExp('^' + pattern.split('').map(ch => ch === '*' ? '.*' : ch === '?' ? '.' : ch.replace(/[.*+?^${}()|[\]\\]/g, '\\    default:
-      return done(`${cmd}: command not found (symulator obsluguje ograniczony zestaw polecen)`, false);')).join('') + '
-  }
-}
-
-export const simulatedFlag = FLAG;
-);
+      const glob = pattern === null ? null : new RegExp('^' + pattern.split('').map(ch => ch === '*' ? '.*' : ch === '?' ? '.' : ch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('') + '$');
       const paths = [...state.dirs, ...Object.keys(state.files)]
         .filter(path => path === root || path.startsWith(root === '/' ? '/' : root + '/'))
         .filter(path => !glob || glob.test(base(path))).sort();
