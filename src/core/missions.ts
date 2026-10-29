@@ -1,4 +1,5 @@
 import type { CommandResult, LinuxState } from './linux';
+import { modeOf } from './permissions.ts';
 
 export interface Mission {
   id: string;
@@ -72,5 +73,20 @@ export const missions: Mission[] = [
       Object.hasOwn(state.files, '/var/log/app.log') &&
       Object.hasOwn(state.files, '/home/player/documents/app-evidence.log') &&
       state.files['/home/player/documents/app-evidence.log'] === state.files['/var/log/app.log']
+  },
+  {
+    id: 'file-hardening', title: 'Sekret na widoku', category: 'Linux Administrator',
+    briefing: 'Plik ~/documents/credentials.txt zawiera testowy sekret i ma zbyt szerokie uprawnienia. Ustaw go tak, aby tylko wlasciciel mogl czytac i modyfikowac plik (bez prawa wykonania).',
+    hints: ['Uprawnienia sa podzielone na wlasciciela, grupe i pozostalych.', 'W stat sprawdzisz biezace uprawnienia; chmod je zmienia.', 'Wymagany tryb to 600, np. chmod 600 ~/documents/credentials.txt.'],
+    success: (state) => Object.hasOwn(state.files, '/home/player/documents/credentials.txt') &&
+      modeOf(state, '/home/player/documents/credentials.txt') === 0o600
+  },
+  {
+    id: 'permission-recovery', title: 'Permission denied', category: 'Linux Administrator',
+    briefing: 'Nie mozesz odczytac ~/documents/restricted.log. Ustal przyczyne, przywroc prawo odczytu wlascicielowi i odczytaj wpis RECOVERY. Nie otwieraj dostepu calej reszcie uzytkownikow.',
+    hints: ['Komunikat Permission denied moze wskazywac na uprawnienia pliku.', 'Sprawdz stat, a potem wykorzystaj chmod, aby zmienic tylko prawa wlasciciela.', 'chmod u+r ~/documents/restricted.log, a nastepnie cat ~/documents/restricted.log.'],
+    success: (state, events) => modeOf(state, '/home/player/documents/restricted.log') === 0o400 &&
+      events.some(e => e.ok && e.command === 'cat' && e.target === '/home/player/documents/restricted.log' &&
+        e.output.includes('RECOVERY'))
   }
 ];
