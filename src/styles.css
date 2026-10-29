@@ -6,3 +6,21 @@
 .coach-panel p{font-size:13px;line-height:1.65;color:#b8c8d8;margin:7px 0 0}
 .learning-stats{display:flex;flex-wrap:wrap;gap:7px;margin-top:15px}
 .learning-stats span{border:1px solid #334858;border-radius:99px;padding:5px 9px;color:#b9cadd;font-size:11px}
+
+/* Training & Review: touch-friendly choices, separate from the original missions. */
+.mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:5px;background:#111e28;border:1px solid #294051;border-radius:13px}
+.mode-switch button{background:transparent;color:#b6c6d4;border:0;border-radius:9px;padding:12px 10px;font-size:14px;font-weight:700;cursor:pointer}
+.mode-switch button.active{background:#204537;color:#b8f4d2}
+.mode-switch button:focus-visible,.review-choice:focus-visible{outline:3px solid #9ef0ce;outline-offset:3px}
+.review-hub{padding:19px;background:#121f2a;border:1px solid #314658;border-radius:14px}
+.review-hub h2{font-size:21px;margin:4px 0 8px;color:#f3f7fb}
+.review-hub>p{font-size:13px;line-height:1.65;color:#b4c8d8}
+.review-empty{background:#223341;padding:12px;border-radius:9px}
+.review-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:10px;margin-top:15px}
+.review-choice{border:1px solid #35526a;background:#182b37;border-radius:12px;padding:15px;min-height:116px;display:flex;flex-direction:column;gap:8px;text-align:left;cursor:pointer;color:#eff7ff}
+.review-choice.selected{border-color:#9ce8c7;background:#1d3d34}
+.review-choice strong{font-size:14px}
+.review-choice small{font-size:12px;color:#a7d8c4}
+.review-choice span{font-size:12px;color:#c2d1de}
+.review-choice:hover{border-color:#b4e6ff}
+@media(max-width:530px){.review-hub{padding:15px}.review-grid{grid-template-columns:1fr}.review-choice{min-height:88px}}
