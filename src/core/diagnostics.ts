@@ -1,5 +1,5 @@
 import type { CommandResult, LinuxState } from './linux.ts';
-import { ipv4Number, sameSubnet, healthyGateway, type NetworkState } from './network.ts';
+import { ipv4Number, sameSubnet, healthyGateway, initialNetwork, type NetworkState } from './network.ts';
 
 /** All addresses, hostnames, ports, and MACs below are fictional lab fixtures. */
 const DEFAULT_NAME = 'lab.ctf.test';
@@ -29,7 +29,7 @@ export function arpAfterGateway(net:NetworkState):NetworkState {
 }
 
 export function executeDiagnosticCommand(state:LinuxState,cmd:string,args:string[]):CommandResult {
-  const net=state.network!;
+  const net=state.network ?? initialNetwork();
   const done=(output:string,ok=true,next=state,target?:string):CommandResult =>
     ({state:next,output,ok,command:cmd,target});
   const learn=():LinuxState=>({...state,network:arpAfterGateway(net)});
