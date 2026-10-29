@@ -18,13 +18,15 @@ export const initialProcesses = (): SimProcess[] => [
   {pid:214, name:'sshd', running:true, service:'sshd'},
   {pid:331, name:'webd', running:false, service:'web'},
   {pid:350, name:'queue-worker', running:true, service:'queue'},
+  {pid:366, name:'api-worker', running:false, service:'api'},
   {pid:424, name:'cpu-burn', running:true}
 ];
 
 export const initialServices = (): Record<string,SimService> => ({
   sshd:{status:'active',pid:214,journal:['08:00 sshd: Listening for connections']},
   web:{status:'failed',pid:331,journal:['08:10 web: started','08:11 web: transient worker crash (exit 1)','08:11 systemd: web.service failed']},
-  queue:{status:'active',pid:350,journal:['08:05 queue: ready']}
+  queue:{status:'active',pid:350,journal:['08:05 queue: ready']},
+  api:{status:'failed',pid:366,journal:['08:15 api: startup failed (exit 1)','08:15 systemd: api.service failed']}
 });
 
 export function serviceName(raw: string): string {
