@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { executeLinux, initialLinux } from '../src/core/linux.ts';
 import { missions } from '../src/core/missions.ts';
-import { explainError, restoreLearning, revealHint, trackCommand } from '../src/core/learning.ts';
+import { explainError, markHelp, restoreLearning, revealHint, trackCommand } from '../src/core/learning.ts';
 
 const id = 'transfer-investigation';
 
@@ -36,6 +36,13 @@ test('help counts as assistance but not a mission command', () => {
   assert.equal(afterHelp[id].usedHelp, true);
   const good = executeLinux(initialLinux(), 'pwd');
   assert.equal(trackCommand(afterHelp, id, good, true)[id].independent, false);
+});
+
+test('opening help by UI also cancels a first-solve independence badge', () => {
+  const withHelp = markHelp({}, id);
+  assert.equal(withHelp[id].usedHelp, true);
+  const result = trackCommand(withHelp, id, executeLinux(initialLinux(), 'pwd'), true);
+  assert.equal(result[id].independent, false);
 });
 
 test('hints are capped and preserved alongside command counters', () => {
