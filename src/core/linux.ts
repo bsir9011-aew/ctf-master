@@ -19,12 +19,16 @@ const FLAG = 'CTF{look_beyond_the_obvious}';
 
 export const initialLinux = (): LinuxState => ({
   cwd: HOME,
-  dirs: ['/', '/home', HOME, `${HOME}/documents`, `${HOME}/downloads`, `${HOME}/.vault`, '/var', '/var/log'],
+  dirs: ['/', '/home', HOME, `${HOME}/documents`, `${HOME}/downloads`, `${HOME}/documents/cases`, `${HOME}/.vault`, '/var', '/var/log'],
   files: {
     [`${HOME}/notes.txt`]: 'Notatka: czasem warto zajrzec tam, gdzie zwykle nie patrzysz.',
     [`${HOME}/documents/readme.txt`]: 'Laboratorium treningowe CTF Master.',
     [`${HOME}/.vault/flag.txt`]: FLAG,
-    '/var/log/system.log': '2026-10-29 INFO lab: simulated system started'
+    '/var/log/system.log': '2026-10-29 INFO lab: simulated system started',
+    '/var/log/auth.log': '2026-10-29 08:00 INFO sshd accepted session\n2026-10-29 08:04 DENIED sshd failed login for root\n2026-10-29 08:05 INFO sshd session closed',
+    [`${HOME}/documents/cases/evidence-47.txt`]: 'Case 47: unexpected connection discovered in auth.log',
+    [`${HOME}/downloads/incident.tmp`]: 'incident-47: save this evidence before cleanup',
+    [`${HOME}/downloads/stale.tmp`]: 'old cache - no evidence'
   }
 });
 
@@ -69,7 +73,7 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
 
   switch (cmd) {
     case 'help':
-      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, whoami, clear, help');
+      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], whoami, clear, help. Brak potokow i przekierowan.');
     case 'whoami':
       return args.length ? done('whoami: nieoczekiwany argument', false) : done('player');
     case 'pwd':
@@ -125,6 +129,62 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
       if (state.dirs.includes(path)) return done(`touch: ${args[0]}: Is a directory`, false);
       if (!state.dirs.includes(parent(path))) return done(`touch: ${args[0]}: No such parent directory`, false);
       return done('', true, {...state, files:{...state.files, [path]:state.files[path] ?? ''}}, path);
+    }
+    case 'cp':
+    case 'mv': {
+      if (args.length !== 2 || args.some(a => a.startsWith('-'))) return done(`Uzycie: ${cmd} PLIK CEL (bez opcji)`, false);
+      const src = argPath(args[0]);
+      if (!Object.hasOwn(state.files, src)) return done(`${cmd}: zrodlo nie jest plikiem lub nie istnieje`, false);
+      const requestedDst = argPath(args[1]);
+      const dst = state.dirs.includes(requestedDst) ? resolvePath(requestedDst, base(src)) : requestedDst;
+      if (!state.dirs.includes(parent(dst))) return done(`${cmd}: katalog docelowy nie istnieje`, false);
+      if (state.dirs.includes(dst)) return done(`${cmd}: cel jest katalogiem`, false);
+      if (src === dst) return done(`${cmd}: zrodlo i cel sa identyczne`, false);
+      const files = {...state.files, [dst]: state.files[src]};
+      if (cmd === 'mv') delete files[src];
+      return done('', true, {...state, files}, dst);
+    }
+    case 'rm': {
+      if (args.length !== 1 || args[0].startsWith('-')) return done('Uzycie: rm PLIK (bez opcji, bez katalogow)', false);
+      const path = argPath(args[0]);
+      if (!Object.hasOwn(state.files, path)) return done('rm: plik nie istnieje (katalogi nie sa obslugiwane)', false);
+      const files = {...state.files};
+      delete files[path];
+      return done('', true, {...state, files}, path);
+    }
+    case 'grep': {
+      const rest = [...args];
+      let insensitive = false;
+      if (rest[0] === '-i') { insensitive = true; rest.shift(); }
+      if (rest.length !== 2 || rest.some(a => !a || a.startsWith('-'))) return done('Uzycie: grep [-i] TEKST PLIK (szuka doslownego tekstu)', false);
+      const path = argPath(rest[1]);
+      if (!Object.hasOwn(state.files, path)) return done('grep: plik nie istnieje', false);
+      const needle = insensitive ? rest[0].toLowerCase() : rest[0];
+      const matches = state.files[path].split('\n').filter(line => (insensitive ? line.toLowerCase() : line).includes(needle));
+      if (!matches.length) return done('(brak dopasowan)', false, state, path);
+      return done(matches.join('\n'), true, state, path);
+    }
+    case 'find': {
+      let from = '.';
+      let pattern: string | null = null;
+      if (args.length && args[0] !== '-name') from = args[0];
+      const rest = args.slice(from === '.' ? 0 : 1);
+      if (rest.length === 2 && rest[0] === '-name') pattern = rest[1];
+      else if (rest.length !== 0) return done('Uzycie: find [KATALOG] [-name WZORZEC]', false);
+      if (pattern !== null && pattern.length > 128) return done('find: wzorzec jest za dlugi', false);
+      const root = argPath(from);
+      if (!exists(root)) return done('find: sciezka nie istnieje', false);
+      const glob = pattern === null ? null : new RegExp('^' + pattern.split('').map(ch => ch === '*' ? '.*' : ch === '?' ? '.' : ch.replace(/[.*+?^${}()|[\]\\]/g, '\\    default:
+      return done(`${cmd}: command not found (symulator obsluguje ograniczony zestaw polecen)`, false);')).join('') + '
+  }
+}
+
+export const simulatedFlag = FLAG;
+);
+      const paths = [...state.dirs, ...Object.keys(state.files)]
+        .filter(path => path === root || path.startsWith(root === '/' ? '/' : root + '/'))
+        .filter(path => !glob || glob.test(base(path))).sort();
+      return done(paths.join('\n') || '(brak wynikow)', true, state, root);
     }
     default:
       return done(`${cmd}: command not found (symulator obsluguje ograniczony zestaw polecen)`, false);

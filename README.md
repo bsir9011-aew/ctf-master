@@ -9,15 +9,15 @@ npm install
 npm run dev
 ```
 
-W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefonie otworz adres podgladu; mozna zainstalowac aplikacje jako PWA. Build produkcyjny: `npm run build`.
+W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefonie otworz adres podgladu; mozna zainstalowac aplikacje jako PWA. Build produkcyjny: `npm run build`. Testy symulatora: `npm test` (Node.js 22+).
 
-## Co dziala w MVP 0.1
+## Co dziala w MVP 0.2
 
-- 3 misje: poznanie katalogu, tworzenie warsztatu, ukryta flaga.
-- Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `whoami`, `help`, `clear`.
+- 7 misji: 3 podstawowe i 4 dotyczace logow, szukania dowodow oraz operacji na plikach.
+- Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `whoami`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
 - Walidacja efektu zadania, nie porownywanie odpowiedzi 1:1.
-- Podpowiedzi 3 poziomow i zapis sesji w `localStorage`.
+- Podpowiedzi 3 poziomow i zapis sesji w `localStorage` (migracja sesji z MVP 0.1).
 - PWA: manifest, ikony, service worker dla wersji produkcyjnej.
 
 **Bezpieczenstwo:** Polecenia nie sa wykonywane na urzadzeniu, w kontenerze ani na serwerze. Parser obsluguje tylko jawnie dozwolone komendy symulacji. To nie jest prawdziwy Bash.
@@ -33,7 +33,7 @@ public/sw.js                tryb offline dla zbudowanej aplikacji
 
 ## Plan
 
-Zobacz [docs/ROADMAP.md](docs/ROADMAP.md). Przyszle etapy: bogatszy parser, drag & drop, uprawnienia, procesy, logi, sieci, Web/Forensics/OSINT/Reverse/Pwn. Nie wykonujemy prawdziwych polecen uzytkownika na backendzie.
+Zobacz [docs/ROADMAP.md](docs/ROADMAP.md). Przyszle etapy: bogatszy parser, drag & drop, uprawnienia, procesy, sieci, Web/Forensics/OSINT/Reverse/Pwn. `grep` szuka doslownego tekstu; `find` obsluguje jedynie `-name` z `*` i `?`; `rm` usuwa tylko pliki. Nie ma jeszcze potokow ani przekierowan. Nie wykonujemy prawdziwych polecen uzytkownika na backendzie.
 
 ## Status
 
