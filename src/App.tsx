@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { executeLinux, initialLinux, type CommandResult, type LinuxState } from './core/linux';
 import { missions } from './core/missions';
-import { explainError, revealHint, restoreLearning, trackCommand, type LearningMap } from './core/learning';
+import { explainError, markHelp, revealHint, restoreLearning, trackCommand, type LearningMap } from './core/learning';
 
 interface Line { input?: string; output: string; ok: boolean }
 interface SavedSession { missionIndex: number; state: LinuxState; events: CommandResult[]; completed: number[]; lines: Line[]; learning: LearningMap }
@@ -103,7 +103,7 @@ export default function App() {
       {coach && <section className="coach-panel" role="status" aria-live="polite">
         <strong>{coach.title}</strong><p>{coach.guidance}</p>
       </section>}
-      <section className="help-panel"><div className="help-top"><div><p className="eyebrow">GDY UTKNIESZ</p><h3>Podpowiedzi krok po kroku</h3></div><button className="secondary" onClick={()=>setSession(old=>({...old,learning:revealHint(old.learning,missions[old.missionIndex].id)}))} disabled={shownHints===3}>{shownHints===3?'Wszystkie odkryte':`Odkryj ${shownHints+1}/3`}</button></div>{shownHints===0 ? <p>Najpierw spróbuj sam. Podpowiedzi nie są obowiązkowe.</p> : <ol>{active.hints.slice(0,shownHints).map((h,i)=><li key={i}>{h}</li>)}</ol>}<div className="help-actions"><button className="text-button" onClick={()=>{setFeedback('Wpisz help w terminalu, aby zobaczyć obsługiwane polecenia.')}}>Jakie komendy są dostępne?</button><button className="text-button danger" onClick={reset}>Reset postępu</button></div>{feedback && <p className="hint-feedback">{feedback}</p>}</section>
+      <section className="help-panel"><div className="help-top"><div><p className="eyebrow">GDY UTKNIESZ</p><h3>Podpowiedzi krok po kroku</h3></div><button className="secondary" onClick={()=>setSession(old=>({...old,learning:revealHint(old.learning,missions[old.missionIndex].id)}))} disabled={shownHints===3}>{shownHints===3?'Wszystkie odkryte':`Odkryj ${shownHints+1}/3`}</button></div>{shownHints===0 ? <p>Najpierw spróbuj sam. Podpowiedzi nie są obowiązkowe.</p> : <ol>{active.hints.slice(0,shownHints).map((h,i)=><li key={i}>{h}</li>)}</ol>}<div className="help-actions"><button className="text-button" onClick={()=>{setFeedback('Wpisz help w terminalu, aby zobaczyć obsługiwane polecenia.'); setSession(old=>({...old,learning:markHelp(old.learning,missions[old.missionIndex].id)}));}}>Jakie komendy są dostępne?</button><button className="text-button danger" onClick={reset}>Reset postępu</button></div>{feedback && <p className="hint-feedback">{feedback}</p>}</section>
       <p className="safety-note">To bezpieczny symulator w przeglądarce. Polecenia nie wykonują się w prawdziwym systemie ani na serwerze.</p>
     </main>
   </div>;
