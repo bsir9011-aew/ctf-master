@@ -3,6 +3,7 @@ import { executeLinux, initialLinux, type CommandResult, type LinuxState } from 
 import { missions } from './core/missions';
 import PacketPath from './components/PacketPath';
 import CurriculumMap from './components/CurriculumMap';
+import CommandAcademy from './components/CommandAcademy';
 import { moveHistoryCursor, rememberCommand } from './core/commandHistory';
 import { explainError, markHelp, revealHint, restoreLearning, trackCommand, type LearningMap } from './core/learning';
 import {
@@ -113,7 +114,7 @@ function restore(): SavedSession {
 
 export default function App() {
   const [session,setSession] = useState<SavedSession>(restore);
-  const [mode,setMode] = useState<'missions'|'review'>('missions');
+  const [mode,setMode] = useState<'commands'|'missions'|'review'>('commands');
   const [command,setCommand] = useState('');
   const [feedback,setFeedback] = useState('');
   const [packetExpanded,setPacketExpanded] = useState(false);
@@ -244,7 +245,7 @@ export default function App() {
   return <div className="app-shell">
     <header className="topbar">
       <div className="brand-mark" aria-hidden="true">&gt;_</div>
-      <div><strong>CTF MASTER</strong><span>CTF Master / MVP 1.0</span></div>
+      <div><strong>CTF MASTER</strong><span>CTF Master / 1.0 RC.3</span></div>
       <span className="offline-tag">LOCAL SIM</span>
     </header>
     <main>
@@ -254,12 +255,15 @@ export default function App() {
         <p>To nie quiz z odpowiedziami. Twoje polecenia zmieniają wirtualny system.</p>
       </section>
       <nav className="mode-switch" aria-label="Tryby nauki">
+        <button className={mode === 'commands' ? 'active' : ''} aria-pressed={mode === 'commands'}
+          onClick={() => {setMode('commands');setCommand('');setFeedback('');setPacketExpanded(false);setHistoryCursor(null);}}>Komendy</button>
         <button className={mode === 'missions' ? 'active' : ''} aria-pressed={mode === 'missions'}
           onClick={() => {setMode('missions');setCommand('');setFeedback('');setPacketExpanded(false);setHistoryCursor(null);}}>Misje</button>
         <button className={mode === 'review' ? 'active' : ''} aria-pressed={mode === 'review'}
           onClick={() => {setMode('review');setCommand('');setFeedback('');setPacketExpanded(false);setHistoryCursor(null);}}>Powtórki</button>
       </nav>
 
+      {mode === 'commands' && <CommandAcademy/>}
       {mode === 'missions' ? <>
         <CurriculumMap completed={session.completed} highestUnlocked={unlocked}
           activeIndex={session.missionIndex} onSelectMission={selectMission}/>
@@ -297,7 +301,7 @@ export default function App() {
               : <span> Pierwszy etap zakończony.</span>}
           </div>}
         </section>
-      </> : <>
+      </> : mode === 'review' ? <>
         <section className="review-hub">
           <p className="eyebrow">POWTÓRKI W NOWYM ŚRODOWISKU</p>
           <h2>Ćwicz to, co sprawia trudność.</h2>
