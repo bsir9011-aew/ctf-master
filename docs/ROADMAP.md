@@ -14,6 +14,8 @@
 - [x] Zapis postepu
 - [ ] Parser: cytowanie, potoki, przekierowania, status wyjscia
 - [ ] Drag and drop polecen oraz warianty scenariuszy
+- [x] Kontekstowy feedback i zapisane statystyki pomocy
+- [x] Pierwsza misja transferowa
 - [ ] Powtorki bledow
 - [x] Testy logiki symulatora
 
