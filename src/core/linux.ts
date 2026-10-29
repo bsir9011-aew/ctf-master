@@ -26,6 +26,7 @@ export const initialLinux = (): LinuxState => ({
     [`${HOME}/.vault/flag.txt`]: FLAG,
     '/var/log/system.log': '2026-10-29 INFO lab: simulated system started',
     '/var/log/auth.log': '2026-10-29 08:00 INFO sshd accepted session\n2026-10-29 08:04 DENIED sshd failed login for root\n2026-10-29 08:05 INFO sshd session closed',
+    '/var/log/app.log': '2026-10-29 09:00 INFO service ready\n2026-10-29 09:12 ALERT anomalous access detected\n2026-10-29 09:13 INFO investigation queued',
     [`${HOME}/documents/cases/evidence-47.txt`]: 'Case 47: unexpected connection discovered in auth.log',
     [`${HOME}/downloads/incident.tmp`]: 'incident-47: save this evidence before cleanup',
     [`${HOME}/downloads/stale.tmp`]: 'old cache - no evidence'
