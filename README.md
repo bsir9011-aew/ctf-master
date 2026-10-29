@@ -11,16 +11,16 @@ npm run dev
 
 W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefonie otworz adres podgladu; mozna zainstalowac aplikacje jako PWA. Build produkcyjny: `npm run build`. Testy symulatora: `npm test` (Node.js 22+).
 
-## Co dziala w MVP 0.7
+## Co dziala w MVP 0.8
 
-- 14 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi oraz 2 scenariusze diagnostyki sieci.
-- Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `chmod`, `stat`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `whoami`, `help`, `clear`.
+- 16 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP.
+- Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `chmod`, `stat`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
 - Walidacja efektu zadania, nie porownywanie odpowiedzi 1:1.
 - Podpowiedzi 3 poziomow, kontekstowe komunikaty o bledach, licznik prob i punkt samodzielnego rozwiazania.
-- Tryb **Powtorki**: 8 umiejetnosci (logi, dowody, kopie, uprawnienia, procesy, uslugi, trasy IP, porty TCP), kazda z 2 wariantami, osobnym terminalem i lokalnym zapisem.
+- Tryb **Powtorki**: 10 umiejetnosci (w tym DNS i diagnostyka sciezki TCP), kazda z 2 wariantami, osobnym terminalem i lokalnym zapisem.
 - Umiejetnosc uznana za przećwiczona po 2 kolejnych samodzielnie wykonanych roznych wariantach (brak bledow, help i podpowiedzi).
-- Zapis sesji w `localStorage` z migracja danych z MVP 0.1-0.6 bez resetowania postepu.
+- Zapis sesji w `localStorage` z migracja danych z MVP 0.1-0.7 bez resetowania postepu.
 - PWA: manifest, ikony, service worker dla wersji produkcyjnej.
 
 **Bezpieczenstwo:** Polecenia nie sa wykonywane na urzadzeniu, w kontenerze ani na serwerze. Parser obsluguje tylko jawnie dozwolone komendy symulacji. To nie jest prawdziwy Bash.
@@ -67,3 +67,11 @@ Dodano w pelni wirtualne `ip addr show`, `ip addr replace IP/PREFIX dev eth0`, `
 Dwie nowe misje: naprawa bramy i diagnoza brakujacego portu 9000. Cztery powtorki celowane: zla brama, zla podsiec oraz dwa scenariusze rozrozniania ICMP/portow TCP.
 
 **Ograniczenia:** symulator nie wykonuje polaczen sieciowych, nie ma prawdziwych pakietow, routingu hosta, DNS, ARP, NAT, firewalli czy `nmap`. `ping` obsluguje jedynie adresy testowe z danego laboratorium i localhost. `ss` pokazuje tylko fikcyjne porty. Zakres polecen jest celowo waski i nie zastepuje terminala Linux.
+
+## Diagnostyka DNS / ARP / TCP (MVP 0.8)
+
+Nowe polecenia: `resolvectl dns eth0 [IP]` (odczyt lub zmiana resolvera), `nslookup NAZWA`, `ip neigh show`, `nc -z HOST PORT`, `trace HOST PORT`. `trace` pokazuje kolejne rozstrzygniecia: DNS → trasa → ARP nastepnego hopu → probe TCP. To **tekstowa symulacja**, a nie przechwytywanie pakietow.
+
+Nowe laboratoria: naprawa DNS oraz odroznienie lacznosci ICMP od otwartego portu TCP. Dwa nowe obszary powtorek (4 warianty), ktore wykorzystuja rozne fikcyjne domeny `.test`, adresy routerow, serwerow DNS i porty.
+
+Symulacja nie wykonuje zapytan DNS ani TCP w prawdziwej sieci, nie implementuje pelnego ARP, UDP, retransmisji, NAT, TLS ani TCP handshake w czasie rzeczywistym. Uzywa rezerwowanych adresow dokumentacyjnych. `ss` dotyczy fikcyjnych lokalnych uslug, podczas gdy `nc -z` sprawdza fikcyjne porty zdalnego hosta. Postep jest przechowywany lokalnie i przenoszony ze starszych wersji.
