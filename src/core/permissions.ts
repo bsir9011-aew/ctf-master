@@ -19,7 +19,7 @@ export function modeOctal(state: LinuxState, path: string): string {
 
 /** Deliberate subset: chmod 600 file, chmod u+r file, chmod go-rwx file. */
 export function nextMode(current: number, spec: string): number | null {
-  if (/^[0-7]{3}$/.test(spec)) return parseInt(spec, 8);
+  if (/^0?[0-7]{3}$/.test(spec)) return parseInt(spec, 8);
   const match = /^([ugoa]+)([+-])([rwx]+)$/.exec(spec);
   if (!match) return null;
   const [, classes, action, letters] = match;
