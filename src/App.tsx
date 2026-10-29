@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { executeLinux, initialLinux, type CommandResult, type LinuxState } from './core/linux';
 import { missions } from './core/missions';
 import PacketPath from './components/PacketPath';
+import { moveHistoryCursor, rememberCommand } from './core/commandHistory';
 import { explainError, markHelp, revealHint, restoreLearning, trackCommand, type LearningMap } from './core/learning';
 import {
   addReviewHint, availableReviews, createReviewAttempt, getReviewScenario, markReviewHelp,
@@ -115,7 +116,10 @@ export default function App() {
   const [command,setCommand] = useState('');
   const [feedback,setFeedback] = useState('');
   const [packetExpanded,setPacketExpanded] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const [commandHistory,setCommandHistory] = useState<string[]>([]);
+  const [historyCursor,setHistoryCursor] = useState<number|null>(null);
+  const commandDraft = useRef('');
+  const terminalOutputRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const mission = missions[session.missionIndex];
   const missionComplete = mission.success(session.state,session.events);
@@ -139,10 +143,17 @@ export default function App() {
   useEffect(() => {
     try { localStorage.setItem(STORAGE,JSON.stringify(session)); } catch { /* private storage or quota */ }
   },[session]);
-  useEffect(() => { bottomRef.current?.scrollIntoView({behavior:'smooth',block:'nearest'}); },[lines.length,mode]);
+  useEffect(() => {
+    // Scroll only the terminal pane. scrollIntoView moved the entire mobile page.
+    const output = terminalOutputRef.current;
+    if (output) output.scrollTop = output.scrollHeight;
+  },[lines.length,mode]);
 
   function run(raw:string) {
     if (!raw.trim() || (mode === 'review' && (!review || review.completed))) return;
+    setCommandHistory(old => rememberCommand(old,raw));
+    setHistoryCursor(null);
+    commandDraft.current = '';
     setFeedback('');
     setSession(old => {
       if (mode === 'review') {
@@ -165,11 +176,25 @@ export default function App() {
     inputRef.current?.focus();
   }
 
+  function recall(direction:'older'|'newer') {
+    if (historyCursor === null && direction === 'older') commandDraft.current = command;
+    const next = moveHistoryCursor(commandHistory.length, historyCursor, direction);
+    setHistoryCursor(next);
+    setCommand(next === null ? commandDraft.current : commandHistory[next]);
+    inputRef.current?.focus();
+  }
+
+  function changeCommand(value:string) {
+    setCommand(value);
+    setHistoryCursor(null);
+    commandDraft.current = value;
+  }
+
   function selectMission(index:number) {
     if (index > unlocked || index >= missions.length) return;
     setSession(old => ({...old,missionIndex:index,events:[],
       lines:[{output:'Misja: ' + missions[index].title + '. Wpisz help, jesli potrzebujesz listy komend.',ok:true}]}));
-    setMode('missions'); setCommand(''); setFeedback(''); setPacketExpanded(false);
+    setMode('missions'); setCommand(''); setFeedback(''); setPacketExpanded(false); setHistoryCursor(null);
   }
 
   function startReview(skill:ReviewSkill) {
@@ -178,7 +203,7 @@ export default function App() {
       ...old,reviewAttempt:old.reviewAttempt?.skill === skill && !old.reviewAttempt.completed
         ? old.reviewAttempt : createReviewAttempt(skill,old.reviewHistory)
     }));
-    setMode('review'); setCommand(''); setFeedback(''); setPacketExpanded(false);
+    setMode('review'); setCommand(''); setFeedback(''); setPacketExpanded(false); setHistoryCursor(null);
   }
 
   function reveal() {
@@ -212,12 +237,13 @@ export default function App() {
   function reset() {
     if (!window.confirm('Zresetować wszystkie misje, powtórki i zapisany postęp?')) return;
     setSession(blankSession()); setMode('missions'); setCommand(''); setFeedback(''); setPacketExpanded(false);
+    setCommandHistory([]); setHistoryCursor(null); commandDraft.current='';
   }
 
   return <div className="app-shell">
     <header className="topbar">
       <div className="brand-mark" aria-hidden="true">&gt;_</div>
-      <div><strong>CTF MASTER</strong><span>Linux Networking / MVP 0.9</span></div>
+      <div><strong>CTF MASTER</strong><span>CTF Master / MVP 1.0</span></div>
       <span className="offline-tag">LOCAL SIM</span>
     </header>
     <main>
@@ -228,9 +254,9 @@ export default function App() {
       </section>
       <nav className="mode-switch" aria-label="Tryby nauki">
         <button className={mode === 'missions' ? 'active' : ''} aria-pressed={mode === 'missions'}
-          onClick={() => {setMode('missions');setCommand('');setFeedback('');setPacketExpanded(false);}}>Misje</button>
+          onClick={() => {setMode('missions');setCommand('');setFeedback('');setPacketExpanded(false);setHistoryCursor(null);}}>Misje</button>
         <button className={mode === 'review' ? 'active' : ''} aria-pressed={mode === 'review'}
-          onClick={() => {setMode('review');setCommand('');setFeedback('');setPacketExpanded(false);}}>Powtórki</button>
+          onClick={() => {setMode('review');setCommand('');setFeedback('');setPacketExpanded(false);setHistoryCursor(null);}}>Powtórki</button>
       </nav>
 
       {mode === 'missions' ? <>
@@ -238,6 +264,14 @@ export default function App() {
           <div className="progress-heading"><strong>Linux Explorer → Investigator</strong>
             <span>{session.completed.length} / {missions.length} misji</span></div>
           <div className="progress-track"><div style={{width:String(session.completed.length / missions.length * 100) + '%'}} /></div>
+          <label className="mission-picker" htmlFor="mission-select">Wybierz misję
+            <select id="mission-select" value={session.missionIndex}
+              onChange={e=>selectMission(Number(e.target.value))}>
+              {missions.map((m,i)=><option value={i} key={m.id} disabled={i>unlocked}>
+                {session.completed.includes(i) ? '✓ ' : ''}{i+1}. {m.title}{i>unlocked?' — zablokowana':''}
+              </option>)}
+            </select>
+          </label>
           <div className="missions">{missions.map((m,i) =>
             <button key={m.id} className={'mission-tab ' + (i === session.missionIndex ? 'selected' : '')}
               onClick={() => selectMission(i)} disabled={i > unlocked}
@@ -304,22 +338,32 @@ export default function App() {
           <div className="terminal-bar"><div className="dots"><i/><i/><i/></div>
             <span>player@ctf-master: {cwd}</span><span className="terminal-label">SIMULATED</span>
           </div>
-          <div className="terminal-output" aria-live="polite">
+          <div className="terminal-output" ref={terminalOutputRef} role="log" aria-label="Wyniki terminala" aria-live="off">
             {lines.map((line,i) => <div key={i} className="terminal-line">
               {line.input && <div className="prompt">{line.input}</div>}
               {line.output && <pre className={line.ok ? '' : 'error'}>{line.output}</pre>}
             </div>)}
-            <div ref={bottomRef}/>
           </div>
           <form className="command-row" onSubmit={e => {e.preventDefault();run(command)}}>
             <label htmlFor="cmd">$</label>
-            <input ref={inputRef} id="cmd" value={command} onChange={e => setCommand(e.target.value)}
+            <input ref={inputRef} id="cmd" value={command} onChange={e => changeCommand(e.target.value)}
+              onKeyDown={e=>{if(e.key==='ArrowUp'){e.preventDefault();recall('older');}
+                else if(e.key==='ArrowDown'){e.preventDefault();recall('newer');}}}
               spellCheck={false} autoComplete="off" autoCapitalize="none" autoCorrect="off"
               disabled={mode === 'review' && !!review?.completed}
               placeholder="Wpisz polecenie..." aria-label="Polecenie Linux"/>
+            <button type="button" className="history-button" aria-label="Poprzednia komenda"
+              title="Historia: wstecz (strzałka w górę)" disabled={!commandHistory.length || (mode==='review'&&!!review?.completed)}
+              onClick={()=>recall('older')}>↑</button>
+            <button type="button" className="history-button" aria-label="Następna komenda"
+              title="Historia: dalej (strzałka w dół)" disabled={historyCursor===null || (mode==='review'&&!!review?.completed)}
+              onClick={()=>recall('newer')}>↓</button>
             <button type="submit" disabled={mode === 'review' && !!review?.completed}>Wykonaj ↵</button>
           </form>
         </section>
+        <div className="sr-only" role="status" aria-live="polite">
+          {lastResult ? (lastResult.ok ? 'Polecenie wykonane.' : 'Polecenie nie powiodło się.') + ' ' + lastResult.output : ''}
+        </div>
         {coach && <section className="coach-panel" role="status" aria-live="polite">
           <strong>{coach.title}</strong><p>{coach.guidance}</p>
         </section>}
