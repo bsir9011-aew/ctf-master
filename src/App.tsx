@@ -14,7 +14,8 @@ interface SavedSession {
   lines:Line[]; learning:LearningMap;
   reviewAttempt:ReviewAttempt | null; reviewHistory:ReviewHistory;
 }
-const STORAGE = 'ctf-master:mvp-05';
+const STORAGE = 'ctf-master:mvp-06';
+const V5 = 'ctf-master:mvp-05';
 const V4 = 'ctf-master:mvp-04';
 const V3 = 'ctf-master:mvp-03';
 const V2 = 'ctf-master:mvp-02';
@@ -30,11 +31,12 @@ function blankSession(): SavedSession {
 
 function restore(): SavedSession {
   try {
-    const v5 = localStorage.getItem(STORAGE);
+    const v6 = localStorage.getItem(STORAGE);
+    const v5 = localStorage.getItem(V5);
     const v4 = localStorage.getItem(V4);
     const v3 = localStorage.getItem(V3);
     const v2 = localStorage.getItem(V2);
-    const parsed: unknown = JSON.parse(v5 ?? v4 ?? v3 ?? v2 ?? localStorage.getItem(V1) ?? 'null');
+    const parsed: unknown = JSON.parse(v6 ?? v5 ?? v4 ?? v3 ?? v2 ?? localStorage.getItem(V1) ?? 'null');
     if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return blankSession();
     const p = parsed as Partial<SavedSession>;
     if (!Number.isInteger(p.missionIndex) || !Array.isArray(p.events) ||
@@ -70,6 +72,13 @@ function restore(): SavedSession {
             .map(path => [path, seed.permissions?.[path] ?? 0o644])),
           ...p.state.permissions
         }
+      };
+    }
+    if (v6 === null) {
+      const seed = initialLinux();
+      p.state = {...p.state,
+        processes:p.state.processes ?? seed.processes,
+        services:p.state.services ?? seed.services
       };
     }
     p.learning = restoreLearning(p.learning);
@@ -168,7 +177,7 @@ export default function App() {
   return <div className="app-shell">
     <header className="topbar">
       <div className="brand-mark" aria-hidden="true">&gt;_</div>
-      <div><strong>CTF MASTER</strong><span>Linux Explorer / MVP 0.5</span></div>
+      <div><strong>CTF MASTER</strong><span>Linux Administrator / MVP 0.6</span></div>
       <span className="offline-tag">LOCAL SIM</span>
     </header>
     <main>
