@@ -16,7 +16,7 @@
 - [ ] Drag and drop polecen oraz warianty scenariuszy
 - [x] Kontekstowy feedback i zapisane statystyki pomocy
 - [x] Pierwsza misja transferowa
-- [x] Pierwsze powtorki celowane: 8 umiejetnosci, 2 warianty kazda, osobne srodowisko
+- [x] Pierwsze powtorki celowane: 10 umiejetnosci, 2 warianty kazda, osobne srodowisko
 - [ ] Powtorki czasowe i przeglad wszystkich obszarow (m.in. uprawnienia)
 - [x] Testy logiki symulatora
 
@@ -28,7 +28,8 @@
 - [ ] Zaawansowana diagnostyka procesow i jednostek
 - [x] Pierwsza diagnostyka awarii uslugi i procesow bez podanych komend
 - [x] Podstawy IP, prefiksu, bramy, ping, ss i diagnozy portow
-- [ ] ARP/DNS, sieci VLAN, TCP handshake, ACL i analiza pakietow
+- [x] Pierwsze scenariusze DNS, ARP cache, diagnostyki TCP i trasy pakietu
+- [ ] VLAN, ACL i wizualna analiza pakietow oraz pelniejsza symulacja TCP
 - [ ] Zaawansowane scenariusze przyczynowe
 
 ## Etap 2 - CTF Rookie

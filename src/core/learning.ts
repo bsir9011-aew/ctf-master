@@ -115,6 +115,31 @@ export function explainError(result: CommandResult): CoachMessage | null {
     return {title:'Składnia polecenia sieciowego',
       guidance:'Sprawdź formę polecenia i nazwy argumentów przez help. Symulator obsługuje tylko określone warianty.'};
   }
+  if (message.includes('dns server not responding') || message.includes('dns timeout')) {
+    return {
+      title:'Resolver DNS nie odpowiada',
+      guidance:'Sprawdź konfigurację DNS i trasę do resolvera. Sam poprawny adres IP hosta nie oznacza, że nazwy będą działały.'
+    };
+  }
+  if (message.includes('nxdomain')) {
+    return {
+      title:'Brak rekordu DNS dla tej nazwy',
+      guidance:'Sprawdź nazwę domenową. NXDOMAIN nie oznacza automatycznie uszkodzonej bramy ani portu TCP.'
+    };
+  }
+  if (message.includes('connection refused')) {
+    return {
+      title:'Osiągnięto host, ale port TCP jest zamknięty',
+      guidance:'Odróżnij łączność IP od dostępności usługi TCP. Sprawdź numer portu i wynik trace; ping nie dowodzi, że port jest otwarty.'
+    };
+  }
+  if (message.includes('uzycie: nc') || message.includes('uzycie: trace') ||
+      message.includes('uzycie: nslookup') || message.includes('uzycie: resolvectl')) {
+    return {
+      title:'Niepoprawna składnia diagnostyki',
+      guidance:'Wpisz help i porównaj składnię narzędzi DNS, ARP i TCP z tym, co próbujesz sprawdzić.'
+    };
+  }
   if (message.includes('permission denied')) {
     return {
       title: 'Brak odpowiednich uprawnień',

@@ -7,11 +7,18 @@ export interface NetworkState {
   router: string;
   externalHost: string;
   linkUp: boolean;
+  dnsServer?: string;
+  dnsExpected?: string;
+  dnsName?: string;
+  remotePorts?: number[];
+  arpCache?: Record<string,string>;
 }
 
 export const initialNetwork = (): NetworkState => ({
   address:'10.20.30.25', prefix:24, gateway:'10.20.30.254',
-  router:'10.20.30.1', externalHost:'198.51.100.10', linkUp:true
+  router:'10.20.30.1', externalHost:'198.51.100.10', linkUp:true,
+  dnsServer:'198.51.100.54', dnsExpected:'198.51.100.53',dnsName:'lab.ctf.test',
+  remotePorts:[443],arpCache:{}
 });
 
 /** In the virtual lab IP addresses are strings, never actual sockets or requests. */
@@ -39,7 +46,7 @@ export function networkCIDR(address: string, prefix: number): string {
     ? 'invalid' : numberIPv4((ip & mask(prefix)) >>> 0) + '/' + prefix;
 }
 
-const healthyGateway = (network: NetworkState): boolean =>
+export const healthyGateway = (network: NetworkState): boolean =>
   network.linkUp && sameSubnet(network.address, network.router, network.prefix) &&
   network.gateway === network.router;
 
@@ -50,6 +57,11 @@ export function executeNetworkCommand(state: LinuxState, cmd: string, args: stri
   const update = (next:NetworkState):LinuxState => ({...state,network:next});
 
   if (cmd === 'ip') {
+    if (args.length===2 && args[0]==='neigh' && args[1]==='show') {
+      const rows=Object.entries(net.arpCache ?? {}).sort(([a],[b])=>a.localeCompare(b))
+        .map(([ip,mac])=>ip+' dev eth0 lladdr '+mac+' REACHABLE');
+      return done(rows.join('\n') || '(empty ARP neighbor cache)',true,state,'arp-cache');
+    }
     if ((args.length===1 && args[0]==='addr') || (args.length===2 && args[0]==='addr' && args[1]==='show')) {
       return done('2: eth0: <'+(net.linkUp?'UP':'DOWN')+'>\n    inet '+net.address+'/'+net.prefix+' scope global eth0',true,state,'eth0');
     }
@@ -79,7 +91,7 @@ export function executeNetworkCommand(state: LinuxState, cmd: string, args: stri
       const linkUp=args[3]==='up';
       return done('eth0 '+args[3],true,update({...net,linkUp}),'eth0');
     }
-    return done('Uzycie: ip addr show | ip addr replace IP/PREFIX dev eth0 | ip route show | ip route replace default via IP | ip link set eth0 up|down',false);
+    return done('Uzycie: ip addr show | ip addr replace IP/PREFIX dev eth0 | ip route show | ip route replace default via IP | ip link set eth0 up|down | ip neigh show',false);
   }
 
   if (cmd==='ping') {
@@ -89,7 +101,12 @@ export function executeNetworkCommand(state: LinuxState, cmd: string, args: stri
     if (host==='127.0.0.1') reachable=true;
     else if (net.linkUp && host===net.router && sameSubnet(net.address,host,net.prefix)) reachable=true;
     else if (host===net.externalHost && healthyGateway(net)) reachable=true;
-    if (reachable) return done('64 bytes from '+host+': icmp_seq=1 ttl=64 time=1.0 ms\n1 packets transmitted, 1 received',true,state,host);
+    if (reachable) {
+      const useArp=host===net.router || host===net.externalHost;
+      const next=useArp ? {...state,network:{...net,arpCache:{
+        ...net.arpCache,[net.router]:'02:42:ac:14:1e:01'}}} : state;
+      return done('64 bytes from '+host+': icmp_seq=1 ttl=64 time=1.0 ms\n1 packets transmitted, 1 received',true,next,host);
+    }
     const reason=!net.linkUp ? 'Network interface is down' :
       (host===net.externalHost && !healthyGateway(net)) ? 'Destination Host Unreachable (route/subnet)' : '100% packet loss';
     return done('PING '+host+': '+reason+'\n1 packets transmitted, 0 received',false,state,host);

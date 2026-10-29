@@ -1,6 +1,7 @@
 import { modeOf, modeString, modeOctal, nextMode } from './permissions.ts';
 import { executeProcessCommand, initialProcesses, initialServices, type SimProcess, type SimService } from './processes.ts';
 import { initialNetwork, executeNetworkCommand, type NetworkState } from './network.ts';
+import { executeDiagnosticCommand } from './diagnostics.ts';
 
 /** Deterministic in-browser simulator: NEVER executes input on the host OS. */
 export interface LinuxState {
@@ -93,13 +94,16 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
     return executeProcessCommand(state, cmd, args);
   }
 
+  if (cmd === 'resolvectl' || cmd === 'nslookup' || cmd === 'nc' || cmd === 'trace') {
+    return executeDiagnosticCommand(state,cmd,args);
+  }
   if (cmd === 'ip' || cmd === 'ping' || cmd === 'ss') {
     return executeNetworkCommand(state,cmd,args);
   }
 
   switch (cmd) {
     case 'help':
-      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], chmod MODE PLIK, stat PLIK, whoami, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link, ping -c 1 IP, ss -lnt. Brak potokow i przekierowan.');
+      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], chmod MODE PLIK, stat PLIK, whoami, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Brak potokow i przekierowan.');
     case 'whoami':
       return args.length ? done('whoami: nieoczekiwany argument', false) : done('player');
     case 'pwd':
