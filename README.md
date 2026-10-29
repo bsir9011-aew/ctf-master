@@ -11,9 +11,10 @@ npm run dev
 
 W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefonie otworz adres podgladu; mozna zainstalowac aplikacje jako PWA. Build produkcyjny: `npm run build`. Testy symulatora: `npm test` (Node.js 22+).
 
-## Co dziala w 1.0 RC
+## Co dziala w 1.0 RC (mapa nauki)
 
 - 16 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
+- Zwinięta domyślnie **Mapa nauki** z 5 rozdziałami: cele, komendy, licznik postępu, przejście do pierwszej dostępnej misji.
 - Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `chmod`, `stat`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
 - Walidacja efektu zadania, nie porownywanie odpowiedzi 1:1.
@@ -91,3 +92,9 @@ Na telefonie zamiast dlugiej siatki 16 misji jest dostepna lista wyboru. Termina
 **Uzywanie offline:** produkcyjny service worker ma wersje cache `v1.0.0`, pobiera pliki buildu i stosuje network-first dla strony HTML, cache-first dla zasobow. Nie nalezy testowac offline na `npm run dev`, poniewaz service worker rejestrowany jest tylko w trybie produkcyjnym. Do sprawdzenia sluzy `npm run build && npm run preview -- --host 0.0.0.0` na porcie 4173; patrz [docs/MOBILE_QA.md](docs/MOBILE_QA.md).
 
 **Uwaga:** 1.0 to release candidate, nie wynik zakonczonego QA na prawdziwym telefonie. CI potwierdza testy logiki oraz build, a instalacja PWA i zachowanie klawiatury ekranowej wymagaja manualnego sprawdzenia.
+
+## Mapa nauki (1.0 RC.2)
+
+Aby nie przeskakiwać od podstawowych poleceń prosto do rozbudowanej diagnostyki, dodaliśmy pięć ułożonych po kolei rozdziałów: terminal i flaga (misje 1–3), pliki i śledztwa (4–8), uprawnienia (9–10), procesy i usługi (11–12), sieć i troubleshooting (13–16). Każda sekcja wyjaśnia cel, używane komendy i oczekiwaną umiejętność. Mapa pokazuje zaliczony/odblokowany/zablokowany status obliczany z zapisanej historii misji. Nie zawiera obejścia blokad i nie resetuje postępu.
+
+To nadal wydanie **release candidate**: testy automatyczne oraz build nie zastępują ręcznego testu na fizycznym telefonie; lista w `docs/MOBILE_QA.md` pozostaje aktualna.
