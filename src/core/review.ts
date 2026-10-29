@@ -2,9 +2,10 @@ import { executeLinux, initialLinux, type CommandResult, type LinuxState } from 
 import type { LearningMap } from './learning';
 import { modeOf } from './permissions.ts';
 import type { SimProcess, SimService } from './processes.ts';
+import type { NetworkState } from './network.ts';
 
 /** Isolated practice environments. Original mission files and progress stay untouched. */
-export type ReviewSkill = 'log-search' | 'file-search' | 'backup' | 'permissions' | 'processes' | 'services';
+export type ReviewSkill = 'log-search' | 'file-search' | 'backup' | 'permissions' | 'processes' | 'services' | 'routes' | 'listeners';
 export interface ReviewLine { input?: string; output: string; ok: boolean }
 export interface ReviewAttempt {
   skill: ReviewSkill;
@@ -33,6 +34,7 @@ export interface ReviewScenario {
   permissions?: Record<string, number>;
   processes?: SimProcess[];
   services?: Record<string, SimService>;
+  network?: NetworkState;
   success: (state: LinuxState, events: CommandResult[]) => boolean;
 }
 
@@ -132,6 +134,43 @@ function serviceCase(id:string, unit:string, pid:number): ReviewScenario {
   };
 }
 
+function routeCase(id:string, title:string, network:NetworkState):ReviewScenario {
+  return {
+    id,skill:'routes',title,
+    briefing:'Interfejs eth0 ma laczyc sie z routerem '+network.router+
+      ' i hostem testowym '+network.externalHost+'. Sprawdz IP/prefiks i trase, usun przyczyne niedostepnosci hosta, nastepnie potwierdz ping.',
+    hints:['Sprawdz, czy brama jest dostepna w lokalnej podsieci.', 'ip addr show i ip route show pokazuja konfiguracje; ping -c 1 sprawdza odpowiedz.', 'Jesli adres jest zlej podsieci, popraw go; nastepnie ustaw poprawna brame domyslna.'],
+    dirs:[],files:{},network,
+    success:(state,events) =>
+      state.network?.gateway===network.router &&
+      state.network?.linkUp===true &&
+      events.some(e=>e.ok && e.command==='ip' && e.target==='route') &&
+      events.some(e=>e.ok && e.command==='ping' && e.target===network.externalHost)
+  };
+}
+
+function listenerCase(id:string, unit:'api'|'web',port:number):ReviewScenario {
+  const pid=unit==='api'?366:331;
+  const label=unit==='api'?'api-worker':'webd';
+  return {
+    id,skill:'listeners',title:'Przywroc port '+port,
+    briefing:'Na serwerze nie widac portu TCP '+port+'. Sprawdz lokalne gniazda, przywroc usluge '+unit+
+      ' i potwierdz, ze port teraz nasluchuje.',
+    hints:['Port nasluchujacy to nie to samo co odpowiedz ping.', 'ss -lnt wyswietla porty TCP, a systemctl steruje uslugami.', 'Sprawdz ss -lnt, stan uslugi i ponownie ss -lnt po uruchomieniu.'],
+    dirs:[],files:{},
+    processes:[{pid,name:label,service:unit,running:false}],
+    services:{[unit]:{pid,status:'failed',journal:['systemd: '+unit+'.service failed to start']}},
+    success:(state,events)=>{
+      const found=events.filter(e=>e.ok && e.command==='ss' && e.target==='tcp-listeners');
+      const missing=found.findIndex(e=>!e.output.includes('0.0.0.0:'+port));
+      const visible=found.findIndex((e,i)=>i>missing && e.output.includes('0.0.0.0:'+port));
+      return state.services?.[unit]?.status==='active' && 
+        state.processes?.some(p=>p.pid===pid && p.service===unit && p.running)===true &&
+        missing>=0 && visible>missing;
+    }
+  };
+}
+
 export const reviewScenarios: ReviewScenario[] = [
   logCase('log-a', 'Tajemniczy firewall', '/var/log/firewall.log', 'BLOCK',
     '10:05 INFO started\n10:08 BLOCK outbound 10.0.0.13\n10:11 INFO idle'),
@@ -150,7 +189,17 @@ export const reviewScenarios: ReviewScenario[] = [
   processCase('proc-a','cpu-burn',424),
   processCase('proc-b','log-spammer',425),
   serviceCase('svc-a','web',331),
-  serviceCase('svc-b','queue',350)
+  serviceCase('svc-b','queue',350),
+  routeCase('route-a','Nieprawidlowa brama', {
+    address:'10.30.40.22',prefix:24,gateway:'10.30.40.254',router:'10.30.40.1',
+    externalHost:'198.51.100.22',linkUp:true
+  }),
+  routeCase('route-b','Adres w obcej podsieci', {
+    address:'172.16.6.22',prefix:24,gateway:'172.16.5.1',router:'172.16.5.1',
+    externalHost:'203.0.113.20',linkUp:true
+  }),
+  listenerCase('listen-a','api',9000),
+  listenerCase('listen-b','web',8080)
 ];
 
 export const reviewSkills: {id:ReviewSkill; title:string; missionIds:string[]}[] = [
@@ -159,7 +208,9 @@ export const reviewSkills: {id:ReviewSkill; title:string; missionIds:string[]}[]
   {id:'backup', title:'Zabezpieczanie kopii', missionIds:['backup-evidence']},
   {id:'permissions', title:'Uprawnienia plikow', missionIds:['file-hardening','permission-recovery']},
   {id:'processes', title:'Kontrola procesow', missionIds:['runaway-process']},
-  {id:'services', title:'Diagnostyka uslug', missionIds:['web-service-recovery']}
+  {id:'services', title:'Diagnostyka uslug', missionIds:['web-service-recovery']},
+  {id:'routes', title:'Adresacja i trasy IP', missionIds:['gateway-repair']},
+  {id:'listeners', title:'Nasluch portow TCP', missionIds:['api-listener']}
 ];
 
 const skills = new Set<ReviewSkill>(reviewSkills.map(s => s.id));
@@ -207,7 +258,8 @@ export function createReviewAttempt(skill: ReviewSkill, history: ReviewHistory):
     permissions:{...base.permissions, ...variant.permissions},
     processes:[...(base.processes ?? []).filter(p=>!variant.processes?.some(v=>v.pid===p.pid)),
       ...(variant.processes ?? [])],
-    services:{...base.services, ...variant.services}
+    services:{...base.services, ...variant.services},
+    network:variant.network ? {...variant.network} : base.network
   };
   return {
     skill, variantId:variant.id, state, events:[],
