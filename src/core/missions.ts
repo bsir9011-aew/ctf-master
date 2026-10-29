@@ -57,5 +57,20 @@ export const missions: Mission[] = [
     success: (state) => state.files['/home/player/documents/incident.txt'] === 'incident-47: save this evidence before cleanup' &&
       !Object.hasOwn(state.files, '/home/player/downloads/incident.tmp') &&
       !Object.hasOwn(state.files, '/home/player/downloads/stale.tmp')
+  },
+  {
+    id: 'transfer-investigation', title: 'Nowy incydent', category: 'CTF Rookie',
+    briefing: 'Nowe zgłoszenie: w /var/log/app.log znajduje się podejrzane zdarzenie ALERT. Zidentyfikuj wpis i zachowaj niezmienioną kopię całego dziennika w ~/documents/app-evidence.log. Dobierz polecenia samodzielnie.',
+    hints: [
+      'Rozdziel problem na dwa cele: odnalezienie zdarzenia i zachowanie danych.',
+      'Jedno narzędzie wyszukuje tekst, inne kopiuje plik bez usuwania źródła.',
+      'Sprawdź grep ALERT /var/log/app.log i cp /var/log/app.log ~/documents/app-evidence.log.'
+    ],
+    success: (state, events) =>
+      events.some(e => e.ok && e.target === '/var/log/app.log' &&
+        (e.command === 'grep' || e.command === 'cat') && e.output.includes('ALERT')) &&
+      Object.hasOwn(state.files, '/var/log/app.log') &&
+      Object.hasOwn(state.files, '/home/player/documents/app-evidence.log') &&
+      state.files['/home/player/documents/app-evidence.log'] === state.files['/var/log/app.log']
   }
 ];
