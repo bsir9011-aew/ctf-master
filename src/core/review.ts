@@ -5,7 +5,7 @@ import type { SimProcess, SimService } from './processes.ts';
 import type { NetworkState } from './network.ts';
 
 /** Isolated practice environments. Original mission files and progress stay untouched. */
-export type ReviewSkill = 'log-search' | 'file-search' | 'backup' | 'permissions' | 'processes' | 'services' | 'routes' | 'listeners';
+export type ReviewSkill = 'log-search' | 'file-search' | 'backup' | 'permissions' | 'processes' | 'services' | 'routes' | 'listeners' | 'dns' | 'tcp-path';
 export interface ReviewLine { input?: string; output: string; ok: boolean }
 export interface ReviewAttempt {
   skill: ReviewSkill;
@@ -171,6 +171,35 @@ function listenerCase(id:string, unit:'api'|'web',port:number):ReviewScenario {
   };
 }
 
+function dnsCase(id:string,host:string,network:NetworkState):ReviewScenario {
+  return {
+    id,skill:'dns',title:'Napraw resolver: '+host,
+    briefing:'Sprawdz ustawienia resolvera DNS, a potem przywroc rozpoznawanie nazwy '+host+
+      '. Poprawny resolver w tym laboratorium to '+network.dnsExpected+'.',
+    hints:['Nazwa hosta i IP to odrebne rzeczy.', 'resolvectl dns eth0 pokazuje obecny resolver; nslookup testuje rozpoznawanie.', 'Skonfiguruj poprawny serwer DNS, a nastepnie wykonaj nslookup.'],
+    dirs:[],files:{},network,
+    success:(state,events)=>state.network?.dnsServer===network.dnsExpected &&
+      events.some(e=>e.ok && e.command==='resolvectl' && e.target==='dns') &&
+      events.some(e=>e.ok && e.command==='nslookup' && e.target===host &&
+        e.output.includes(network.externalHost))
+  };
+}
+
+function tcpPathCase(id:string,host:string,port:number,network:NetworkState):ReviewScenario {
+  return {
+    id,skill:'tcp-path',title:'Sprawdz warstwy polaczenia',
+    briefing:'Zidentyfikuj trase do '+host+':'+port+'. Pokaz MAC routera w ARP, sprawdz sciezke i udowodnij otwarty port TCP. Sam ping nie wystarczy.',
+    hints:['Na trasie poza podsiecia Ethernet uzywa MAC routera.', 'trace pokazuje etapy DNS/route/ARP/TCP; nc -z sprawdza TCP, ip neigh show pokazuje ARP.', 'Wykonaj trace HOST PORT, nc -z HOST PORT, ip neigh show.'],
+    dirs:[],files:{},network,
+    success:(state,events)=> state.network?.arpCache?.[network.router]!==undefined &&
+      events.some(e=>e.ok && e.command==='trace' && e.target===host+':'+port &&
+        e.output.includes('SYN/ACK')) &&
+      events.some(e=>e.ok && e.command==='nc' && e.target===host+':'+port) &&
+      events.some(e=>e.ok && e.command==='ip' && e.target==='arp-cache' &&
+        e.output.includes(network.router))
+  };
+}
+
 export const reviewScenarios: ReviewScenario[] = [
   logCase('log-a', 'Tajemniczy firewall', '/var/log/firewall.log', 'BLOCK',
     '10:05 INFO started\n10:08 BLOCK outbound 10.0.0.13\n10:11 INFO idle'),
@@ -199,7 +228,27 @@ export const reviewScenarios: ReviewScenario[] = [
     externalHost:'203.0.113.20',linkUp:true
   }),
   listenerCase('listen-a','api',9000),
-  listenerCase('listen-b','web',8080)
+  listenerCase('listen-b','web',8080),
+  dnsCase('dns-a','ops.ctf.test',{
+    address:'10.44.20.5',prefix:24,gateway:'10.44.20.1',router:'10.44.20.1',
+    externalHost:'203.0.113.44',linkUp:true,dnsServer:'203.0.113.54',
+    dnsExpected:'203.0.113.53',dnsName:'ops.ctf.test',arpCache:{},remotePorts:[8443]
+  }),
+  dnsCase('dns-b','staging.ctf.test',{
+    address:'172.22.15.22',prefix:24,gateway:'172.22.15.1',router:'172.22.15.1',
+    externalHost:'198.51.100.77',linkUp:true,dnsServer:'198.51.100.54',
+    dnsExpected:'198.51.100.53',dnsName:'staging.ctf.test',arpCache:{},remotePorts:[443]
+  }),
+  tcpPathCase('tcp-a','api.ctf.test',8443,{
+    address:'10.70.10.8',prefix:24,gateway:'10.70.10.1',router:'10.70.10.1',
+    externalHost:'203.0.113.80',linkUp:true,dnsServer:'203.0.113.53',
+    dnsExpected:'203.0.113.53',dnsName:'api.ctf.test',arpCache:{},remotePorts:[8443]
+  }),
+  tcpPathCase('tcp-b','vault.ctf.test',443,{
+    address:'172.26.11.40',prefix:24,gateway:'172.26.11.1',router:'172.26.11.1',
+    externalHost:'198.51.100.88',linkUp:true,dnsServer:'198.51.100.53',
+    dnsExpected:'198.51.100.53',dnsName:'vault.ctf.test',arpCache:{},remotePorts:[443]
+  })
 ];
 
 export const reviewSkills: {id:ReviewSkill; title:string; missionIds:string[]}[] = [
@@ -210,7 +259,9 @@ export const reviewSkills: {id:ReviewSkill; title:string; missionIds:string[]}[]
   {id:'processes', title:'Kontrola procesow', missionIds:['runaway-process']},
   {id:'services', title:'Diagnostyka uslug', missionIds:['web-service-recovery']},
   {id:'routes', title:'Adresacja i trasy IP', missionIds:['gateway-repair']},
-  {id:'listeners', title:'Nasluch portow TCP', missionIds:['api-listener']}
+  {id:'listeners', title:'Nasluch portow TCP', missionIds:['api-listener']},
+  {id:'dns', title:'Diagnostyka DNS', missionIds:['dns-repair']},
+  {id:'tcp-path', title:'Sciezka ARP i TCP', missionIds:['packet-layers']}
 ];
 
 const skills = new Set<ReviewSkill>(reviewSkills.map(s => s.id));
@@ -259,7 +310,7 @@ export function createReviewAttempt(skill: ReviewSkill, history: ReviewHistory):
     processes:[...(base.processes ?? []).filter(p=>!variant.processes?.some(v=>v.pid===p.pid)),
       ...(variant.processes ?? [])],
     services:{...base.services, ...variant.services},
-    network:variant.network ? {...variant.network} : base.network
+    network:variant.network ? {...variant.network,arpCache:{...variant.network.arpCache},remotePorts:[...(variant.network.remotePorts ?? [443])]} : base.network
   };
   return {
     skill, variantId:variant.id, state, events:[],
