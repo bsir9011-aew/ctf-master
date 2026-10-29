@@ -1,5 +1,6 @@
 import { modeOf, modeString, modeOctal, nextMode } from './permissions.ts';
 import { executeProcessCommand, initialProcesses, initialServices, type SimProcess, type SimService } from './processes.ts';
+import { initialNetwork, executeNetworkCommand, type NetworkState } from './network.ts';
 
 /** Deterministic in-browser simulator: NEVER executes input on the host OS. */
 export interface LinuxState {
@@ -9,6 +10,7 @@ export interface LinuxState {
   permissions?: Record<string, number>;
   processes?: SimProcess[];
   services?: Record<string, SimService>;
+  network?: NetworkState;
 }
 
 export interface CommandResult {
@@ -44,7 +46,8 @@ export const initialLinux = (): LinuxState => ({
     [`${HOME}/documents/restricted.log`]: 0o000
   },
   processes: initialProcesses(),
-  services: initialServices()
+  services: initialServices(),
+  network: initialNetwork()
 });
 
 export function resolvePath(cwd: string, requested: string): string {
@@ -90,9 +93,13 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
     return executeProcessCommand(state, cmd, args);
   }
 
+  if (cmd === 'ip' || cmd === 'ping' || cmd === 'ss') {
+    return executeNetworkCommand(state,cmd,args);
+  }
+
   switch (cmd) {
     case 'help':
-      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], chmod MODE PLIK, stat PLIK, whoami, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Brak potokow i przekierowan.');
+      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], chmod MODE PLIK, stat PLIK, whoami, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link, ping -c 1 IP, ss -lnt. Brak potokow i przekierowan.');
     case 'whoami':
       return args.length ? done('whoami: nieoczekiwany argument', false) : done('player');
     case 'pwd':
