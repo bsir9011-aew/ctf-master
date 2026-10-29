@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { executeLinux, initialLinux, type CommandResult, type LinuxState } from './core/linux';
 import { missions } from './core/missions';
 import PacketPath from './components/PacketPath';
+import CurriculumMap from './components/CurriculumMap';
 import { moveHistoryCursor, rememberCommand } from './core/commandHistory';
 import { explainError, markHelp, revealHint, restoreLearning, trackCommand, type LearningMap } from './core/learning';
 import {
@@ -260,8 +261,10 @@ export default function App() {
       </nav>
 
       {mode === 'missions' ? <>
+        <CurriculumMap completed={session.completed} highestUnlocked={unlocked}
+          activeIndex={session.missionIndex} onSelectMission={selectMission}/>
         <section className="progress-panel" aria-label="Postęp">
-          <div className="progress-heading"><strong>Linux Explorer → Investigator</strong>
+          <div className="progress-heading"><strong>Twoje misje</strong>
             <span>{session.completed.length} / {missions.length} misji</span></div>
           <div className="progress-track"><div style={{width:String(session.completed.length / missions.length * 100) + '%'}} /></div>
           <label className="mission-picker" htmlFor="mission-select">Wybierz misję
