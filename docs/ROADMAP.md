@@ -16,7 +16,8 @@
 - [ ] Drag and drop polecen oraz warianty scenariuszy
 - [x] Kontekstowy feedback i zapisane statystyki pomocy
 - [x] Pierwsza misja transferowa
-- [ ] Powtorki bledow
+- [x] Pierwsze powtorki celowane: 3 umiejetnosci, 2 warianty kazda, osobne srodowisko
+- [ ] Powtorki czasowe i przeglad wszystkich obszarow (m.in. uprawnienia)
 - [x] Testy logiki symulatora
 
 ## Etap 1 - Linux Administrator
