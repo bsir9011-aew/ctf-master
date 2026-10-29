@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { NetworkState } from '../core/network';
+import { initialNetwork, type NetworkState } from '../core/network';
 import { dnsName, remotePorts } from '../core/diagnostics';
 import { analyzePacketPath, type TargetMode } from '../core/packetPath';
 
@@ -13,16 +13,14 @@ const stageLabels = {ok:'OK', blocked:'STOP', waiting:'Do ustalenia', skipped:'P
 export default function PacketPath({network,expanded,onToggle}:Props) {
   const [mode,setMode] = useState<TargetMode>('ip');
   const [portChoice,setPortChoice] = useState('auto');
-  const expected=remotePorts(network ?? {
-    address:'10.20.30.25',prefix:24,gateway:'10.20.30.254',router:'10.20.30.1',
-    externalHost:'198.51.100.10',linkUp:true
-  })[0] ?? 443;
+  const net=network ?? initialNetwork();
+  const expected=remotePorts(net)[0] ?? 443;
   const port=portChoice==='auto'?expected:Number(portChoice);
-  const analysis=analyzePacketPath(network,mode,port);
+  const analysis=analyzePacketPath(net,mode,port);
   const diagram=[
     {id:'host',label:'Komputer',detail:analysis.source,sub:'Interfejs eth0'},
     {id:'switch',label:'Przełącznik',detail:'Warstwa 2',sub:'Przekazuje ramki Ethernet'},
-    {id:'router',label:'Router',detail:analysis.router,sub:'Brama: '+(network?.gateway ?? '10.20.30.254')},
+    {id:'router',label:'Router',detail:analysis.router,sub:'Brama: '+net.gateway},
     {id:'server',label:'Serwer',detail:analysis.destination,sub:'TCP/'+port}
   ];
   const failingNode=analysis.failure==='link'?'host':analysis.failure==='route'?'router':
@@ -63,10 +61,7 @@ export default function PacketPath({network,expanded,onToggle}:Props) {
           </select>
         </label>
       </div>
-      <p className="packet-target">Cel: <strong>{mode==='name'?dnsName(network ?? {
-        address:'10.20.30.25',prefix:24,gateway:'10.20.30.254',
-        router:'10.20.30.1',externalHost:'198.51.100.10',linkUp:true
-      }):analysis.destination}:{port}</strong></p>
+      <p className="packet-target">Cel: <strong>{mode==='name'?dnsName(net):analysis.destination}:{port}</strong></p>
       <p className={'packet-conclusion '+(analysis.failure?'packet-bad':'packet-good')} role="status">
         {analysis.message}
       </p>
