@@ -1,8 +1,9 @@
 import { executeLinux, initialLinux, type CommandResult, type LinuxState } from './linux.ts';
 import type { LearningMap } from './learning';
+import { modeOf } from './permissions.ts';
 
 /** Isolated practice environments. Original mission files and progress stay untouched. */
-export type ReviewSkill = 'log-search' | 'file-search' | 'backup';
+export type ReviewSkill = 'log-search' | 'file-search' | 'backup' | 'permissions';
 export interface ReviewLine { input?: string; output: string; ok: boolean }
 export interface ReviewAttempt {
   skill: ReviewSkill;
@@ -28,6 +29,7 @@ export interface ReviewScenario {
   hints: [string, string, string];
   dirs: string[];
   files: Record<string, string>;
+  permissions?: Record<string, number>;
   success: (state: LinuxState, events: CommandResult[]) => boolean;
 }
 
@@ -76,6 +78,27 @@ function backupCase(id: string, title: string, source: string, target: string, c
   };
 }
 
+function hardeningCase(): ReviewScenario {
+  const path = HOME + '/documents/team.key';
+  return {
+    id:'perm-a', skill:'permissions', title:'Dostep tylko dla wlasciciela',
+    briefing:'Plik ~/documents/team.key ma domyslne uprawnienia. Ogranicz go do odczytu i zapisu wylacznie przez wlasciciela.',
+    hints:['Sprawdz, kto moze odczytac plik.', 'stat pokazuje tryb, chmod pozwala go zmienic.', 'Ustaw 600 dla tego pliku.'],
+    dirs:[], files:{[path]:'SIMULATED_TEAM_KEY'}, permissions:{[path]:0o644},
+    success:(state) => modeOf(state,path) === 0o600 && Object.hasOwn(state.files,path)
+  };
+}
+function recoveryCase(): ReviewScenario {
+  const path = HOME + '/documents/audit-review.log';
+  return {
+    id:'perm-b', skill:'permissions', title:'Zablokowany dziennik',
+    briefing:'Odczytaj wpis AUDIT w ~/documents/audit-review.log. Na poczatku konto player nie ma prawa odczytu. Nie przyznawaj praw grupie ani pozostalym.',
+    hints:['Brak odczytu nie oznacza, ze plik nie istnieje.', 'stat i chmod pozwalaja zidentyfikowac i naprawic problem.', 'Nadaj tylko wlascicielowi prawo odczytu, potem otworz plik.'],
+    dirs:[], files:{[path]:'AUDIT: training event'}, permissions:{[path]:0o000},
+    success:(state,events) => modeOf(state,path) === 0o400 && readExact(events,path,'AUDIT')
+  };
+}
+
 export const reviewScenarios: ReviewScenario[] = [
   logCase('log-a', 'Tajemniczy firewall', '/var/log/firewall.log', 'BLOCK',
     '10:05 INFO started\n10:08 BLOCK outbound 10.0.0.13\n10:11 INFO idle'),
@@ -88,13 +111,16 @@ export const reviewScenarios: ReviewScenario[] = [
   backupCase('backup-a', 'Kopia sieciowa', '/var/log/network.log', HOME + '/documents/network-copy.log',
     '12:02 INFO route up\n12:04 WARN packet drop'),
   backupCase('backup-b', 'Kopia DNS', '/var/log/dns.log', HOME + '/documents/dns-copy.log',
-    '13:10 INFO query resolved\n13:16 WARN dns timeout')
+    '13:10 INFO query resolved\n13:16 WARN dns timeout'),
+  hardeningCase(),
+  recoveryCase()
 ];
 
 export const reviewSkills: {id:ReviewSkill; title:string; missionIds:string[]}[] = [
   {id:'log-search', title:'Wyszukiwanie w logach', missionIds:['log-hunt','transfer-investigation']},
   {id:'file-search', title:'Odnajdywanie dowodow', missionIds:['evidence-search']},
-  {id:'backup', title:'Zabezpieczanie kopii', missionIds:['backup-evidence']}
+  {id:'backup', title:'Zabezpieczanie kopii', missionIds:['backup-evidence']},
+  {id:'permissions', title:'Uprawnienia plikow', missionIds:['file-hardening','permission-recovery']}
 ];
 
 const skills = new Set<ReviewSkill>(reviewSkills.map(s => s.id));
@@ -138,7 +164,8 @@ export function createReviewAttempt(skill: ReviewSkill, history: ReviewHistory):
   const state: LinuxState = {
     cwd:base.cwd,
     dirs:[...new Set([...base.dirs, ...variant.dirs])],
-    files:{...base.files, ...variant.files}
+    files:{...base.files, ...variant.files},
+    permissions:{...base.permissions, ...variant.permissions}
   };
   return {
     skill, variantId:variant.id, state, events:[],
