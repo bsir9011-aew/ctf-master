@@ -154,5 +154,37 @@ export const missions: Mission[] = [
         events.some(e=>e.ok && e.command==='systemctl' && e.target==='api.service' &&
           e.output.includes('active'));
     }
+  },
+  {
+    id:'dns-repair',title:'Adres IP dziala, nazwa nie',category:'Linux Networking',
+    briefing:'System zna trase poza siec lokalna, ale domena lab.ctf.test nie odpowiada. Sprawdz resolver DNS, ustal przyczyne i przywroc rozpoznawanie domeny bez zmieniania adresu docelowego. Serwer DNS laboratorium to 198.51.100.53.',
+    hints:[
+      'DNS zamienia nazwe na IP. Brama domyslna i resolver DNS to dwie rozne konfiguracje.',
+      'Sprawdz resolvectl dns eth0, potem nslookup lab.ctf.test.',
+      'Po weryfikacji trasy ustaw resolvectl dns eth0 198.51.100.53 i ponow nslookup lab.ctf.test.'
+    ],
+    success:(state,events)=>
+      state.network?.dnsServer==='198.51.100.53' &&
+      state.network?.gateway===state.network?.router &&
+      events.some(e=>e.ok && e.command==='resolvectl' && e.target==='dns') &&
+      events.some(e=>e.ok && e.command==='nslookup' && e.target==='lab.ctf.test' &&
+        e.output.includes('198.51.100.10'))
+  },
+  {
+    id:'packet-layers',title:'Od DNS do polaczenia TCP',category:'Linux Networking',
+    briefing:'Po naprawie nazwy sprawdz trase do lab.ctf.test na porcie TCP 443. Ustal, dlaczego ping nie wystarcza do oceny portu. Zobacz adres MAC nastepnego hopu (routera), pelna sciezke diagnostyczna i skuteczna probe TCP. Nie uzywaj prawdziwej sieci.',
+    hints:[
+      'ARP dotyczy adresu MAC nastepnego hopu w sieci lokalnej, a TCP portu aplikacji.',
+      'ip neigh show ujawnia znane adresy MAC; nc -z sprawdza polaczenie TCP, trace pokazuje warstwy.',
+      'W symulatorze sprawdz trace lab.ctf.test 443, nc -z lab.ctf.test 443, a potem ip neigh show.'
+    ],
+    success:(state,events)=>
+      state.network?.dnsServer==='198.51.100.53' &&
+      state.network?.arpCache?.[state.network.router]==='02:42:ac:14:1e:01' &&
+      events.some(e=>e.ok && e.command==='trace' && e.target==='lab.ctf.test:443' &&
+        e.output.includes('ARP:') && e.output.includes('SYN/ACK')) &&
+      events.some(e=>e.ok && e.command==='nc' && e.target==='lab.ctf.test:443') &&
+      events.some(e=>e.ok && e.command==='ip' && e.target==='arp-cache' &&
+        e.output.includes(state.network?.router ?? '__missing__'))
   }
 ];
