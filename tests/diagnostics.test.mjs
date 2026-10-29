@@ -176,3 +176,12 @@ test('all lab DNS targets are reserved documentation/test domains',()=>{
     assert.equal(scenario.network.dnsName.endsWith('.test'),true);
   }
 });
+
+test('legacy in-progress practice without network state fails safely',()=>{
+  const old={...initialLinux(),network:undefined};
+  for(const cmd of ['resolvectl dns eth0','nslookup lab.ctf.test','trace lab.ctf.test 443','nc -z lab.ctf.test 443']) {
+    const result=executeLinux(old,cmd);
+    assert.equal(typeof result.ok,'boolean',cmd);
+    assert.equal(typeof result.output,'string',cmd);
+  }
+});
