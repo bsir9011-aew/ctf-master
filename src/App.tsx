@@ -122,7 +122,7 @@ export default function App() {
   const terminalOutputRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const mission = missions[session.missionIndex];
-  const missionComplete = mission.success(session.state,session.events);
+  const missionComplete = session.completed.includes(session.missionIndex) || mission.success(session.state,session.events);
   const unlocked = Math.max(0,...session.completed.map(n => n + 1));
   const stats = session.learning[mission.id] ?? {commands:0,errors:0,hints:0,usedHelp:false,independent:false};
   const reviews = availableReviews(session.completed.map(n => missions[n]?.id).filter((id):id is string => !!id),
