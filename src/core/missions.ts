@@ -88,5 +88,35 @@ export const missions: Mission[] = [
     success: (state, events) => (modeOf(state, '/home/player/documents/restricted.log') & 0o477) === 0o400 &&
       events.some(e => e.ok && e.command === 'cat' && e.target === '/home/player/documents/restricted.log' &&
         e.output.includes('RECOVERY'))
+  },
+  {
+    id: 'runaway-process', title: 'Nieznany proces', category: 'Linux Administrator',
+    briefing: 'Na symulowanym serwerze obciazenie generuje proces cpu-burn. Zidentyfikuj go na liscie dzialajacych procesow, a nastepnie zakoncz. Nie zatrzymuj innych procesow.',
+    hints: [
+      'PID identyfikuje konkretna instancje procesu.',
+      'ps wyswietla aktywne procesy. kill wysyla sygnal do wskazanego PID.',
+      'Uzyj ps, ustal PID cpu-burn i wykonaj kill 424.'
+    ],
+    success: (state,events) =>
+      state.processes?.some(p=>p.pid===424 && p.name==='cpu-burn' && !p.running) === true &&
+      events.some(e=>e.ok && e.command==='ps' && e.output.includes('cpu-burn')) &&
+      events.some(e=>e.ok && e.command==='kill' && e.target==='pid:424')
+  },
+  {
+    id: 'web-service-recovery', title: 'Awaria aplikacji', category: 'Linux Administrator',
+    briefing: 'Klienci zglaszaja niedostepnosc strony. Zdiagnozuj stan uslugi web i przyczyne w jej dzienniku, a nastepnie przywroc dzialanie. Nie wylaczaj pozostalych uslug.',
+    hints: [
+      'Awaria strony nie musi oznaczac awarii calego komputera.',
+      'Sprawdz stan jednostki przez systemctl status i wpisy przez journalctl -u.',
+      'Sprawdz systemctl status web, journalctl -u web, a nastepnie systemctl restart web.'
+    ],
+    success: (state,events) =>
+      state.services?.web?.status === 'active' &&
+      state.processes?.some(p=>p.pid===331 && p.service==='web' && p.running) === true &&
+      state.services?.sshd?.status === 'active' &&
+      state.services?.queue?.status === 'active' &&
+      events.some(e=>e.ok && e.command==='systemctl' && e.target==='web.service' && e.output.includes('failed')) &&
+      events.some(e=>e.ok && e.command==='journalctl' && e.target==='web.service' && e.output.includes('crash')) &&
+      events.some(e=>e.ok && e.command==='systemctl' && e.target==='web.service' && e.output.includes('active'))
   }
 ];
