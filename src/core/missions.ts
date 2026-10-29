@@ -85,7 +85,7 @@ export const missions: Mission[] = [
     id: 'permission-recovery', title: 'Permission denied', category: 'Linux Administrator',
     briefing: 'Nie mozesz odczytac ~/documents/restricted.log. Ustal przyczyne, przywroc prawo odczytu wlascicielowi i odczytaj wpis RECOVERY. Nie otwieraj dostepu calej reszcie uzytkownikow.',
     hints: ['Komunikat Permission denied moze wskazywac na uprawnienia pliku.', 'Sprawdz stat, a potem wykorzystaj chmod, aby zmienic tylko prawa wlasciciela.', 'chmod u+r ~/documents/restricted.log, a nastepnie cat ~/documents/restricted.log.'],
-    success: (state, events) => modeOf(state, '/home/player/documents/restricted.log') === 0o400 &&
+    success: (state, events) => (modeOf(state, '/home/player/documents/restricted.log') & 0o477) === 0o400 &&
       events.some(e => e.ok && e.command === 'cat' && e.target === '/home/player/documents/restricted.log' &&
         e.output.includes('RECOVERY'))
   }
