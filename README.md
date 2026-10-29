@@ -11,7 +11,7 @@ npm run dev
 
 W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefonie otworz adres podgladu; mozna zainstalowac aplikacje jako PWA. Build produkcyjny: `npm run build`. Testy symulatora: `npm test` (Node.js 22+).
 
-## Co dziala w MVP 0.9
+## Co dziala w 1.0 RC
 
 - 16 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
 - Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `chmod`, `stat`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `help`, `clear`.
@@ -21,7 +21,7 @@ W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefoni
 - Tryb **Powtorki**: 10 umiejetnosci (w tym DNS i diagnostyka sciezki TCP), kazda z 2 wariantami, osobnym terminalem i lokalnym zapisem.
 - Umiejetnosc uznana za przećwiczona po 2 kolejnych samodzielnie wykonanych roznych wariantach (brak bledow, help i podpowiedzi).
 - Zapis sesji w `localStorage` z migracja danych z MVP 0.1-0.7 bez resetowania postepu.
-- PWA: manifest, ikony, service worker dla wersji produkcyjnej.
+- PWA: manifest, ikony i wersjonowany service worker dla buildu produkcyjnego; aktualizacje nie trzymaja na stale starego HTML.
 
 **Bezpieczenstwo:** Polecenia nie sa wykonywane na urzadzeniu, w kontenerze ani na serwerze. Parser obsluguje tylko jawnie dozwolone komendy symulacji. To nie jest prawdziwy Bash.
 
@@ -83,3 +83,11 @@ W zadaniach dotyczacych routingu, DNS i TCP (oraz odpowiednich powtorkach) doste
 Przycisk **Pokaż analizę (pomoc)** odkrywa etapy rozumowania i miejsce, w ktorym polaczenie sie zatrzymuje. W nieukonczonej misji lub powtorce odkrycie analizy jest traktowane jak skorzystanie z podpowiedzi (wynik pierwszego samodzielnego zaliczenia nie jest przyznawany). Panel domyslnie jest zwiniety i nie zmienia stanu sieci. Zmiany wykonuje sie wylacznie komendami terminala; schemat od razu odswieza sie po takim poleceniu.
 
 W analizie mozna przejsc miedzy hostem podanym jako IPv4 lub domena oraz porownywac porty TCP. Podane etapy to **kolejnosc diagnostyczna**, nie zapis rzeczywistej kolejnosci pakietow. Przelacznik jest elementem pogladowym (brak jeszcze implementacji VLAN, ARP po stronie switcha, fizycznych portow ani tablicy MAC). Model nie wysyla zadnych prawdziwych pakietow i nie tworzy ruchu sieciowego. Test interfejsu na telefonie pozostaje do wykonania.
+
+## Wydanie mobilne 1.0 RC
+
+Na telefonie zamiast dlugiej siatki 16 misji jest dostepna lista wyboru. Terminal obsluguje 30 ostatnich unikalnych polecen (przyciski strzalek lub klawiatura fizyczna), a po wykonaniu polecen przewija sie wylacznie historia terminala, nie cala strona. Historia komend jest lokalna dla otwartej sesji karty; zapis postepu misji pozostaje w `localStorage` na starym kluczu (brak migracji lub resetu).
+
+**Uzywanie offline:** produkcyjny service worker ma wersje cache `v1.0.0`, pobiera pliki buildu i stosuje network-first dla strony HTML, cache-first dla zasobow. Nie nalezy testowac offline na `npm run dev`, poniewaz service worker rejestrowany jest tylko w trybie produkcyjnym. Do sprawdzenia sluzy `npm run build && npm run preview -- --host 0.0.0.0` na porcie 4173; patrz [docs/MOBILE_QA.md](docs/MOBILE_QA.md).
+
+**Uwaga:** 1.0 to release candidate, nie wynik zakonczonego QA na prawdziwym telefonie. CI potwierdza testy logiki oraz build, a instalacja PWA i zachowanie klawiatury ekranowej wymagaja manualnego sprawdzenia.

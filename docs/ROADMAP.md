@@ -19,6 +19,9 @@
 - [x] Pierwsze powtorki celowane: 10 umiejetnosci, 2 warianty kazda, osobne srodowisko
 - [ ] Powtorki czasowe i przeglad wszystkich obszarow (m.in. uprawnienia)
 - [x] Testy logiki symulatora
+- [x] Kompaktowa mobilna nawigacja i historia polecen
+- [x] Wersjonowanie cache PWA i testy mechanizmu offline
+- [ ] Manual QA na fizycznym telefonie (1.0 RC)
 
 ## Etap 1 - Linux Administrator
 - [x] Podstawy chmod, stat, tryby rwx i testy Permission denied
