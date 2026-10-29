@@ -1,4 +1,5 @@
 import { modeOf, modeString, modeOctal, nextMode } from './permissions.ts';
+import { executeProcessCommand, initialProcesses, initialServices, type SimProcess, type SimService } from './processes.ts';
 
 /** Deterministic in-browser simulator: NEVER executes input on the host OS. */
 export interface LinuxState {
@@ -6,6 +7,8 @@ export interface LinuxState {
   dirs: string[];
   files: Record<string, string>;
   permissions?: Record<string, number>;
+  processes?: SimProcess[];
+  services?: Record<string, SimService>;
 }
 
 export interface CommandResult {
@@ -39,7 +42,9 @@ export const initialLinux = (): LinuxState => ({
   permissions: {
     [`${HOME}/documents/credentials.txt`]: 0o644,
     [`${HOME}/documents/restricted.log`]: 0o000
-  }
+  },
+  processes: initialProcesses(),
+  services: initialServices()
 });
 
 export function resolvePath(cwd: string, requested: string): string {
@@ -81,9 +86,13 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
   const argPath = (v: string) => resolvePath(state.cwd, v);
   const exists = (path: string) => state.dirs.includes(path) || Object.hasOwn(state.files, path);
 
+  if (cmd === 'ps' || cmd === 'kill' || cmd === 'systemctl' || cmd === 'journalctl') {
+    return executeProcessCommand(state, cmd, args);
+  }
+
   switch (cmd) {
     case 'help':
-      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], chmod MODE PLIK, stat PLIK, whoami, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Brak potokow i przekierowan.');
+      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], chmod MODE PLIK, stat PLIK, whoami, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Brak potokow i przekierowan.');
     case 'whoami':
       return args.length ? done('whoami: nieoczekiwany argument', false) : done('player');
     case 'pwd':

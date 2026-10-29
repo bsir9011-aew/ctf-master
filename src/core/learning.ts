@@ -77,6 +77,24 @@ export function explainError(result: CommandResult): CoachMessage | null {
       guidance: 'Sprawdź literówki i listę obsługiwanych poleceń przez help. Pamiętaj, że to uproszczony Linux, a nie pełny Bash.'
     };
   }
+  if (message.includes('protected simulated process')) {
+    return {
+      title: 'Proces chroniony w symulatorze',
+      guidance: 'Nie wszystkie procesy wolno zatrzymywac. Sprawdz w ps, ktory PID nalezy do podejrzanego programu.'
+    };
+  }
+  if (message.includes('process not found')) {
+    return {
+      title: 'Proces nie istnieje lub juz zostal zatrzymany',
+      guidance: 'Odnow liste dzialajacych procesow przez ps i sprawdz numer PID.'
+    };
+  }
+  if (message.includes('unit ') && message.includes('not found')) {
+    return {
+      title: 'Nieznana jednostka systemd',
+      guidance: 'Sprawdz nazwe uslugi. Ten symulator posiada tylko kilka zdefiniowanych jednostek.'
+    };
+  }
   if (message.includes('permission denied')) {
     return {
       title: 'Brak odpowiednich uprawnień',

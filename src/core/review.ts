@@ -1,9 +1,10 @@
 import { executeLinux, initialLinux, type CommandResult, type LinuxState } from './linux.ts';
 import type { LearningMap } from './learning';
 import { modeOf } from './permissions.ts';
+import type { SimProcess, SimService } from './processes.ts';
 
 /** Isolated practice environments. Original mission files and progress stay untouched. */
-export type ReviewSkill = 'log-search' | 'file-search' | 'backup' | 'permissions';
+export type ReviewSkill = 'log-search' | 'file-search' | 'backup' | 'permissions' | 'processes' | 'services';
 export interface ReviewLine { input?: string; output: string; ok: boolean }
 export interface ReviewAttempt {
   skill: ReviewSkill;
@@ -30,6 +31,8 @@ export interface ReviewScenario {
   dirs: string[];
   files: Record<string, string>;
   permissions?: Record<string, number>;
+  processes?: SimProcess[];
+  services?: Record<string, SimService>;
   success: (state: LinuxState, events: CommandResult[]) => boolean;
 }
 
@@ -99,6 +102,36 @@ function recoveryCase(): ReviewScenario {
   };
 }
 
+function processCase(id:string, name:string, pid:number): ReviewScenario {
+  return {
+    id, skill:'processes',title:'Zatrzymaj proces: '+name,
+    briefing:'W liscie procesow znajdz '+name+' i zakoncz go. Nie naruszaj innych procesow.',
+    hints:['Zidentyfikuj proces po nazwie.', 'ps wyswietla PID, kill konczy proces.', 'Uzyj ps, a nastepnie kill z PID znalezionego procesu.'],
+    dirs:[],files:{},
+    processes:[{pid,name,running:true}],
+    success:(state,events) =>
+      state.processes?.some(p=>p.pid===pid && p.name===name && !p.running) === true &&
+      events.some(e=>e.ok && e.command==='ps' && e.output.includes(name)) &&
+      events.some(e=>e.ok && e.command==='kill' && e.target==='pid:'+pid)
+  };
+}
+
+function serviceCase(id:string, unit:string, pid:number): ReviewScenario {
+  return {
+    id,skill:'services',title:'Przywroc '+unit+'.service',
+    briefing:'Usluga '+unit+' ma awarie. Sprawdz stan, znajdz przyczyne w dzienniku i przywroc dzialanie.',
+    hints:['Zacznij od stanu jednostki.', 'systemctl status i journalctl -u umozliwiaja diagnostyke.', 'Sprawdz status i dziennik, potem uruchom ponownie wskazana usluge.'],
+    dirs:[],files:{},
+    services:{[unit]:{status:'failed',pid,journal:['09:12 '+unit+': transient worker crash (exit 1)','09:13 systemd: '+unit+'.service failed']}},
+    processes:[{pid,name:unit==='web'?'webd':'queue-worker',service:unit,running:false}],
+    success:(state,events) =>
+      state.services?.[unit]?.status==='active' &&
+      state.processes?.some(p=>p.pid===pid && p.service===unit && p.running) === true &&
+      events.some(e=>e.ok && e.command==='systemctl' && e.target===unit+'.service' && e.output.includes('failed')) &&
+      events.some(e=>e.ok && e.command==='journalctl' && e.target===unit+'.service' && e.output.includes('crash'))
+  };
+}
+
 export const reviewScenarios: ReviewScenario[] = [
   logCase('log-a', 'Tajemniczy firewall', '/var/log/firewall.log', 'BLOCK',
     '10:05 INFO started\n10:08 BLOCK outbound 10.0.0.13\n10:11 INFO idle'),
@@ -113,14 +146,20 @@ export const reviewScenarios: ReviewScenario[] = [
   backupCase('backup-b', 'Kopia DNS', '/var/log/dns.log', HOME + '/documents/dns-copy.log',
     '13:10 INFO query resolved\n13:16 WARN dns timeout'),
   hardeningCase(),
-  recoveryCase()
+  recoveryCase(),
+  processCase('proc-a','cpu-burn',424),
+  processCase('proc-b','log-spammer',425),
+  serviceCase('svc-a','web',331),
+  serviceCase('svc-b','queue',350)
 ];
 
 export const reviewSkills: {id:ReviewSkill; title:string; missionIds:string[]}[] = [
   {id:'log-search', title:'Wyszukiwanie w logach', missionIds:['log-hunt','transfer-investigation']},
   {id:'file-search', title:'Odnajdywanie dowodow', missionIds:['evidence-search']},
   {id:'backup', title:'Zabezpieczanie kopii', missionIds:['backup-evidence']},
-  {id:'permissions', title:'Uprawnienia plikow', missionIds:['file-hardening','permission-recovery']}
+  {id:'permissions', title:'Uprawnienia plikow', missionIds:['file-hardening','permission-recovery']},
+  {id:'processes', title:'Kontrola procesow', missionIds:['runaway-process']},
+  {id:'services', title:'Diagnostyka uslug', missionIds:['web-service-recovery']}
 ];
 
 const skills = new Set<ReviewSkill>(reviewSkills.map(s => s.id));
@@ -165,7 +204,10 @@ export function createReviewAttempt(skill: ReviewSkill, history: ReviewHistory):
     cwd:base.cwd,
     dirs:[...new Set([...base.dirs, ...variant.dirs])],
     files:{...base.files, ...variant.files},
-    permissions:{...base.permissions, ...variant.permissions}
+    permissions:{...base.permissions, ...variant.permissions},
+    processes:[...(base.processes ?? []).filter(p=>!variant.processes?.some(v=>v.pid===p.pid)),
+      ...(variant.processes ?? [])],
+    services:{...base.services, ...variant.services}
   };
   return {
     skill, variantId:variant.id, state, events:[],
