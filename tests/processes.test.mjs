@@ -128,7 +128,7 @@ test('review skills unlock only after their corresponding missions',()=>{
   assert.deepEqual(availableReviews(['orientation'],{},{}),[]);
   const unlocked=availableReviews(['runaway-process','web-service-recovery'],{},{});
   assert.deepEqual(unlocked.map(s=>s.id),['processes','services']);
-  assert.equal(reviewScenarios.length,12);
+  assert.equal(reviewScenarios.length,16);
 });
 
 test('two distinct process review cases require process discovery',()=>{

@@ -95,6 +95,26 @@ export function explainError(result: CommandResult): CoachMessage | null {
       guidance: 'Sprawdz nazwe uslugi. Ten symulator posiada tylko kilka zdefiniowanych jednostek.'
     };
   }
+  if (message.includes('destination host unreachable') || message.includes('network interface is down')) {
+    return {title:'Brak łączności sieciowej',
+      guidance:'Sprawdź adres, prefiks i trasę domyślną. Zweryfikuj, czy brama znajduje się w Twojej podsieci i czy interfejs jest aktywny.'};
+  }
+  if (message.includes('nexthop has invalid gateway')) {
+    return {title:'Brama poza osiągalną podsiecią',
+      guidance:'Porównaj IP/prefiks interfejsu z adresem bramy. Bez właściwej adresacji router nie jest osiągalny na tym łączu.'};
+  }
+  if (message.includes('packet loss')) {
+    return {title:'Brak odpowiedzi ICMP',
+      guidance:'Sprawdź, czy odpytywany adres jest poprawny. Sam ping nie potwierdza otwartego portu TCP ani działania usługi.'};
+  }
+  if (message.includes('invalid ipv4 address')) {
+    return {title:'Nieprawidłowa adresacja IPv4',
+      guidance:'Adres składa się z czterech oktetów 0–255, a prefiks określa liczbę bitów sieci, np. /24.'};
+  }
+  if (message.includes('uzycie: ip') || message.includes('uzycie: ping') || message.includes('uzycie: ss')) {
+    return {title:'Składnia polecenia sieciowego',
+      guidance:'Sprawdź formę polecenia i nazwy argumentów przez help. Symulator obsługuje tylko określone warianty.'};
+  }
   if (message.includes('permission denied')) {
     return {
       title: 'Brak odpowiednich uprawnień',

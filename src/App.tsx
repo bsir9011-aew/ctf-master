@@ -14,7 +14,8 @@ interface SavedSession {
   lines:Line[]; learning:LearningMap;
   reviewAttempt:ReviewAttempt | null; reviewHistory:ReviewHistory;
 }
-const STORAGE = 'ctf-master:mvp-06';
+const STORAGE = 'ctf-master:mvp-07';
+const V6 = 'ctf-master:mvp-06';
 const V5 = 'ctf-master:mvp-05';
 const V4 = 'ctf-master:mvp-04';
 const V3 = 'ctf-master:mvp-03';
@@ -31,12 +32,13 @@ function blankSession(): SavedSession {
 
 function restore(): SavedSession {
   try {
-    const v6 = localStorage.getItem(STORAGE);
+    const v7 = localStorage.getItem(STORAGE);
+    const v6 = localStorage.getItem(V6);
     const v5 = localStorage.getItem(V5);
     const v4 = localStorage.getItem(V4);
     const v3 = localStorage.getItem(V3);
     const v2 = localStorage.getItem(V2);
-    const parsed: unknown = JSON.parse(v6 ?? v5 ?? v4 ?? v3 ?? v2 ?? localStorage.getItem(V1) ?? 'null');
+    const parsed: unknown = JSON.parse(v7 ?? v6 ?? v5 ?? v4 ?? v3 ?? v2 ?? localStorage.getItem(V1) ?? 'null');
     if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return blankSession();
     const p = parsed as Partial<SavedSession>;
     if (!Number.isInteger(p.missionIndex) || !Array.isArray(p.events) ||
@@ -80,6 +82,11 @@ function restore(): SavedSession {
         processes:p.state.processes ?? seed.processes,
         services:p.state.services ?? seed.services
       };
+    }
+    if (v7 === null) {
+      // New virtual networking state; do not mutate user files, hints or completed missions.
+      const seed = initialLinux();
+      p.state = {...p.state,network:p.state.network ?? seed.network};
     }
     p.learning = restoreLearning(p.learning);
     p.reviewHistory = restoreReviewHistory(p.reviewHistory);
@@ -177,7 +184,7 @@ export default function App() {
   return <div className="app-shell">
     <header className="topbar">
       <div className="brand-mark" aria-hidden="true">&gt;_</div>
-      <div><strong>CTF MASTER</strong><span>Linux Administrator / MVP 0.6</span></div>
+      <div><strong>CTF MASTER</strong><span>Linux Administrator / MVP 0.7</span></div>
       <span className="offline-tag">LOCAL SIM</span>
     </header>
     <main>
@@ -207,7 +214,7 @@ export default function App() {
         </section>
         <section className="mission-card">
           <div className="mission-top"><span className="eyebrow">MISJA {String(session.missionIndex+1).padStart(2,'0')} · {mission.category.toUpperCase()}</span>
-            <span className="level">{mission.category === 'CTF Rookie' ? 'CTF' : mission.category === 'Linux Investigator' ? 'INVESTIGATOR' : mission.category === 'Linux Administrator' ? 'ADMIN' : 'BEGINNER'}</span>
+            <span className="level">{mission.category === 'CTF Rookie' ? 'CTF' : mission.category === 'Linux Investigator' ? 'INVESTIGATOR' : mission.category === 'Linux Administrator' ? 'ADMIN' : mission.category === 'Linux Networking' ? 'NETWORK' : 'BEGINNER'}</span>
           </div>
           <h2>{mission.title}</h2><p>{mission.briefing}</p>
           <div className="learning-stats" aria-label="Statystyki misji">
