@@ -39,6 +39,12 @@ export function revealHint(progress: LearningMap, missionId: string): LearningMa
   return {...progress, [missionId]: {...previous, hints: Math.min(3, previous.hints + 1)}};
 }
 
+/** Opening the command list is assistance, even when used through the UI. */
+export function markHelp(progress: LearningMap, missionId: string): LearningMap {
+  const previous = progress[missionId] ?? initialStats();
+  return {...progress, [missionId]: {...previous, usedHelp:true}};
+}
+
 /** Independent means the *first* successful completion used neither help nor failed commands. */
 export function trackCommand(
   progress: LearningMap, missionId: string, result: CommandResult, firstCompletion: boolean
