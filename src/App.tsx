@@ -14,7 +14,8 @@ interface SavedSession {
   lines:Line[]; learning:LearningMap;
   reviewAttempt:ReviewAttempt | null; reviewHistory:ReviewHistory;
 }
-const STORAGE = 'ctf-master:mvp-07';
+const STORAGE = 'ctf-master:mvp-08';
+const V7 = 'ctf-master:mvp-07';
 const V6 = 'ctf-master:mvp-06';
 const V5 = 'ctf-master:mvp-05';
 const V4 = 'ctf-master:mvp-04';
@@ -32,13 +33,14 @@ function blankSession(): SavedSession {
 
 function restore(): SavedSession {
   try {
-    const v7 = localStorage.getItem(STORAGE);
+    const v8 = localStorage.getItem(STORAGE);
+    const v7 = localStorage.getItem(V7);
     const v6 = localStorage.getItem(V6);
     const v5 = localStorage.getItem(V5);
     const v4 = localStorage.getItem(V4);
     const v3 = localStorage.getItem(V3);
     const v2 = localStorage.getItem(V2);
-    const parsed: unknown = JSON.parse(v7 ?? v6 ?? v5 ?? v4 ?? v3 ?? v2 ?? localStorage.getItem(V1) ?? 'null');
+    const parsed: unknown = JSON.parse(v8 ?? v7 ?? v6 ?? v5 ?? v4 ?? v3 ?? v2 ?? localStorage.getItem(V1) ?? 'null');
     if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return blankSession();
     const p = parsed as Partial<SavedSession>;
     if (!Number.isInteger(p.missionIndex) || !Array.isArray(p.events) ||
@@ -87,6 +89,16 @@ function restore(): SavedSession {
       // New virtual networking state; do not mutate user files, hints or completed missions.
       const seed = initialLinux();
       p.state = {...p.state,network:p.state.network ?? seed.network};
+    }
+    if (v8 === null) {
+      const seeded = initialLinux().network!;
+      const existing = p.state.network;
+      // Add new diagnostics fields without overwriting previously fixed routes.
+      p.state = {...p.state,network:{
+        ...seeded,...existing,
+        arpCache:{...existing?.arpCache},
+        remotePorts:[...(existing?.remotePorts ?? seeded.remotePorts ?? [443])]
+      }};
     }
     p.learning = restoreLearning(p.learning);
     p.reviewHistory = restoreReviewHistory(p.reviewHistory);
@@ -184,7 +196,7 @@ export default function App() {
   return <div className="app-shell">
     <header className="topbar">
       <div className="brand-mark" aria-hidden="true">&gt;_</div>
-      <div><strong>CTF MASTER</strong><span>Linux Administrator / MVP 0.7</span></div>
+      <div><strong>CTF MASTER</strong><span>Linux Networking / MVP 0.8</span></div>
       <span className="offline-tag">LOCAL SIM</span>
     </header>
     <main>
