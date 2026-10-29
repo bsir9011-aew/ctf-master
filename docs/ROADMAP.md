@@ -21,7 +21,8 @@
 - [x] Testy logiki symulatora
 - [x] Kompaktowa mobilna nawigacja i historia polecen
 - [x] Wersjonowanie cache PWA i testy mechanizmu offline
-- [ ] Manual QA na fizycznym telefonie (1.0 RC)
+- [x] Mapa 5 rozdzialow z celami, komendami i postepem
+- [ ] Manual QA na fizycznym telefonie (1.0 RC.2)
 
 ## Etap 1 - Linux Administrator
 - [x] Podstawy chmod, stat, tryby rwx i testy Permission denied
