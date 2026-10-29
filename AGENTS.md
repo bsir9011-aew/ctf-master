@@ -14,4 +14,4 @@ Mobile-first PWA teaching Linux and CTF through interactive, causal labs. Progre
 - Do not bloat validation. Before a PR: `npm run build` and manual smoke test for the changed mission. Add focused automated tests when engine becomes more complex.
 
 ## Near-term priority
-Next PR: perform manual mobile QA of 1.0 RC using docs/MOBILE_QA.md; fix findings before expanding to VLAN/ACL. Preserve 16 missions and 20 review variants, offline use, accessibility and existing stored progress. For future deployments bump versioned service worker cache explicitly. Avoid new dependencies for basic UI tests.
+Next PR: perform manual mobile QA of 1.0 RC.2 using docs/MOBILE_QA.md and fix findings before adding VLAN/ACL. Keep the 5 chapter curriculum aligned to all 16 missions, with no bypass of locked missions. Preserve 20 review variants, offline support and existing localStorage keys. Bump the service worker cache whenever deployment assets change.
