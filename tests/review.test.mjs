@@ -104,8 +104,8 @@ test('restoration rejects invalid review data and keeps a valid in-progress atte
   assert.equal(resumed.variantId,attempt.variantId);
 });
 
-test('all six review variants have unique ids and valid initial fixtures', () => {
-  assert.equal(reviewScenarios.length,6);
+test('all eight review variants have unique ids and valid initial fixtures', () => {
+  assert.equal(reviewScenarios.length,8);
   assert.equal(new Set(reviewScenarios.map(item=>item.id)).size,6);
   for (const scenario of reviewScenarios) {
     const attempt = createReviewAttempt(scenario.skill, {[scenario.skill]:{attempts:scenario.id.endsWith('b')?1:0,streak:0}});
