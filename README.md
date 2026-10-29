@@ -11,14 +11,14 @@ npm run dev
 
 W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefonie otworz adres podgladu; mozna zainstalowac aplikacje jako PWA. Build produkcyjny: `npm run build`. Testy symulatora: `npm test` (Node.js 22+).
 
-## Co dziala w MVP 0.4
+## Co dziala w MVP 0.5
 
-- 8 misji: 3 podstawowe, 4 dotyczace logow i plikow oraz 1 zadanie transferowe (analiza zdarzenia i zachowanie kopii).
-- Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `whoami`, `help`, `clear`.
+- 10 misji: 3 podstawowe, 4 dotyczace logow i plikow, 1 transferowa oraz 2 o uprawnieniach (analiza zdarzenia i zachowanie kopii).
+- Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `chmod`, `stat`, `whoami`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
 - Walidacja efektu zadania, nie porownywanie odpowiedzi 1:1.
 - Podpowiedzi 3 poziomow, kontekstowe komunikaty o bledach, licznik prob i punkt samodzielnego rozwiazania.
-- Tryb **Powtorki**: 3 umiejetnosci (logi, odnajdywanie dowodow, kopie), kazda z 2 odmiennymi scenariuszami, oddzielnym terminalem i lokalnym zapisem.
+- Tryb **Powtorki**: 4 umiejetnosci (logi, odnajdywanie dowodow, kopie, uprawnienia), kazda z 2 odmiennymi scenariuszami, oddzielnym terminalem i lokalnym zapisem.
 - Umiejetnosc uznana za przećwiczona po 2 kolejnych samodzielnie wykonanych roznych wariantach (brak bledow, help i podpowiedzi).
 - Zapis sesji w `localStorage` z migracja danych z MVP 0.1 i 0.2 bez resetowania postepu.
 - PWA: manifest, ikony, service worker dla wersji produkcyjnej.
@@ -42,8 +42,14 @@ Zobacz [docs/ROADMAP.md](docs/ROADMAP.md). Przyszle etapy: bogatszy parser, drag
 
 MVP demonstracyjne, niepelny interpreter systemu Linux. Zestaw zadan celowo ograniczony, aby unikac pozornej nauki poprzez setki sztywnych quizow.
 
-## Tryb powtorek (MVP 0.4)
+## Tryb powtorek (MVP 0.5)
 
 Powtorki odblokowuja sie po przejsciu odpowiednich misji. Trudne umiejetnosci sa wyswietlane jako zalecane na podstawie bledow, pomocy i braku samodzielnego zaliczenia. Dwa kolejne samodzielne rozwiazania, w zmienionych danych, sa wymagane do zaliczenia umiejetnosci. Warianty sa deterministyczne, a nie losowane. Nie jest to jeszcze kalendarz powtorek rozlozonych w czasie.
 
 W trybie powtorek kazda sesja ma osobny system plikow, zatem oryginalne misje zachowuja stan. Przelaczanie trybow nie usuwa trwajacej powtorki. `npm test` sprawdza logike; testy i build uruchamia takze GitHub Actions.
+
+## Uprawnienia (MVP 0.5)
+
+Dodano `stat PLIK`, `chmod 600 PLIK`, `chmod u+r PLIK`, `chmod go-rwx PLIK` oraz prezentacje praw rwx w `ls -l`. Odczyt przez `cat`, `grep` i kopiowanie przez `cp` respektuja prawo czytania wlasciciela. Dwie misje dotycza hardeningu pliku i diagnozy `Permission denied`. Dwie nowe powtorki wymagaja samodzielnego przeniesienia umiejetnosci.
+
+**Uproszczenia symulacji:** istnieje tylko wlasciciel `player`, nie ma prawdziwego `chown`, ACL, sudo, grup użytkownikow, setuid, uruchamiania skryptow ani pelnych kontroli dostepu do katalogow. `chmod` dotyczy tylko plikow. Uprawnienia sa stanem wirtualnej gry, nie uprawnieniami urzadzenia.

@@ -14,7 +14,8 @@ interface SavedSession {
   lines:Line[]; learning:LearningMap;
   reviewAttempt:ReviewAttempt | null; reviewHistory:ReviewHistory;
 }
-const STORAGE = 'ctf-master:mvp-04';
+const STORAGE = 'ctf-master:mvp-05';
+const V4 = 'ctf-master:mvp-04';
 const V3 = 'ctf-master:mvp-03';
 const V2 = 'ctf-master:mvp-02';
 const V1 = 'ctf-master:mvp-01';
@@ -29,10 +30,11 @@ function blankSession(): SavedSession {
 
 function restore(): SavedSession {
   try {
-    const v4 = localStorage.getItem(STORAGE);
+    const v5 = localStorage.getItem(STORAGE);
+    const v4 = localStorage.getItem(V4);
     const v3 = localStorage.getItem(V3);
     const v2 = localStorage.getItem(V2);
-    const parsed: unknown = JSON.parse(v4 ?? v3 ?? v2 ?? localStorage.getItem(V1) ?? 'null');
+    const parsed: unknown = JSON.parse(v5 ?? v4 ?? v3 ?? v2 ?? localStorage.getItem(V1) ?? 'null');
     if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return blankSession();
     const p = parsed as Partial<SavedSession>;
     if (!Number.isInteger(p.missionIndex) || !Array.isArray(p.events) ||
@@ -41,18 +43,32 @@ function restore(): SavedSession {
         !p.state.files || typeof p.state.files !== 'object' || Array.isArray(p.state.files)) return blankSession();
     const missionIndex = p.missionIndex!;
     if (missionIndex < 0 || missionIndex >= missions.length) return blankSession();
-    if (v4 === null && v3 === null) {
+    if (v5 === null) {
       const seed = initialLinux();
-      const oldPaths = v2 === null
+      // Historical upgrades still work for users who skipped version 0.3/0.4.
+      const needOld = v4 === null && v3 === null;
+      const oldPaths = needOld && v2 === null
         ? ['/var/log/auth.log', '/home/player/documents/cases/evidence-47.txt',
            '/home/player/downloads/incident.tmp', '/home/player/downloads/stale.tmp']
         : [];
-      const newPaths = [...oldPaths, '/var/log/app.log'];
+      const appPaths = needOld ? ['/var/log/app.log'] : [];
+      const newPermissionsPaths = [
+        '/home/player/documents/credentials.txt',
+        '/home/player/documents/restricted.log'
+      ];
+      const candidates = [...oldPaths, ...appPaths, ...newPermissionsPaths];
+      const missing = candidates.filter(path => !Object.hasOwn(p.state!.files, path));
       p.state = {...p.state,
-        dirs:v2 === null ? [...new Set([...p.state.dirs, '/home/player/documents/cases'])] : p.state.dirs,
+        dirs:needOld && v2 === null
+          ? [...new Set([...p.state.dirs, '/home/player/documents/cases'])] : p.state.dirs,
         files:{
-          ...Object.fromEntries(newPaths.filter(path => !Object.hasOwn(p.state!.files, path)).map(path => [path,seed.files[path]])),
+          ...Object.fromEntries(missing.map(path => [path, seed.files[path]])),
           ...p.state.files
+        },
+        permissions:{
+          ...Object.fromEntries(newPermissionsPaths.filter(path => missing.includes(path))
+            .map(path => [path, seed.permissions?.[path] ?? 0o644])),
+          ...p.state.permissions
         }
       };
     }
@@ -152,7 +168,7 @@ export default function App() {
   return <div className="app-shell">
     <header className="topbar">
       <div className="brand-mark" aria-hidden="true">&gt;_</div>
-      <div><strong>CTF MASTER</strong><span>Linux Explorer / MVP 0.4</span></div>
+      <div><strong>CTF MASTER</strong><span>Linux Explorer / MVP 0.5</span></div>
       <span className="offline-tag">LOCAL SIM</span>
     </header>
     <main>
@@ -182,7 +198,7 @@ export default function App() {
         </section>
         <section className="mission-card">
           <div className="mission-top"><span className="eyebrow">MISJA {String(session.missionIndex+1).padStart(2,'0')} · {mission.category.toUpperCase()}</span>
-            <span className="level">{mission.category === 'CTF Rookie' ? 'CTF' : mission.category === 'Linux Investigator' ? 'INVESTIGATOR' : 'BEGINNER'}</span>
+            <span className="level">{mission.category === 'CTF Rookie' ? 'CTF' : mission.category === 'Linux Investigator' ? 'INVESTIGATOR' : mission.category === 'Linux Administrator' ? 'ADMIN' : 'BEGINNER'}</span>
           </div>
           <h2>{mission.title}</h2><p>{mission.briefing}</p>
           <div className="learning-stats" aria-label="Statystyki misji">

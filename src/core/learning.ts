@@ -77,6 +77,12 @@ export function explainError(result: CommandResult): CoachMessage | null {
       guidance: 'Sprawdź literówki i listę obsługiwanych poleceń przez help. Pamiętaj, że to uproszczony Linux, a nie pełny Bash.'
     };
   }
+  if (message.includes('permission denied')) {
+    return {
+      title: 'Brak odpowiednich uprawnień',
+      guidance: 'Sprawdź właściciela i bity rwx przez stat lub ls -l. Ustal, komu faktycznie trzeba przyznać dostęp, zamiast nadawać 777.'
+    };
+  }
   if (message.includes('brak dopasowan')) {
     return {
       title: 'Nie znaleziono szukanego tekstu',

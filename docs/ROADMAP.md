@@ -16,12 +16,13 @@
 - [ ] Drag and drop polecen oraz warianty scenariuszy
 - [x] Kontekstowy feedback i zapisane statystyki pomocy
 - [x] Pierwsza misja transferowa
-- [x] Pierwsze powtorki celowane: 3 umiejetnosci, 2 warianty kazda, osobne srodowisko
+- [x] Pierwsze powtorki celowane: 4 umiejetnosci, 2 warianty kazda, osobne srodowisko
 - [ ] Powtorki czasowe i przeglad wszystkich obszarow (m.in. uprawnienia)
 - [x] Testy logiki symulatora
 
 ## Etap 1 - Linux Administrator
-- [ ] chmod/chown, uzytkownicy, grupy, ACL
+- [x] Podstawy chmod, stat, tryby rwx i testy Permission denied
+- [ ] chown, uzytkownicy, grupy, ACL, katalogi z kontrola przechodzenia
 - [x] grep/find i pierwsze misje logow
 - [ ] Procesy, uslugi i zaawansowana diagnostyka
 - [ ] Diagnostyka awarii i zadania bez podanych komend
