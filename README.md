@@ -11,9 +11,10 @@ npm run dev
 
 W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefonie otworz adres podgladu; mozna zainstalowac aplikacje jako PWA. Build produkcyjny: `npm run build`. Testy symulatora: `npm test` (Node.js 22+).
 
-## Co dziala w 1.0 RC (mapa nauki)
+## Co dziala w 1.0 RC (Akademia komend)
 
 - 16 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
+- Trzy tryby: **Komendy** (15 ćwiczeń składni i działania), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
 - Zwinięta domyślnie **Mapa nauki** z 5 rozdziałami: cele, komendy, licznik postępu, przejście do pierwszej dostępnej misji.
 - Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `chmod`, `stat`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
@@ -98,3 +99,11 @@ Na telefonie zamiast dlugiej siatki 16 misji jest dostepna lista wyboru. Termina
 Aby nie przeskakiwać od podstawowych poleceń prosto do rozbudowanej diagnostyki, dodaliśmy pięć ułożonych po kolei rozdziałów: terminal i flaga (misje 1–3), pliki i śledztwa (4–8), uprawnienia (9–10), procesy i usługi (11–12), sieć i troubleshooting (13–16). Każda sekcja wyjaśnia cel, używane komendy i oczekiwaną umiejętność. Mapa pokazuje zaliczony/odblokowany/zablokowany status obliczany z zapisanej historii misji. Nie zawiera obejścia blokad i nie resetuje postępu.
 
 To nadal wydanie **release candidate**: testy automatyczne oraz build nie zastępują ręcznego testu na fizycznym telefonie; lista w `docs/MOBILE_QA.md` pozostaje aktualna.
+
+## Akademia komend (1.0 RC.3)
+
+Aplikacja startuje w zakładce **Komendy**. Dostępnych jest 15 krótkich ćwiczeń: nawigacja, tworzenie plików, odczyt, wyszukiwanie, kopiowanie, przenoszenie i usuwanie, a dalej uprawnienia, procesy, usługi i trasy IP. Każde zadanie zawiera zastosowanie, składnię, przykład, jedną podpowiedź i pole do wpisania polecenia. Zaliczenie zależy od zaobserwowanego działania symulowanego systemu, nie od samego identycznego ciągu tekstowego. Można powtarzać zadania bez blokowania następnych, z resetem wirtualnego laboratorium.
+
+Wykonanie ćwiczeń i ich postęp **nie odblokowują misji CTF**. Akademia ma osobny stan w localStorage (`ctf-master:command-academy-v1`) i nie modyfikuje dotychczasowych kluczy misji oraz powtórek. Wznowienie po odświeżeniu zachowuje ukończone ćwiczenia i wybrany numer; niezakończone polecenia i pliki treningowe są resetowane po przejściu do innego trybu.
+
+Nadal wymagany jest test ręczny na fizycznym telefonie i sprawdzenie PWA offline według `docs/MOBILE_QA.md`.
