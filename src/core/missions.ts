@@ -118,5 +118,41 @@ export const missions: Mission[] = [
       events.some(e=>e.ok && e.command==='systemctl' && e.target==='web.service' && e.output.includes('failed')) &&
       events.some(e=>e.ok && e.command==='journalctl' && e.target==='web.service' && e.output.includes('crash')) &&
       events.some(e=>e.ok && e.command==='systemctl' && e.target==='web.service' && e.output.includes('active'))
+  },
+  {
+    id: 'gateway-repair', title: 'Zagubiona brama', category: 'Linux Networking',
+    briefing: 'Interfejs eth0 ma dzialac w sieci 10.20.30.0/24, a router to 10.20.30.1. Host 198.51.100.10 powinien odpowiadac. Sprawdz adres i trase, popraw bledna brame i potwierdz lacznosc.',
+    hints: [
+      'Polaczenie z inna podsiecia wymaga bramy domyslnej.',
+      'ip addr i ip route pokazuja konfiguracje; ping -c 1 testuje dostepnosc.',
+      'Sprawdz ip route, nastepnie ustaw ip route replace default via 10.20.30.1 i przetestuj ping -c 1 198.51.100.10.'
+    ],
+    success: (state,events) =>
+      state.network?.linkUp === true &&
+      state.network?.gateway === state.network?.router &&
+      events.some(e=>e.ok && e.command==='ip' && e.target==='eth0') &&
+      events.some(e=>e.ok && e.command==='ip' && e.target==='route') &&
+      events.some(e=>e.ok && e.command==='ping' && e.target===state.network?.externalHost)
+  },
+  {
+    id: 'api-listener', title: 'Gdzie jest port API?', category: 'Linux Networking',
+    briefing: 'Usluga api powinna nasluchiwac TCP na porcie 9000. Rozpoznaj brak gniazda nasluchujacego, przywroc usluge api i sprawdz, ze port 9000 stal sie widoczny. Nie zatrzymuj innych uslug.',
+    hints: [
+      'ICMP i port TCP to rozne mechanizmy; ping nie sprawdzi, czy aplikacja nasluchuje.',
+      'ss -lnt pokazuje nasluchujace porty TCP, a systemctl zarzadza uslugami.',
+      'Uzyj ss -lnt, sprawdz systemctl status api, potem systemctl restart api i ponownie ss -lnt.'
+    ],
+    success: (state,events) => {
+      const views=events.filter(e=>e.ok && e.command==='ss' && e.target==='tcp-listeners');
+      const before=views.findIndex(e=>!e.output.includes('0.0.0.0:9000'));
+      const after=views.findIndex((e,i)=>i>before && e.output.includes('0.0.0.0:9000'));
+      return state.services?.api?.status === 'active' &&
+        state.processes?.some(p=>p.pid===366 && p.running && p.service==='api') === true &&
+        state.services?.sshd?.status === 'active' &&
+        state.services?.queue?.status === 'active' &&
+        before>=0 && after>before &&
+        events.some(e=>e.ok && e.command==='systemctl' && e.target==='api.service' &&
+          e.output.includes('active'));
+    }
   }
 ];
