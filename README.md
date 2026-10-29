@@ -11,16 +11,16 @@ npm run dev
 
 W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefonie otworz adres podgladu; mozna zainstalowac aplikacje jako PWA. Build produkcyjny: `npm run build`. Testy symulatora: `npm test` (Node.js 22+).
 
-## Co dziala w MVP 0.6
+## Co dziala w MVP 0.7
 
-- 12 misji: 3 podstawowe, 4 dotyczace logow i plikow, 1 transferowa, 2 o uprawnieniach, 2 o procesach i uslugach.
-- Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `chmod`, `stat`, `ps`, `kill`, `systemctl`, `journalctl`, `whoami`, `help`, `clear`.
+- 14 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi oraz 2 scenariusze diagnostyki sieci.
+- Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `chmod`, `stat`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `whoami`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
 - Walidacja efektu zadania, nie porownywanie odpowiedzi 1:1.
 - Podpowiedzi 3 poziomow, kontekstowe komunikaty o bledach, licznik prob i punkt samodzielnego rozwiazania.
-- Tryb **Powtorki**: 6 umiejetnosci (logi, szukanie dowodow, kopie, uprawnienia, procesy, uslugi), kazda z 2 wariantami, osobnym terminalem i lokalnym zapisem.
+- Tryb **Powtorki**: 8 umiejetnosci (logi, dowody, kopie, uprawnienia, procesy, uslugi, trasy IP, porty TCP), kazda z 2 wariantami, osobnym terminalem i lokalnym zapisem.
 - Umiejetnosc uznana za przećwiczona po 2 kolejnych samodzielnie wykonanych roznych wariantach (brak bledow, help i podpowiedzi).
-- Zapis sesji w `localStorage` z migracja danych z MVP 0.1-0.5 bez resetowania postepu.
+- Zapis sesji w `localStorage` z migracja danych z MVP 0.1-0.6 bez resetowania postepu.
 - PWA: manifest, ikony, service worker dla wersji produkcyjnej.
 
 **Bezpieczenstwo:** Polecenia nie sa wykonywane na urzadzeniu, w kontenerze ani na serwerze. Parser obsluguje tylko jawnie dozwolone komendy symulacji. To nie jest prawdziwy Bash.
@@ -59,3 +59,11 @@ Dodano `stat PLIK`, `chmod 600 PLIK`, `chmod u+r PLIK`, `chmod go-rwx PLIK` oraz
 Nowe polecenia: `ps` / `ps aux`, `kill PID`, `systemctl status|start|stop|restart UNIT`, `journalctl -u UNIT`. Procesy oraz stany jednostek systemd zmieniaja sie w pamieci symulatora i sa oddzielne w kazdej powtorce. Dwie misje ucza identyfikacji i zakonczenia wskazanego procesu oraz diagnozy i przywrocenia niedzialajacej uslugi `web`. Dodatkowo po dwa warianty powtorek dla procesow i uslug.
 
 To uproszczona symulacja: stale PID, jeden uzytkownik, kilka nazwanych jednostek, brak rzeczywistego schedulera, sygnalow innych niz modelowany SIGTERM, uprawnien systemd, `sudo`, realnych procesow i realnego systemd. `journalctl` odczytuje wylacznie zdefiniowane dzienniki fikcyjnych uslug. Polecenia **nigdy** nie trafiaja do systemu gospodarza.
+
+## Siec (MVP 0.7)
+
+Dodano w pelni wirtualne `ip addr show`, `ip addr replace IP/PREFIX dev eth0`, `ip route show`, `ip route replace default via IP`, `ip link set eth0 up|down`, `ping -c 1 IPv4` oraz `ss -lnt`. Symulowany test lacznosci bierze pod uwage IPv4, prefiks, czy router jest w tej samej podsieci, trase domyslna i stan interfejsu. `ss` pokazuje porty nasluchujace aktywnych, symulowanych uslug: sshd:22, web:8080, api:9000.
+
+Dwie nowe misje: naprawa bramy i diagnoza brakujacego portu 9000. Cztery powtorki celowane: zla brama, zla podsiec oraz dwa scenariusze rozrozniania ICMP/portow TCP.
+
+**Ograniczenia:** symulator nie wykonuje polaczen sieciowych, nie ma prawdziwych pakietow, routingu hosta, DNS, ARP, NAT, firewalli czy `nmap`. `ping` obsluguje jedynie adresy testowe z danego laboratorium i localhost. `ss` pokazuje tylko fikcyjne porty. Zakres polecen jest celowo waski i nie zastepuje terminala Linux.
