@@ -337,7 +337,7 @@ export default function App() {
             }));
           }}>Zacznij bieżący wariant od nowa</button>}
         </section>}
-      </>}
+      </> : null}
 
       {showPacket && <PacketPath network={packetNetwork} expanded={packetExpanded} onToggle={togglePacket}/>}
       {(mode === 'missions' || review) && <>
