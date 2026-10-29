@@ -14,4 +14,4 @@ Mobile-first PWA teaching Linux and CTF through interactive, causal labs. Progre
 - Do not bloat validation. Before a PR: `npm run build` and manual smoke test for the changed mission. Add focused automated tests when engine becomes more complex.
 
 ## Near-term priority
-Next PR: add a small, replayable review mode for failed skills, then continue permissions/process simulation. Do not award mastery for simply reading hints; keep the existing 8 missions compatible.
+Next PR: extend learning skills and permissions/process simulation without destabilizing 8 existing missions and 6 review variants. Keep review sessions isolated and mastery tied to two clean, different variants. Avoid prematurely adding spaced repetition scheduling.
