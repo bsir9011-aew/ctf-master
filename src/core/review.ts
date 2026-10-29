@@ -1,4 +1,4 @@
-import { executeLinux, initialLinux, type CommandResult, type LinuxState } from './linux';
+import { executeLinux, initialLinux, type CommandResult, type LinuxState } from './linux.ts';
 import type { LearningMap } from './learning';
 
 /** Isolated practice environments. Original mission files and progress stay untouched. */
