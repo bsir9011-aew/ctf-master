@@ -153,3 +153,9 @@ Akademia ma bardziej szczegółowe wyjaśnienia dla **find, cp i chmod**. `find`
 Dla `cp` i `chmod` interfejs zachowuje w pamięci **stan bezpośrednio sprzed ostatniej komendy** wyłącznie na potrzeby opisania efektu (nie tworzy nowego klucza localStorage ani nie zapisuje surowych komend). Zaliczenie nadal zależy od warunku zadania, a nie od tekstu wyjaśnienia. W sprawdzianach transferowych nie ujawnia się ukrytej docelowej ścieżki. Silnik poleceń i dotychczasowy postęp pozostają bez zmian.
 
 Status: automatyczne testy logiczne i CI sprawdzają kod, lecz rzeczywisty test na telefonie i instalacja PWA offline nadal wymagają ręcznej weryfikacji.
+
+## Rzetelna ocena samodzielności (1.0 RC.10)
+
+Sprawdzian transferowy uznaje teraz za nietrafioną próbę również **poprawnie wykonaną komendę będącą przedmiotem ćwiczenia, jeśli nie prowadzi do celu**. Przykładowo `chmod 640` może zakończyć się bez błędu Linuxa, ale nie spełnia warunku 600 — późniejsze poprawienie trybu w tej samej próbie nie daje statusu „opanowane”. Można zresetować sprawdzian i wykonać go ponownie bez pomyłki. Poprawnie działające **komendy pomocnicze** (np. `pwd` lub `ls` podczas rozpoznania zadania `grep`) nie są karane. Błędy wykonania wciąż liczą się jako nietrafione próby; `help` i przycisk podpowiedzi wciąż liczą pomoc.
+
+Dodatkowo `find . -name WZORZEC` poprawnie interpretuje jawną ścieżkę `.` jako punkt startowy. Lekcja i sprawdzian `find` wymagają przeszukania wskazanego katalogu `~/practice`, a nie całego wirtualnego systemu. Postępy, które użytkownik już zdobył, pozostają niezmienione — nie wykonujemy ponownej retroaktywnej oceny. Rzeczywisty test mobilny nadal do wykonania.

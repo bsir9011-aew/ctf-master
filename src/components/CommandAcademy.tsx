@@ -4,7 +4,7 @@ import {
   academySubmit, commandLessons, createAcademyState,
   restoreAcademyProgress, type AcademyProgress, type CommandLessonGroup
 } from '../core/commandAcademy';
-import {createTransferState,submitTransfer,earnedMastery,transferChallenges} from '../core/academyTransfer';
+import {createTransferState,submitTransfer,earnedMastery,transferMistake,transferChallenges} from '../core/academyTransfer';
 import type { CommandResult, LinuxState } from '../core/linux';
 import { academyTerminalHeight, needsRecommendation } from '../core/academyPresentation';
 import { rememberCommand, moveHistoryCursor } from '../core/commandHistory';
@@ -121,9 +121,14 @@ export default function CommandAcademy() {
     const next=inTransfer
       ? submitTransfer(system,events,raw,lesson.id)
       : academySubmit(system,events,raw,lesson.id);
-    const newErrors=errors+Number(!next.result.ok);
+    // A correctly executed but off-target focused command is still a miss
+    // when measuring independent mastery; exploratory successes are allowed.
+    const mistake=inTransfer
+      ? transferMistake(lesson.id,next.result,next.completed)
+      : !next.result.ok;
+    const newErrors=errors+Number(mistake);
     setErrors(newErrors);
-    if(!next.result.ok) setMetrics(old=>recordCoachSignal(old,lesson.id,'errors'));
+    if(mistake) setMetrics(old=>recordCoachSignal(old,lesson.id,'errors'));
     const askedHelp=next.result.command==='help';
     const assisted=usedHint||askedHelp;
     if(askedHelp&&!usedHint) {
@@ -165,7 +170,7 @@ export default function CommandAcademy() {
     ? (inTransfer
         ? (independentNow
           ? 'Samodzielnie rozwiązałeś nowy wariant bez błędów i podpowiedzi.'
-          : 'W tej próbie pojawił się błąd lub pomoc. Zresetuj sprawdzian, aby potwierdzić samodzielność.') +
+          : 'W tej próbie pojawiła się nietrafiona próba lub pomoc. Zresetuj sprawdzian, aby potwierdzić samodzielność.') +
           (insight?.detail ? ' ' + insight.detail : '')
         : insight?.detail ?? lesson.purpose)
     : insight?.detail ?? '';
@@ -254,7 +259,7 @@ export default function CommandAcademy() {
             ? 'Przypomnij sobie działanie komendy i dostosuj argumenty do nowych danych.'
             : lesson.hint}</p>}
           {inTransfer&&<p className="academy-transfer-note">
-            {errors} nieudanych poleceń · {usedHint?'pomoc wykorzystana':'bez podpowiedzi'}
+            {errors} nietrafionych prób · {usedHint?'pomoc wykorzystana':'bez podpowiedzi'}
           </p>}
         </section>
       </div>

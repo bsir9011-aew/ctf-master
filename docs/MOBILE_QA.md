@@ -67,3 +67,11 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] W `chmod`: porównaj `chmod 640` i `chmod 600` na tym samym pliku po resecie zadania. Wyjaśnienie powinno pokazać prawa przed i po.
 - [ ] W sprawdzianach transferowych: feedback nie może zdradzać nazwy docelowego pliku ani gotowej komendy.
 - [ ] Wróć do Misji/Powtórek i odśwież aplikację — postępy nie mogą się zmienić. W nagłówku wersja RC.9.
+
+## RC.10 — weryfikacja rzetelności oceny
+
+- [ ] Zaliczenie intro `chmod`, potem sprawdzian: wykonaj `chmod 640 ~/practice/team.key` (poprawna komenda, niecelny wynik), następnie `chmod 600 ~/practice/team.key`. Cel osiągnięty, ale status **opanowane** nie powinien zostać przyznany. Po resecie i jednym `chmod 600` — przyznany.
+- [ ] W sprawdzianie `ls` użyj `ls ~/documents`, a następnie poprawnej ścieżki. Pierwsza komenda ma być policzona jako nietrafiona próba. Wywołanie pomocniczego `pwd` nie powinno być karane.
+- [ ] W lekcji `find`: `find / -name "ticket-*.txt"` pokazuje wynik, ale nie zalicza wymaganego przeszukania `~/practice`. `find ~/practice -name "ticket-*.txt"` zalicza.
+- [ ] Po `cd ~/practice` sprawdź `find . -name "ticket-*.txt"` — polecenie ma działać bez błędu składni.
+- [ ] Odśwież. Wcześniejsze ukończone lekcje i misje zachowują swoje dotychczasowe zaliczenia; wersja powinna wskazywać RC.10.

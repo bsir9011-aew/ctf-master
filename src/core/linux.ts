@@ -219,8 +219,10 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
     case 'find': {
       let from = '.';
       let pattern: string | null = null;
-      if (args.length && args[0] !== '-name') from = args[0];
-      const rest = args.slice(from === '.' ? 0 : 1);
+      // Explicit "." consumes an argument just like any other search root.
+      const explicitRoot = args.length > 0 && args[0] !== '-name';
+      if (explicitRoot) from = args[0];
+      const rest = args.slice(explicitRoot ? 1 : 0);
       if (rest.length === 2 && rest[0] === '-name') pattern = rest[1];
       else if (rest.length !== 0) return done('Uzycie: find [KATALOG] [-name WZORZEC]', false);
       if (pattern !== null && pattern.length > 128) return done('find: wzorzec jest za dlugi', false);

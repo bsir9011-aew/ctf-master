@@ -29,7 +29,7 @@ export const transferChallenges:readonly TransferChallenge[]=[
   {lessonId:'grep',assignment:'W dzienniku ~/practice/events.log odszukaj wpis INFO sync complete.',
     pass:(_s,e)=>saw(e,'grep',r=>r.target===LAB+'/events.log' && r.output.includes('INFO sync complete'))},
   {lessonId:'find',assignment:'Znajdź audit-67.txt w podkatalogach ~/practice za pomocą find.',
-    pass:(_s,e)=>saw(e,'find',r=>r.output.includes(LAB+'/logs/audit-67.txt'))},
+    pass:(_s,e)=>saw(e,'find',r=>r.target===LAB && r.output.split('\n').includes(LAB+'/logs/audit-67.txt'))},
   {lessonId:'cp',assignment:'Zachowaj kopię ~/practice/intro.txt w ~/practice/intro-copy.txt, nie usuwając oryginału.',
     pass:s=>hasFile(s,'intro.txt') && hasFile(s,'intro-copy.txt') &&
       s.files[LAB+'/intro-copy.txt']===s.files[LAB+'/intro.txt']},
@@ -74,4 +74,16 @@ export function submitTransfer(state:LinuxState,events:CommandResult[],raw:strin
 
 export function earnedMastery(completed:boolean,errors:number,usedHint:boolean):boolean {
   return completed && errors===0 && !usedHint;
+}
+
+/**
+ * A clean transfer attempt cannot include a successful-but-wrong use of
+ * the command currently being evaluated. Exploratory successful commands
+ * (pwd/ls/stat etc.) remain allowed while solving another command's task.
+ * Failed commands of any kind still count as mistakes.
+ */
+export function transferMistake(
+  lessonId:string,result:CommandResult,completed:boolean
+):boolean {
+  return !result.ok || (result.command===lessonId && !completed);
 }
