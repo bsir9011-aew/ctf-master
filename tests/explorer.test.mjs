@@ -1,3 +1,4 @@
+import {assertWorldUnchanged} from './assertWorldUnchanged.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { executeLinux, initialLinux } from '../src/core/linux.ts';
@@ -52,7 +53,7 @@ test('cp/mv reject missing parents and preserve state on error', () => {
   for (const command of ['cp notes.txt missing/copy.txt', 'mv documents missing', 'cp /var/log system.log', 'mv notes.txt notes.txt']) {
     const result = executeLinux(original, command);
     assert.equal(result.ok, false, command);
-    assert.equal(result.state, original, command);
+    assertWorldUnchanged(result.state, original, command);
   }
 });
 
