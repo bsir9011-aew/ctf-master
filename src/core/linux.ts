@@ -3,6 +3,7 @@ import { executeProcessCommand, initialProcesses, initialServices, type SimProce
 import { initialNetwork, executeNetworkCommand, type NetworkState } from './network.ts';
 import { executeDiagnosticCommand } from './diagnostics.ts';
 import { executeTextCommand, isTextCommand } from './textCommands.ts';
+import { executePipeline, splitPipeline } from './pipelines.ts';
 
 /** Deterministic in-browser simulator: NEVER executes input on the host OS. */
 export interface LinuxState {
@@ -20,6 +21,7 @@ export interface CommandResult {
   output: string;
   ok: boolean;
   command: string;
+  stages?: string[];
   target?: string;
   clear?: boolean;
 }
@@ -82,6 +84,13 @@ const base = (p: string) => p === '/' ? '/' : p.slice(p.lastIndexOf('/') + 1);
 
 export function executeLinux(state: LinuxState, raw: string): CommandResult {
   const command = raw.trim();
+  if(command.includes('|')) {
+    const segments=splitPipeline(command);
+    if(!segments) return {state,output:'potok: niepoprawna skladnia lub cytowanie',
+      ok:false,command:'pipeline'};
+    if(segments.length>1)
+      return executePipeline(state,segments,tokenize,part=>executeLinux(state,part));
+  }
   const parts = tokenize(command);
   const done = (output: string, ok = true, nextState = state, target?: string, clear = false): CommandResult => ({
     output, ok, state: nextState, command: parts?.[0] ?? '', target, clear
@@ -106,7 +115,7 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
 
   switch (cmd) {
     case 'help':
-      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE PLIK, stat PLIK, whoami, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Brak potokow i przekierowan.');
+      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE PLIK, stat PLIK, whoami, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Potoki: komenda_czytajaca PLIK | grep|sort|uniq|head|tail|wc (max 5 etapow). Brak przekierowan.');
     case 'whoami':
       return args.length ? done('whoami: nieoczekiwany argument', false) : done('player');
     case 'pwd':
