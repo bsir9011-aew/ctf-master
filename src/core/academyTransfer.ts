@@ -180,7 +180,12 @@ export function transferMistake(
   if(lessonId==='umask')
     return !result.ok || (result.command==='umask'&&result.target!=='027') ||
       (result.command==='chmod' && !completed);
-  if(lessonId==='chgrp')
-    return !result.ok || (result.command==='chgrp'&&!completed);
+  if(lessonId==='chgrp') {
+    const target=shareCase('transfer');
+    return !result.ok ||
+      (result.command==='chgrp' &&
+       (result.target!==target.path ||
+        result.state.ownership?.[target.path]?.gid!==target.newGid));
+  }
   return !result.ok || (result.command===lessonId && !completed);
 }
