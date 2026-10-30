@@ -1,3 +1,4 @@
+import {assertWorldUnchanged} from './assertWorldUnchanged.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {scanShell,tokenizeShellWords} from '../src/core/shellSyntax.ts';
@@ -46,7 +47,7 @@ test('malformed quoting, trailing escapes and unsupported shell separators fail 
   ]){
     const r=run(original,cmd);
     assert.equal(r.ok,false,cmd);
-    assert.deepEqual(r.state,snapshot,cmd);
+    assertWorldUnchanged(r.state,snapshot,cmd);
   }
   assert.deepEqual(original,snapshot);
 });
