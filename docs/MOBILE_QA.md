@@ -141,3 +141,13 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] W sprawdzianie plik znajduje się na innej głębokości: `~/practice/logs/locked/health.log`. Znajdź właściwy katalog zamiast odtwarzać poprzednią ścieżkę.
 - [ ] Sprawdź `man namei`, niepoprawne argumenty, feedback `id -G`, brak utraty dawnych wyników oraz licznik **26** ćwiczeń i wersję RC.17.
 - [ ] Sprawdź realny telefon i aplikację PWA offline. Ten krok jest nadal PENDING i nie był wykonywany automatycznie.
+
+## RC.18 — domyślne uprawnienia przez umask
+
+- [ ] Otwórz terminal i wpisz `umask` (oczekiwane `0022`), następnie `man umask`.
+- [ ] W Akademii wykonaj lekcję „Domyślne uprawnienia nowych plików”: ustaw `umask 077`, a następnie utwórz nowy plik i katalog o wskazanych nazwach. `stat` ma pokazać `600` i `700`.
+- [ ] Wprowadź `umask` po utworzeniu obiektów: stare prawa nie mogą ulec zmianie.
+- [ ] Spróbuj stworzyć obiekty pod maską `022`, a następnie użyć `chmod` do uzyskania `600`/`700` — takie obejście **nie może zaliczyć** ćwiczenia.
+- [ ] Sprawdzian używa innych nazw i maski dającej `640` dla nowego pliku i `750` dla katalogu. Nietrafione ustawienie maski jest liczone jako błąd samodzielności.
+- [ ] Sprawdź, że `cp` do NOWEGO pliku respektuje bieżący umask, a nadpisanie istniejącego pliku nie zmienia jego praw.
+- [ ] Po odświeżeniu postępy pozostają, a licznik ćwiczeń pokazuje **27** i wersję RC.18. Zainstaluj PWA na telefonie i zweryfikuj offline oddzielnie; ten test nadal PENDING.
