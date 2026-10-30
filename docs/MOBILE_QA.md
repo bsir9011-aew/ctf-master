@@ -123,3 +123,11 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Wpisz najpierw `groups`, potem poprawne rozwiązanie. Cel da się osiągnąć, ale do czystego opanowania wymagany jest reset sprawdzianu.
 - [ ] `man id` i `man groups` otwierają lokalny podręcznik, `id -a` i `groups user` zwracają błąd.
 - [ ] Po odświeżeniu stare ukończone lekcje pozostają zachowane; licznik ćwiczeń powinien wskazywać **24**, wersja RC.15. Android PWA/offline QA nadal ręcznie do wykonania.
+
+## RC.16 — grupa, własność pliku i dostęp do katalogów
+
+- [ ] Otwórz lekcję „Dlaczego jeden plik otwiera się, a drugi nie?”. `id -G` i `stat ~/practice/operator.log` pokazują członkostwo i właściciela pliku. `cat ~/practice/operator.log` działa, a `cat ~/practice/audit-only.log` odmawia dostępu, mimo identycznego trybu 640.
+- [ ] Sprawdzian uruchamia innego użytkownika `analyst`. Metadane `audit-share.log` wskazują grupę audit. `id -G`, `stat` lub `ls -l`, następnie `cat` pozwalają zaliczyć zadanie, a inny log pozostaje niedostępny.
+- [ ] `chmod 600 ~/practice/logs` usuwa x. `cd ~/practice/logs`, `find ~/practice/logs` i `cat ~/practice/logs/edge.log` nie powinny działać; `chmod u+x ~/practice/logs` przywraca przejście.
+- [ ] `chmod 777 ~/practice/operator.log` jako nie-właściciel ma zostać odrzucone. `stat` pokazuje prawdziwe UID/GID właściciela.
+- [ ] Po odświeżeniu wcześniejsze zaliczenia pozostają zachowane; jest **25** ćwiczeń i wersja RC.16. Mobilne QA na fizycznym telefonie oraz działanie PWA offline nadal wymagają weryfikacji.
