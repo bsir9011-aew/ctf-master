@@ -14,6 +14,11 @@ const solutions={
   touch:'touch ~/practice/note.txt',
   cat:'cat ~/practice/intro.txt',
   grep:'grep WARN ~/practice/events.log',
+  head:'head -n 3 ~/practice/timeline.log',
+  tail:'tail -n 2 ~/practice/timeline.log',
+  wc:'wc -l ~/practice/timeline.log',
+  sort:'sort ~/practice/names.txt',
+  uniq:'uniq ~/practice/levels.txt',
   find:'find ~/practice -name "ticket-*.txt"',
   cp:'cp ~/practice/source.txt ~/practice/backup.txt',
   mv:'mv ~/practice/move-me.txt ~/practice/renamed.txt',
@@ -25,8 +30,8 @@ const solutions={
 };
 const ids=commandLessons.map(lesson=>lesson.id);
 
-test('catalogue has 15 unique drills and all exercise texts',()=>{
-  assert.equal(ids.length,15);
+test('catalogue has 20 unique drills and all exercise texts',()=>{
+  assert.equal(ids.length,20);
   assert.equal(new Set(ids).size,15);
   assert.deepEqual(ids,Object.keys(solutions));
   for (const lesson of commandLessons) {
