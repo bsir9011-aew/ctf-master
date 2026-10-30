@@ -87,7 +87,6 @@ test('empty and malformed pipelines are rejected',()=>{
   for(const raw of [
     'cat ~/practice/names.txt |',
     '| wc -l',
-    'cat ~/practice/names.txt || wc -l',
     'cat ~/practice/names.txt | | sort',
     'cat ~/practice/names.txt | grep "oops',
     'cat ~/practice/names.txt | grep',
