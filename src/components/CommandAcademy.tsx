@@ -93,7 +93,7 @@ export default function CommandAcademy() {
   function restartCurrent(){openLesson(lesson.id,phase);}
 
   function submit(raw:string) {
-    if(!raw.trim()||(inTransfer&&doneNow)) return;
+    if(!raw.trim()||doneNow) return;
     const next=inTransfer
       ? submitTransfer(system,events,raw,lesson.id)
       : academySubmit(system,events,raw,lesson.id);
@@ -224,6 +224,8 @@ export default function CommandAcademy() {
             {inTransfer&&<button type="button" onClick={()=>openLesson(lesson.id)}>
               Wróć do nauki
             </button>}
+            {!inTransfer&&complete&&!doneNow&&
+              <button type="button" onClick={startTransfer}>Sprawdź samodzielnie →</button>}
           </div>
           {hintOpen&&<p className="academy-hint">{inTransfer
             ? 'Przypomnij sobie działanie komendy i dostosuj argumenty do nowych danych.'
@@ -254,8 +256,8 @@ export default function CommandAcademy() {
               onChange={e=>setDraft(e.target.value)}
               placeholder="Wpisz polecenie..." autoCapitalize="none" autoCorrect="off"
               autoComplete="off" spellCheck={false}
-              disabled={inTransfer&&doneNow} aria-label="Polecenie w akademii"/>
-            <button type="submit" disabled={inTransfer&&doneNow}>Wykonaj ↵</button>
+              disabled={doneNow} aria-label="Polecenie w akademii"/>
+            <button type="submit" disabled={doneNow}>Wykonaj ↵</button>
           </form>
         </section>
 
