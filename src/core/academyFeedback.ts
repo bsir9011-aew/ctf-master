@@ -165,7 +165,7 @@ export function explainAcademyAttempt(
 
   if (cmd === 'find') {
     const paths = result.output === '(brak wynikow)' || !result.output
-      ? [] : result.output.split('\\n');
+      ? [] : result.output.split('\n');
     const count = paths.length;
     const message = count === 0
       ? 'find nie znalazł nazw pasujących do podanych warunków.'
