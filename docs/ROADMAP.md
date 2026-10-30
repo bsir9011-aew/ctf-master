@@ -23,7 +23,8 @@
 - [x] Wersjonowanie cache PWA i testy mechanizmu offline
 - [x] Mapa 5 rozdzialow z celami, komendami i postepem
 - [x] Akademia 15 komend z niezaleznym terminalem i postepem
-- [ ] Manual QA na fizycznym telefonie (1.0 RC.2)
+- [x] Samodzielny sprawdzian transferowy dla 15 komend i osobny status opanowania
+- [ ] Manual QA na fizycznym telefonie (1.0 RC.4)
 
 ## Etap 1 - Linux Administrator
 - [x] Podstawy chmod, stat, tryby rwx i testy Permission denied
