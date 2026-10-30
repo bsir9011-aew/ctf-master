@@ -1,3 +1,4 @@
+import {assertWorldUnchanged} from './assertWorldUnchanged.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {executeLinux, initialLinux} from '../src/core/linux.ts';
@@ -42,7 +43,7 @@ test('essential, malformed and missing PIDs are handled safely',()=>{
   for (const cmd of ['kill 1','kill -9 424','kill 0','kill 999','kill 424 350']) {
     const r=executeLinux(state,cmd);
     assert.equal(r.ok,false,cmd);
-    assert.equal(r.state,state,cmd);
+    assertWorldUnchanged(r.state,state,cmd);
   }
   const stopped=executeLinux(state,'kill 424');
   assert.equal(executeLinux(stopped.state,'kill 424').ok,false);
@@ -99,7 +100,7 @@ test('unknown units and unsupported systemctl options do not mutate state',()=>{
     'systemctl restart web extra','sudo systemctl restart web']) {
     const r=executeLinux(initial,cmd);
     assert.equal(r.ok,false,cmd);
-    assert.equal(r.state,initial,cmd);
+    assertWorldUnchanged(r.state,initial,cmd);
   }
 });
 
