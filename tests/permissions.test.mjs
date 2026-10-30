@@ -61,10 +61,10 @@ test('unreadable file rejects cat, grep, cp without mutating data', () => {
   }
 });
 
-test('chmod rejects invalid modes and directories in intentionally limited lab', () => {
+test('chmod rejects invalid modes and missing paths', () => {
   const state = initialLinux();
   for (const cmd of ['chmod 999 ~/documents/credentials.txt','chmod -R 777 ~/documents',
-    'chmod 600 ~/documents','chmod 600 missing.txt']) {
+    'chmod 600 missing.txt']) {
     const output = executeLinux(state,cmd);
     assert.equal(output.ok,false,cmd);
     assert.equal(output.state,state,cmd);
@@ -119,4 +119,18 @@ test('permission review unlocks and requires two different clean scenarios', () 
   second = runReviewCommand(second.attempt,second.history,'cat ~/documents/audit-review.log');
   assert.equal(second.attempt.completed,true);
   assert.equal(second.history.permissions.streak,2);
+});
+
+test('chmod accepts owned directories, controlling traversal',()=>{
+  const state=initialLinux();
+  const locked=executeLinux(state,'chmod 600 ~/documents');
+  assert.equal(locked.ok,true);
+  assert.equal(modeOctal(locked.state,'/home/player/documents'),'600');
+  const cd=executeLinux(locked.state,'cd ~/documents');
+  assert.equal(cd.ok,false);
+  assert.match(cd.output,/Permission denied/);
+  assert.equal(executeLinux(locked.state,'ls ~/documents').ok,false);
+  const unlocked=executeLinux(locked.state,'chmod u+x ~/documents');
+  assert.equal(unlocked.ok,true);
+  assert.equal(executeLinux(unlocked.state,'cd ~/documents').ok,true);
 });
