@@ -123,3 +123,11 @@ Akademia pokazuje **Twój następny krok**. Dla umiejętności poznanych, lecz j
 Lokalne liczniki trudności są zapisywane oddzielnie w `ctf-master:academy-coach-v1`. Nie zawierają wpisywanych komend ani ich wyników, wyłącznie zliczenia błędów i użycia pomocy. Starszy postęp Akademii, misji i powtórek pozostaje nienaruszony. W sprawdzianie wpisanie `help` jest traktowane tak samo jak ujawnienie podpowiedzi: można ukończyć zadanie, ale do zaliczenia samodzielności potrzeba nowej próby.
 
 To prosta heurystyka priorytetów, nie model psychometryczny i nie kalendarz spaced repetition. Ręczne QA na telefonie nadal czeka na wykonanie.
+
+## Learning Workspace (1.0 RC.6)
+
+Akademia Komend ma teraz **uklad dwukolumnowy na komputerze**: po lewej aktualne cwiczenie i potrzebna skladnia, po prawej terminal z informacja zwrotna bezposrednio pod nim. Na ekranach mobilnych (do 840 px) zadanie wyswietla sie bezposrednio nad terminalem. Pusty terminal jest nizszy; jego historia zwieksza obszar wyswietlania do ograniczonej wysokosci i jest przewijana wewnatrz terminala.
+
+W trybie Komendy uproszczono gorny naglowek, zredukowano powtarzanie biezacej rekomendacji oraz przeniesiono informacje o rezultacie obok terminala. Po wykonaniu cwiczenia przycisk samodzielnego sprawdzianu pojawia sie pod terminalem; dla komend zaliczonych wczesniej jest dostepny takze po ponownym otwarciu zadania. Wersja aplikacji w pasku tytulowym jest odczytywana z `package.json`, a nie wpisana na stale.
+
+Zadna z tych zmian nie modyfikuje silnika Linux ani zapisanych danych. Dotychczasowe 15 cwiczen, 15 sprawdzianow, 16 misji i 20 powtorek nadal sa dostepne. Manualny test na prawdziwym telefonie i test PWA offline: nadal do wykonania.
