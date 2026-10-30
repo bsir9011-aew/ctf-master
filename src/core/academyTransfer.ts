@@ -28,6 +28,14 @@ export const transferChallenges:readonly TransferChallenge[]=[
     pass:s=>hasFile(s,'draft.txt') && s.files[LAB+'/draft.txt']===''},
   {lessonId:'cat',assignment:'Odczytaj treść pliku ~/practice/logs/audit-67.txt.',
     pass:(_s,e)=>saw(e,'cat',r=>r.target===LAB+'/logs/audit-67.txt' && r.output.includes('audit event 67'))},
+  {lessonId:'id',assignment:'W tej sesji pracujesz jako analyst. Sprawdź NAZWĘ jego grupy podstawowej, a następnie wyświetl NAZWY wszystkich grup, łącznie z dodatkowymi. Porównaj oba wyniki.',
+    pass:(_s,e)=>{
+      const primary=e.findIndex(r=>r.ok&&r.command==='id'&&
+        r.target==='primary-name'&&r.output==='security');
+      return primary>=0&&e.slice(primary+1).some(r=>r.ok&&
+        (r.command==='id'||r.command==='groups')&&
+        r.target==='group-names'&&r.output==='security audit');
+    }},
   {lessonId:'man',assignment:'Pracujesz z nieznanym poleceniem head. Najpierw sprawdz jego opcje w man head, a potem wyswietl dokladnie dwa pierwsze wiersze ~/practice/logs/manual-review.log. Dobierz parametry samodzielnie.',
     pass:(_s,e)=>usedManualBefore(e,'head','head',r=>
       r.target===LAB+'/logs/manual-review.log' &&
@@ -86,6 +94,10 @@ export function createTransferState(lessonId:string):LinuxState {
   return {
     ...state,
     cwd:lessonId==='pwd'?LAB+'/logs':state.cwd,
+    identity:lessonId==='id'
+      ?{uid:1001,user:'analyst',primary:{gid:1100,name:'security'},
+        supplementary:[{gid:1200,name:'audit'}]}
+      :state.identity,
     files:{
       ...baseFiles,
       ...investigationFiles('transfer'),
@@ -127,5 +139,7 @@ export function transferMistake(
     return !result.ok || (result.command==='cp' && !completed);
   if(lessonId==='man')
     return !result.ok || (result.command==='head' && !completed);
+  if(lessonId==='id')
+    return !result.ok || (result.target==='group-names' && !completed);
   return !result.ok || (result.command===lessonId && !completed);
 }
