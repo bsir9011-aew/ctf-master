@@ -129,13 +129,15 @@ export const commandLessons:readonly CommandLesson[]=[
     pass:(_s,e)=>observed(e,'ip',r=>r.target==='route' && r.output.includes('default via'))}
 ];
 
-export interface AcademyProgress {completed:string[];selectedId:string}
+export interface AcademyProgress {completed:string[];mastered:string[];selectedId:string}
 export function restoreAcademyProgress(raw:unknown):AcademyProgress {
-  if (!raw || typeof raw!=='object' || Array.isArray(raw)) return {completed:[],selectedId:commandLessons[0].id};
+  if (!raw || typeof raw!=='object' || Array.isArray(raw)) return {completed:[],mastered:[],selectedId:commandLessons[0].id};
   const rec=raw as Partial<AcademyProgress>;
   const ids=new Set(commandLessons.map(x=>x.id));
   return {
     completed:[...new Set(Array.isArray(rec.completed)?rec.completed.filter((id):id is string=>typeof id==='string' && ids.has(id)):[])],
+    mastered:[...new Set(Array.isArray(rec.mastered)?rec.mastered.filter((id):id is string=>
+      typeof id==='string' && ids.has(id) && Array.isArray(rec.completed) && rec.completed.includes(id)):[])],
     selectedId:typeof rec.selectedId==='string' && ids.has(rec.selectedId)?rec.selectedId:commandLessons[0].id
   };
 }
