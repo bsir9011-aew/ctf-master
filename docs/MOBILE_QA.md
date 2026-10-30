@@ -151,3 +151,12 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Sprawdzian używa innych nazw i maski dającej `640` dla nowego pliku i `750` dla katalogu. Nietrafione ustawienie maski jest liczone jako błąd samodzielności.
 - [ ] Sprawdź, że `cp` do NOWEGO pliku respektuje bieżący umask, a nadpisanie istniejącego pliku nie zmienia jego praw.
 - [ ] Po odświeżeniu postępy pozostają, a licznik ćwiczeń pokazuje **27** i wersję RC.18. Zainstaluj PWA na telefonie i zweryfikuj offline oddzielnie; ten test nadal PENDING.
+
+## RC.19 - zmiana grupy właścicielskiej pliku
+
+- [ ] Otwórz lekcję „Udostępnij plik właściwej grupie”. Sprawdź `stat ~/practice/shared-report.log`, `id -Gn` i `man chgrp`.
+- [ ] Wykonaj zmianę grupy raportu z `player` do `operators`, a następnie odczytaj grupę przez `stat` lub `ls -l`. Sprawdź, że prawa pozostają `640` i treść pliku się nie zmienia.
+- [ ] `chgrp audit ~/practice/shared-report.log` musi zostać odrzucone, bo `player` nie należy do `audit`.
+- [ ] `chgrp operators ~/practice/operator.log` musi zostać odrzucone, bo ten plik nie należy do użytkownika.
+- [ ] W sprawdzianie działasz jako `analyst`: zmień grupę innego raportu na `audit`, a następnie potwierdź zmianę. Czyste opanowanie wymaga poprawnej grupy bez nietrafionych prób.
+- [ ] Zachowaj wszystkie dotychczasowe wyniki, licznik **28** lekcji i cache RC.19. Zrealizuj fizyczne QA telefonu/PWA offline osobno; nadal PENDING.

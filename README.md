@@ -14,9 +14,9 @@ W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefoni
 ## Co dziala w 1.0 RC (Akademia komend)
 
 - 16 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
-- Trzy tryby: **Komendy** (26 lekcji technicznych + 1 dochodzenie, 27 sprawdzianów), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
+- Trzy tryby: **Komendy** (27 lekcji technicznych + 1 dochodzenie, 28 sprawdzianów), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
 - Zwinięta domyślnie **Mapa nauki** z 5 rozdziałami: cele, komendy, licznik postępu, przejście do pierwszej dostępnej misji.
-- Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `man POLECENIE`, `man -k HASLO`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `umask`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `id`, `groups`, `namei -l`, `help`, `clear`.
+- Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `man POLECENIE`, `man -k HASLO`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `umask`, `chgrp`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `id`, `groups`, `namei -l`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
 - Walidacja efektu zadania, nie porownywanie odpowiedzi 1:1.
 - Podpowiedzi 3 poziomow, kontekstowe komunikaty o bledach, licznik prob i punkt samodzielnego rozwiazania.
@@ -231,3 +231,11 @@ Dostępne jest `umask` (odczyt bieżącej maski) i `umask NNN` (ustawienie wirtu
 **27. ćwiczenie Akademii**: zastosuj `umask 077` i utwórz nowy plik o prawach `600` oraz katalog `700`. **27. sprawdzian**: na innych nazwach ustaw maskę skutkującą uprawnieniami `640` i `750`. Walidacja wymaga rzeczywistego utworzenia obiektów po zmianie maski; `chmod` wykonany po utworzeniu nie zastępuje rozwiązania. `man umask` działa offline.
 
 Wersja RC.18 utrzymuje 16 misji, 20 wariantów powtórek oraz wcześniejsze zapisy postępów. Starsze sesje bez pola `umask` nadal korzystają z domyślnej maski `022`. Fizyczne testy telefonu/PWA offline pozostają PENDING.
+
+## RC.19 - zmiana grupy właścicielskiej pliku (`chgrp`)
+
+Wirtualne polecenie `chgrp GRUPA PLIK` pozwala właścicielowi pliku zmienić jego grupę na jedną z grup bieżącego użytkownika. Działa także na katalogach. Nie zmienia właściciela (UID), treści ani uprawnień `rwx`. Odmawia zmiany cudzych plików, niedostępnych ścieżek oraz nadania grupy, do której użytkownik nie należy. Nie ma `sudo`, `chown`, `-R` ani modyfikowania rzeczywistych obiektów systemowych.
+
+**28. lekcja**: przenieś istniejący raport o prawach `640` z grupy `player` do `operators`, a następnie odczytaj nowe metadane przez `stat` lub `ls -l`. **28. sprawdzian**: wykonaj analogiczne zadanie jako `analyst`, tym razem w grupie `audit` i na innym pliku. Zaliczenie wymaga poprawnego skutku i późniejszego odczytu metadanych, nie tylko wpisania polecenia. Sprawdzian rozróżnia poprawne poszukiwania od błędnej zmiany grupy.
+
+Utrzymano **28 lekcji i 28 sprawdzianów, 16 misji, 20 wariantów powtórek**, dotychczasowe klucze localStorage i zgodność ze starszymi sesjami. Realne QA na telefonie i offline PWA nadal pozostaje do wykonania.

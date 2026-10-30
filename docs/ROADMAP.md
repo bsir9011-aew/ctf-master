@@ -38,12 +38,14 @@
 - [x] Dostęp do plików wg właściciela/grupy/pozostałych, x katalogów i osobne ćwiczenie transferowe
 - [x] namei -l: znajdowanie katalogu bez prawa x, naprawa z najmniejszym dostępem i niezależny wariant
 - [x] umask: domyślne prawa plików i katalogów tworzone z maską, nauka i transfer
-- [ ] Manual QA na fizycznym telefonie (1.0 RC.18)
+- [x] chgrp: zmiana grupy własnego pliku przy zachowaniu UID/rwx/treści, dwa ćwiczenia
+- [ ] Manual QA na fizycznym telefonie (1.0 RC.19)
 
 ## Etap 1 - Linux Administrator
 - [x] Podstawy chmod, stat, tryby rwx i testy Permission denied
 - [x] Podstawy UID/GID i grup dodatkowych: id, groups, whoami oraz odmienne tożsamości w sprawdzianie
 - [x] Grupowe prawa plików i prawo przejścia x w katalogach
+- [x] chgrp na własnych plikach i katalogach
 - [ ] chown, ACL i dokładniejsza semantyka praw POSIX
 - [x] grep/find i pierwsze misje logow
 - [x] Podstawowe procesy i uslugi: ps, kill, systemctl, journalctl

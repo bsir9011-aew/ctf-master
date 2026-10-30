@@ -4,6 +4,7 @@ import { investigationFiles, investigationStatus } from './investigation.ts';
 import { usedManualBefore } from './manual.ts';
 import {recoveryFixture,recoveryCompleted} from './pathRecovery.ts';
 import {umaskExerciseCompleted} from './umask.ts';
+import {shareCase,shareCompleted} from './chgrp.ts';
 
 const LAB='/home/player/practice';
 const hasFile=(s:LinuxState,name:string)=>Object.hasOwn(s.files,LAB+'/'+name);
@@ -88,6 +89,8 @@ export const transferChallenges:readonly TransferChallenge[]=[
   {lessonId:'umask',assignment:'Zespół potrzebuje pliku, który grupa może odczytać, ale inni nie. Ustaw maskę tak, aby NOWY plik ~/practice/team-draft.txt miał prawa 640, a NOWY katalog ~/practice/team-work miał prawa 750. Nie zmieniaj uprawnień po utworzeniu.',
     pass:(state,events)=>umaskExerciseCompleted(state,events,0o027,
       LAB+'/team-draft.txt',LAB+'/team-work')},
+  {lessonId:'chgrp',assignment:'Jako analyst masz dostęp do grup security i audit. Plik ~/practice/logs/audit-report.log ma obecnie grupę security i tryb 640. Przenieś jego własność grupową do audit bez zmiany uprawnień lub treści, a następnie potwierdź to w stat lub ls -l.',
+    pass:(state,events)=>shareCompleted('transfer',state,events)},
   {lessonId:'chmod',assignment:'Zabezpiecz ~/practice/team.key, pozostawiając prawo czytania i zapisu wyłącznie właścicielowi.',
     pass:s=>hasFile(s,'team.key') && s.permissions?.[LAB+'/team.key']===0o600},
   {lessonId:'ps',assignment:'Sprawdź działające procesy. Odszukaj proces cpu-burn.',
@@ -112,7 +115,7 @@ export function createTransferState(lessonId:string):LinuxState {
     ...state,
     cwd:lessonId==='pwd'?LAB+'/logs':state.cwd,
     dirs:lessonId==='namei'?[...state.dirs,recoveryFixture('transfer').directory]:state.dirs,
-    identity:(lessonId==='id'||lessonId==='file-access')
+    identity:(lessonId==='id'||lessonId==='file-access'||lessonId==='chgrp')
       ?{uid:1001,user:'analyst',primary:{gid:1100,name:'security'},
         supplementary:[{gid:1200,name:'audit'}]}
       :state.identity,
@@ -120,6 +123,7 @@ export function createTransferState(lessonId:string):LinuxState {
       ...baseFiles,
       ...investigationFiles('transfer'),
       [LAB+'/logs/audit-67.txt']:'audit event 67',
+      [shareCase('transfer').path]:shareCase('transfer').content,
       ...(lessonId==='namei'?{[recoveryFixture('transfer').file]:recoveryFixture('transfer').content}:{}),
       [LAB+'/logs/audit-share.log']:'AUDIT: incident evidence review',
       [LAB+'/logs/player-share.log']:'PLAYER: private account log',
@@ -133,10 +137,12 @@ export function createTransferState(lessonId:string):LinuxState {
     },
     permissions:{...state.permissions,[LAB+'/team.key']:0o644,
       [LAB+'/logs/audit-share.log']:0o640,[LAB+'/logs/player-share.log']:0o640,
+      [shareCase('transfer').path]:0o640,
       ...(lessonId==='namei'?{[recoveryFixture('transfer').directory]:0o600}:{})},
     ownership:{...state.ownership,
       [LAB+'/logs/audit-share.log']:{uid:2000,gid:1200},
-      [LAB+'/logs/player-share.log']:{uid:2000,gid:1000}}
+      [LAB+'/logs/player-share.log']:{uid:2000,gid:1000},
+      [shareCase('transfer').path]:{uid:1001,gid:1100}}
   };
 }
 
@@ -174,5 +180,12 @@ export function transferMistake(
   if(lessonId==='umask')
     return !result.ok || (result.command==='umask'&&result.target!=='027') ||
       (result.command==='chmod' && !completed);
+  if(lessonId==='chgrp') {
+    const target=shareCase('transfer');
+    return !result.ok ||
+      (result.command==='chgrp' &&
+       (result.target!==target.path ||
+        result.state.ownership?.[target.path]?.gid!==target.newGid));
+  }
   return !result.ok || (result.command===lessonId && !completed);
 }
