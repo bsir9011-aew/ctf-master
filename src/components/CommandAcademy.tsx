@@ -7,6 +7,7 @@ import {
 import {createTransferState,submitTransfer,earnedMastery,transferChallenges} from '../core/academyTransfer';
 import type { CommandResult, LinuxState } from '../core/linux';
 import { academyTerminalHeight, needsRecommendation } from '../core/academyPresentation';
+import { rememberCommand, moveHistoryCursor } from '../core/commandHistory';
 import {
   recommendAcademy, recordCoachSignal, restoreCoachMetrics, type AcademyCoachMetrics
 } from '../core/academyCoach';
@@ -34,6 +35,9 @@ export default function CommandAcademy() {
   const [events,setEvents]=useState<CommandResult[]>([]);
   const [lines,setLines]=useState<TerminalLine[]>([firstLine]);
   const [draft,setDraft]=useState('');
+  const [history,setHistory]=useState<string[]>([]);
+  const [historyCursor,setHistoryCursor]=useState<number|null>(null);
+  const draftBeforeRecall=useRef('');
   const [hintOpen,setHintOpen]=useState(false);
   const [doneNow,setDoneNow]=useState(false);
   const [phase,setPhase]=useState<'intro'|'transfer'>('intro');
@@ -79,6 +83,9 @@ export default function CommandAcademy() {
       ? [{output:'Nowy wariant: bez przykładu, z innymi danymi.',ok:true}]
       : [firstLine]);
     setDraft('');
+    setHistory([]);
+    setHistoryCursor(null);
+    draftBeforeRecall.current='';
     setHintOpen(false);
     setDoneNow(false);
     setPhase(nextPhase);
@@ -90,8 +97,25 @@ export default function CommandAcademy() {
   function startTransfer(){openLesson(lesson.id,'transfer');}
   function restartCurrent(){openLesson(lesson.id,phase);}
 
+  function changeDraft(value:string){
+    setDraft(value);
+    setHistoryCursor(null);
+    draftBeforeRecall.current=value;
+  }
+
+  function recall(direction:'older'|'newer'){
+    if(historyCursor===null&&direction==='older') draftBeforeRecall.current=draft;
+    const next=moveHistoryCursor(history.length,historyCursor,direction);
+    setHistoryCursor(next);
+    setDraft(next===null?draftBeforeRecall.current:history[next]);
+    input.current?.focus();
+  }
+
   function submit(raw:string) {
     if(!raw.trim()||doneNow) return;
+    setHistory(old=>rememberCommand(old,raw));
+    setHistoryCursor(null);
+    draftBeforeRecall.current='';
     const next=inTransfer
       ? submitTransfer(system,events,raw,lesson.id)
       : academySubmit(system,events,raw,lesson.id);
@@ -251,10 +275,20 @@ export default function CommandAcademy() {
           <form className="command-row academy-command" onSubmit={e=>{e.preventDefault();submit(draft)}}>
             <label htmlFor="academy-command">$</label>
             <input id="academy-command" ref={input} value={draft}
-              onChange={e=>setDraft(e.target.value)}
+              onChange={e=>changeDraft(e.target.value)}
+              onKeyDown={e=>{
+                if(e.key==='ArrowUp'){e.preventDefault();recall('older');}
+                if(e.key==='ArrowDown'){e.preventDefault();recall('newer');}
+              }}
               placeholder="Wpisz polecenie..." autoCapitalize="none" autoCorrect="off"
               autoComplete="off" spellCheck={false}
               disabled={doneNow} aria-label="Polecenie w akademii"/>
+            <button type="button" className="academy-history-control" aria-label="Poprzednia komenda"
+              title="Historia poleceń: w górę" disabled={doneNow||history.length===0}
+              onClick={()=>recall('older')}>↑</button>
+            <button type="button" className="academy-history-control" aria-label="Następna komenda"
+              title="Historia poleceń: w dół" disabled={doneNow||historyCursor===null}
+              onClick={()=>recall('newer')}>↓</button>
             <button type="submit" disabled={doneNow}>Wykonaj ↵</button>
           </form>
         </section>
