@@ -126,6 +126,11 @@ export function explainAcademyAttempt(
         status:'error'
       };
     }
+    if(cmd==='pipeline') return {
+      title:'Potok został przerwany',
+      detail:result.output+' Sprawdź, w którym etapie wystąpił problem. Kolejne polecenie pobiera dane z poprzedniego, nie z pliku.',
+      status:'error'
+    };
     const fallback = explainError(result);
     return {
       title: fallback?.title ?? 'Polecenie nie powiodło się',
@@ -214,6 +219,15 @@ export function explainAcademyAttempt(
       status: completed ? 'complete' : 'partial'
     };
   }
+
+  if(cmd==='pipeline') return {
+    title:completed?'Potok wykonał zadanie':'Potok zadziałał — cel jeszcze nie został spełniony',
+    detail:'Dane przeszły przez '+(result.stages?.join(' → ')??'kolejne komendy')+
+      '. Każdy etap otrzymał wiersze poprzedniego etapu. Wynik końcowy: '+
+      (result.output||'(pusty)')+'.'+
+      (completed?'':' Sprawdź, czy liczysz właściwą kategorię zdarzeń oraz czy usuwasz duplikaty przed liczeniem.'),
+    status:completed?'complete':'partial'
+  };
 
   return {
     title: completed ? 'Zadanie wykonane poprawnie' : 'Polecenie wykonane — zadanie nadal otwarte',
