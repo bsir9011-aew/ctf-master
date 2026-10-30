@@ -207,3 +207,13 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] `cat ~/practice/guarded-copy.txt` potwierdza kopię i zamyka lekcję. Sprawdzian używa innego logu i innych nazw plików.
 - [ ] Znaki `&&` i `||` w cudzysłowach lub poprzedzone backslashem nie uruchamiają logiki. Błędna składnia nie zmienia plików.
 - [ ] 33 lekcje/sprawdziany i cache RC.24 bez utraty poprzednich wyników. Rzeczywiste testy offline PWA i obsługi na telefonie pozostają PENDING.
+
+
+## RC.25 - misja 17: INC-017 i mapa sześciu rozdziałów
+
+- [ ] Po ukończeniu misji 16 widać 17. misję. Pierwsze 16 numerów i odblokowań pozostają bez zmian. Mapa nauki zawiera 6 rozdziałów, ostatni to SOC: pełne śledztwo.
+- [ ] Misja INC-017 pokazuje cztery etapy: Ślady, Kopie dowodowe, Korelacja i Weryfikacja. Przed wykonaniem żaden nie jest oznaczony jako zaliczony.
+- [ ] Najpierw znajdź ALERT w /var/log/app.log i DENIED w /var/log/auth.log, później warunkowo skopiuj oryginalne logi do osobnych plików w ~/documents. Etapy zmieniają się dopiero po poprawnych akcjach.
+- [ ] Wykonaj grep ALERT > ~/documents/case17-report.log, następnie grep DENIED >> tego samego pliku. Sprawdź, że raport ma dwa wiersze w odpowiedniej kolejności i odczytaj go cat.
+- [ ] Bez warunkowej kopii (`test -f` i `&&`) oraz po zmodyfikowaniu źródłowego logu misja nie może zostać zaliczona. Pliki źródłowe pozostają nienaruszone.
+- [ ] Sprawdź odświeżenie postępu, obsługę dotykiem oraz PWA offline po produkcyjnym buildzie RC.25. Wciąż PENDING do czasu fizycznego testu telefonu.
