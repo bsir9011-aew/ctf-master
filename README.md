@@ -14,7 +14,7 @@ W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefoni
 ## Co dziala w 1.0 RC (Akademia komend)
 
 - 16 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
-- Trzy tryby: **Komendy** (23 lekcje techniczne + 1 dochodzenie, 24 sprawdziany), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
+- Trzy tryby: **Komendy** (24 lekcje techniczne + 1 dochodzenie, 25 sprawdzianów), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
 - Zwinięta domyślnie **Mapa nauki** z 5 rozdziałami: cele, komendy, licznik postępu, przejście do pierwszej dostępnej misji.
 - Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `man POLECENIE`, `man -k HASLO`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `id`, `groups`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
@@ -204,6 +204,14 @@ CTF Master zawiera teraz **24 lekcje i 24 sprawdziany** (23 tematy techniczne i 
 
 W obu wariantach trzeba wykonać **dwa celowe odczyty** i porównać podstawową grupę z pełną listą. Wyniki poleceń są generowane z wirtualnego modelu konta; nie są wykonywane na prawdziwym systemie, nie tworzą kont i nie przełączają użytkowników. `man id` i `man groups` opisują tylko obsługiwany podzbiór opcji.
 
-**Ograniczenie:** członkostwo w grupach nie wpływa jeszcze na sprawdzanie praw odczytu plików — to kolejny, osobny etap, podobnie jak uprawnienia katalogów i `chown`. Stare sesje bez pola `identity` nadal przyjmują domyślną tożsamość `player`, a stare postępy pozostają zachowane.
+**Uaktualnienie RC.16:** członkostwo w grupach wpływa już na odczyt plików. Dla każdego obiektu stosowana jest jedna klasa rwx: właściciel, grupa albo pozostali. Wejście do katalogu wymaga `x`. Nadal nie ma `chown`, ACL, pełnej obsługi POSIX ani `sudo`. Stare sesje bez pola `identity` nadal przyjmują domyślną tożsamość `player`, a stare postępy pozostają zachowane.
 
 Ręczne QA na fizycznym telefonie i PWA offline nadal nie zostało wykonane.
+
+## Własność i grupowy dostęp do plików (1.0 RC.16)
+
+Dodano 25. ćwiczenie Akademii (i osobny sprawdzian) dotyczące **uprawnień właściciela, grupy i pozostałych**. Dwa pliki o trybie `640` są inaczej dostępne zależnie od UID/GID. Użytkownik bada `id -G`, `stat` / `ls -l` i rzeczywisty wynik `cat`. W drugim wariancie działa jako `analyst` z innym zestawem grup i logami.
+
+Symulator sprawdza prawa `rwx` względem właściciela albo jednej pasującej grupy albo pozostałych — **bez łączenia uprawnień z kilku klas**. Odczyt wymaga również prawa przejścia `x` we wszystkich katalogach nadrzędnych. Dotyczy to m.in. `cat`, `grep`, `head`, `tail`, `wc`, `sort`, `uniq` i odczytu wejścia potoku. `ls`/ `find`, `cd`, `mkdir`, `touch`, `cp`, `mv`, `rm` sprawdzają odpowiednie uprawnienia w uproszczonym modelu. `chmod` obsługuje własne pliki **i katalogi**, a `stat` oraz `ls -l` pokazują ich faktycznego właściciela i grupę. Nowe pliki zachowują właściciela; `cp` tworzy plik z bieżącym UID/GID, a `mv` przenosi metadane.
+
+To nadal **symulacja edukacyjna**, nie pełna kontrola dostępu POSIX. Nie ma `chown`, `sudo`, ACL, bitów specjalnych, zmiany konta w terminalu ani prawdziwego wykonania poleceń. Stare sesje bez metadanych własności domyślnie traktują pliki jako należące do `player`; dotychczasowe klucze postępu nie są zmieniane. Testy na fizycznym telefonie i offline PWA pozostają do wykonania.
