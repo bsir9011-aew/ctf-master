@@ -33,7 +33,7 @@ const run=(commands,initial=seed())=>{
 const solved=()=>run([...inspect,choice,...copies,...summary]);
 
 test('appends mission 18 without changing earlier indices or the six chapter hierarchy',()=>{
-  assert.equal(missions.length,18);
+  assert.equal(missions.length,19);
   assert.equal(missions[16].id,'incident-correlation');
   assert.equal(missions[17].id,'incident-hypotheses');
   assert.equal(missions[17].success(seed(),[]),false);
