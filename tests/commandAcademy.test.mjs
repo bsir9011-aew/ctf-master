@@ -77,9 +77,9 @@ test('completion history ignores corrupt and unknown lessons',()=>{
     completed:['pwd','pwd','not-a-lesson',123,'grep'],
     selectedId:'not-a-lesson'
   });
-  assert.deepEqual(restored,{completed:['pwd','grep'],selectedId:'pwd'});
-  assert.deepEqual(restoreAcademyProgress(null),{completed:[],selectedId:'pwd'});
-  assert.deepEqual(restoreAcademyProgress([]),{completed:[],selectedId:'pwd'});
+  assert.deepEqual(restored,{completed:['pwd','grep'],mastered:[],selectedId:'pwd'});
+  assert.deepEqual(restoreAcademyProgress(null),{completed:[],mastered:[],selectedId:'pwd'});
+  assert.deepEqual(restoreAcademyProgress([]),{completed:[],mastered:[],selectedId:'pwd'});
 });
 
 test('command academy does not treat one attempted command as another lesson',()=>{
