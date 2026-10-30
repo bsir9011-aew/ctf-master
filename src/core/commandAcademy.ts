@@ -83,7 +83,7 @@ export const commandLessons:readonly CommandLesson[]=[
     pass:(_s,e)=>observed(e,'cat',r=>r.target===LAB+'/intro.txt' && r.output.includes('Practice is how'))},
   {id:'id',title:'Kim jestem i do jakich grup należę?',group:'Podstawy',
     purpose:'id pokazuje numery UID (użytkownika), GID (grupy podstawowej) i członkostwo w grupach. groups wypisuje nazwy grup.',
-    syntax:'id [-u|-g|-G|-un|-gn|-Gn] | groups',
+    syntax:'id [OPCJA]  (lub osobno: groups)',
     example:'id -u',
     assignment:'Sprawdź pełną tożsamość bieżącego użytkownika poleceniem id, a następnie wyświetl NUMERY wszystkich jego grup za pomocą id. Zwróć uwagę na grupę podstawową i dodatkową.',
     hint:'Pełne id pokazuje UID, GID i grupy. W man id znajdziesz opcję wypisania samych numerów grup.',
