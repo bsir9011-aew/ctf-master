@@ -227,3 +227,13 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] man hypothesis pokazuje dostępne opcje i pewność; wprowadzenie błędnej hipotezy nie zalicza śledztwa, ale można ją poprawić na podstawie dalszej analizy.
 - [ ] Skopiuj oba rozstrzygające oryginały do plików evidence, następnie zapisz dwa fakty w raporcie przez > i >>; cat raportu powinien zaliczyć czwarty etap. Zmiana któregoś oryginalnego logu blokuje zaliczenie.
 - [ ] Po odświeżeniu powinna zachować się aktywna sesja misji, nowy raport i postępy poprzednich zadań. Produkcyjna PWA RC.26 offline, obsługa ekranu i klawiatury na fizycznym telefonie nadal PENDING.
+
+
+## RC.27 - misja 19: diagnoza i bezpieczna naprawa
+
+- [ ] Po misji INC-018 pojawia się INC-019; wcześniejsze 18 misji i zapisane ukończenia zachowują numery.
+- [ ] `curl -i http://api.ctf.test/health` pokazuje HTTP 503 i kod zakończenia powłoki 0. Brak prawdziwych żądań do Internetu.
+- [ ] `cat` obu plików case19-api.conf i case19-api.safe.conf ujawnia różne wartości puli; przed przywróceniem stabilnej konfiguracji sam `systemctl restart api` nie naprawia błędu.
+- [ ] `cp case19-api.safe.conf case19-api.conf` modyfikuje plik, ale nie działający proces. Dopiero restart api stosuje właściwą konfigurację; ponowne `curl` potwierdza HTTP 200.
+- [ ] Zatrzymanie sshd lub queue powoduje brak pełnego zdrowia; zmiana kopii zapasowej lub nadmiernie szerokie prawa nie zalicza etapu.
+- [ ] Po odświeżeniu nie ginie raport z INC-018, obecny stan INC-019, ani postęp. Sprawdzenie klawiatury telefonu i działania PWA RC.27 offline nadal PENDING.
