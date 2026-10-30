@@ -29,7 +29,8 @@
 - [x] Historia komend w Akademii (klawiatura i dotyk), mniej dublowanych przycisków i kontekstowy feedback
 - [x] Kontekstowe wyjaśnienia ls/cd/grep: sukces, częściowy rezultat i błędy bez zdradzania odpowiedzi
 - [x] Efekty find/cp/chmod: liczba ścieżek, kopiowanie, porównanie rwx przed i po komendzie
-- [ ] Manual QA na fizycznym telefonie (1.0 RC.9)
+- [x] Ocena sprawdzianu uwzględniająca nietrafione poprawnie wykonane komendy; poprawione find . -name
+- [ ] Manual QA na fizycznym telefonie (1.0 RC.10)
 
 ## Etap 1 - Linux Administrator
 - [x] Podstawy chmod, stat, tryby rwx i testy Permission denied
