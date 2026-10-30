@@ -32,7 +32,8 @@
 - [x] Ocena sprawdzianu uwzględniająca nietrafione poprawnie wykonane komendy; poprawione find . -name
 - [x] Pięć komend tekstowych head/tail/wc/sort/uniq, osobne ćwiczenia i warianty transferowe
 - [x] Ograniczone potoki do analizy logów: czytanie plików, grep/sort/uniq/wc, lekcja i transfer
-- [ ] Manual QA na fizycznym telefonie (1.0 RC.12)
+- [x] Pierwsze samodzielne śledztwo: nieznany log, hipoteza ze śladów, potwierdzenie i zachowanie dowodu, drugi wariant
+- [ ] Manual QA na fizycznym telefonie (1.0 RC.13)
 
 ## Etap 1 - Linux Administrator
 - [x] Podstawy chmod, stat, tryby rwx i testy Permission denied
