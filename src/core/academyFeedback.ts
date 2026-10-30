@@ -22,6 +22,16 @@ export function explainAcademyAttempt(
   const cmd = result.command;
   const isFocusCommand = cmd === lessonId;
 
+  if(cmd==='conditional'&&result.conditionalTrace){
+    const skipped=result.conditionalTrace.filter(step=>!step.executed).length;
+    const executed=result.conditionalTrace.filter(step=>step.executed).length;
+    return {
+      title:completed?'Warunki poprawnie zastosowane':'Przeanalizuj wykonane i pominięte kroki',
+      detail:'W łańcuchu wykonano '+executed+' kroków, pominięto '+skipped+
+        '. && wymaga sukcesu, || wymaga niepowodzenia. Wynik całego łańcucha to status ostatniej wykonanej komendy; fałszywy test nie zawsze oznacza błędną decyzję.',
+      status:completed?'complete':'partial'
+    };
+  }
   if(cmd==='test'&&result.testFlag){
     const meaning:Record<string,string>={'-e':'istnienie obiektu','-f':'zwykły plik','-d':'katalog','-r':'prawo odczytu','-w':'prawo zapisu','-x':'prawo wykonania lub przejścia'};
     return {
