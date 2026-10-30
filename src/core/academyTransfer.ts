@@ -1,6 +1,7 @@
 import { executeLinux, type CommandResult, type LinuxState } from './linux.ts';
 import { createAcademyState } from './commandAcademy.ts';
 import { investigationFiles, investigationStatus } from './investigation.ts';
+import { usedManualBefore } from './manual.ts';
 
 const LAB='/home/player/practice';
 const hasFile=(s:LinuxState,name:string)=>Object.hasOwn(s.files,LAB+'/'+name);
@@ -27,6 +28,10 @@ export const transferChallenges:readonly TransferChallenge[]=[
     pass:s=>hasFile(s,'draft.txt') && s.files[LAB+'/draft.txt']===''},
   {lessonId:'cat',assignment:'Odczytaj treść pliku ~/practice/logs/audit-67.txt.',
     pass:(_s,e)=>saw(e,'cat',r=>r.target===LAB+'/logs/audit-67.txt' && r.output.includes('audit event 67'))},
+  {lessonId:'man',assignment:'Pracujesz z nieznanym poleceniem head. Najpierw sprawdz jego opcje w man head, a potem wyswietl dokladnie dwa pierwsze wiersze ~/practice/logs/manual-review.log. Dobierz parametry samodzielnie.',
+    pass:(_s,e)=>usedManualBefore(e,'head','head',r=>
+      r.target===LAB+'/logs/manual-review.log' &&
+      r.output==='WARN service slow\nINFO restart scheduled')},
   {lessonId:'grep',assignment:'W dzienniku ~/practice/events.log odszukaj wpis INFO sync complete.',
     pass:(_s,e)=>saw(e,'grep',r=>r.target===LAB+'/events.log' && r.output.includes('INFO sync complete'))},
   {lessonId:'head',assignment:'Zobacz pierwsze 2 wiersze nowego dziennika ~/practice/logs/review.log.',
@@ -85,6 +90,7 @@ export function createTransferState(lessonId:string):LinuxState {
       ...baseFiles,
       ...investigationFiles('transfer'),
       [LAB+'/logs/audit-67.txt']:'audit event 67',
+      [LAB+'/logs/manual-review.log']:'WARN service slow\nINFO restart scheduled\nERROR retry failed\nINFO operator notified\n',
       [LAB+'/review.tmp']:'temporary review data',
       [LAB+'/team.key']:'SIMULATED_TEAM_KEY',
       [LAB+'/logs/review.log']:'WARN spike\nINFO stable\nERROR temp\nINFO review\nWARN resolved\n',
@@ -119,5 +125,7 @@ export function transferMistake(
 ):boolean {
   if(lessonId==='investigation')
     return !result.ok || (result.command==='cp' && !completed);
+  if(lessonId==='man')
+    return !result.ok || (result.command==='head' && !completed);
   return !result.ok || (result.command===lessonId && !completed);
 }

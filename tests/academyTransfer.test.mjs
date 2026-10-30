@@ -11,6 +11,7 @@ const answers={
   mkdir:'mkdir ~/practice/reports',
   touch:'touch ~/practice/draft.txt',
   cat:'cat ~/practice/logs/audit-67.txt',
+  man:'man head',
   grep:'grep "INFO sync" ~/practice/events.log',
   head:'head -n 2 ~/practice/logs/review.log',
   tail:'tail -n 3 ~/practice/logs/review.log',
@@ -30,8 +31,8 @@ const answers={
 };
 const originalIds=commandLessons.map(x=>x.id);
 
-test('all twenty-two lessons have one different transfer task in the same order',()=>{
-  assert.equal(transferChallenges.length,22);
+test('all twenty-three lessons have one different transfer task in the same order',()=>{
+  assert.equal(transferChallenges.length,23);
   assert.deepEqual(transferChallenges.map(x=>x.lessonId),originalIds);
   for(const ch of transferChallenges) {
     assert.ok(ch.assignment.length>25,ch.lessonId);
@@ -44,6 +45,11 @@ for(const challenge of transferChallenges) {
     assert.equal(challenge.pass(seed,[]),false,challenge.lessonId);
     let result=submitTransfer(seed,[],answers[challenge.lessonId],challenge.lessonId);
     assert.equal(result.result.ok,true,challenge.lessonId);
+    if(challenge.lessonId==='man') {
+      assert.equal(result.completed,false);
+      result=submitTransfer(result.result.state,result.events,
+        'head -n 2 ~/practice/logs/manual-review.log',challenge.lessonId);
+    }
     if(challenge.lessonId==='investigation') {
       assert.equal(result.completed,false);
       result=submitTransfer(result.result.state,result.events,

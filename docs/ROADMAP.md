@@ -33,7 +33,8 @@
 - [x] Pięć komend tekstowych head/tail/wc/sort/uniq, osobne ćwiczenia i warianty transferowe
 - [x] Ograniczone potoki do analizy logów: czytanie plików, grep/sort/uniq/wc, lekcja i transfer
 - [x] Pierwsze samodzielne śledztwo: nieznany log, hipoteza ze śladów, potwierdzenie i zachowanie dowodu, drugi wariant
-- [ ] Manual QA na fizycznym telefonie (1.0 RC.13)
+- [x] Podręcznik man i man -k w terminalu: dokumentacja przed zastosowaniem flagi, drugi wariant na nowej komendzie
+- [ ] Manual QA na fizycznym telefonie (1.0 RC.14)
 
 ## Etap 1 - Linux Administrator
 - [x] Podstawy chmod, stat, tryby rwx i testy Permission denied
