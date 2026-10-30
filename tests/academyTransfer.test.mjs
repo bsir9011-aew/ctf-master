@@ -22,6 +22,7 @@ const answers={
   pipeline:'grep ERROR ~/practice/logs/incidents.log | sort | uniq | wc -l',
   redirect:'grep ERROR ~/practice/logs/incidents.log > ~/practice/incidents-summary.log',
   quoting:'mv "~/practice/logs/audit notes.txt" "~/practice/logs/incident notes.txt"',
+  'exit-status':'grep CRITICAL ~/practice/logs/review.log',
   investigation:'grep "LOGIN FAIL" ~/practice/logs/identity.log',
   find:'find ~/practice -name "audit-*.txt"',
   cp:'cp ~/practice/intro.txt ~/practice/intro-copy.txt',
@@ -39,7 +40,7 @@ const answers={
 const originalIds=commandLessons.map(x=>x.id);
 
 test('all thirty lessons have one different transfer task in the same order',()=>{
-  assert.equal(transferChallenges.length,30);
+  assert.equal(transferChallenges.length,31);
   assert.deepEqual(transferChallenges.map(x=>x.lessonId),originalIds);
   for(const ch of transferChallenges) {
     assert.ok(ch.assignment.length>25,ch.lessonId);
@@ -51,7 +52,16 @@ for(const challenge of transferChallenges) {
     const seed=createTransferState(challenge.lessonId);
     assert.equal(challenge.pass(seed,[]),false,challenge.lessonId);
     let result=submitTransfer(seed,[],answers[challenge.lessonId],challenge.lessonId);
-    assert.equal(result.result.ok,true,challenge.lessonId);
+    assert.equal(result.result.ok,challenge.lessonId!=='exit-status',challenge.lessonId);
+    if(challenge.lessonId==='exit-status'){
+      assert.equal(result.completed,false);
+      result=submitTransfer(result.result.state,result.events,'echo $?','exit-status');
+      assert.equal(result.completed,false);
+      result=submitTransfer(result.result.state,result.events,
+        'grep ERROR ~/practice/logs/review.log','exit-status');
+      assert.equal(result.completed,false);
+      result=submitTransfer(result.result.state,result.events,'echo $?','exit-status');
+    }
     if(challenge.lessonId==='quoting') {
       assert.equal(result.completed,false);
       result=submitTransfer(result.result.state,result.events,
