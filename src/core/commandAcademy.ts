@@ -84,7 +84,7 @@ export const commandLessons:readonly CommandLesson[]=[
     syntax:'find KATALOG -name WZORZEC',example:'find ~/downloads -name "*.tmp"',
     assignment:'Odnajdź plik ticket-42.txt, przeszukując katalog ~/practice.',
     hint:'Możesz użyć find ~/practice -name "ticket-*.txt".',
-    pass:(_s,e)=>observed(e,'find',r=>r.output.includes(LAB+'/logs/ticket-42.txt'))},
+    pass:(_s,e)=>observed(e,'find',r=>r.target===LAB && r.output.split('\n').includes(LAB+'/logs/ticket-42.txt'))},
   {id:'cp',title:'Zachowaj kopię',group:'Pliki i logi',
     purpose:'cp kopiuje plik i pozostawia jego oryginał w miejscu.',
     syntax:'cp ŹRÓDŁO CEL',example:'cp ~/notes.txt ~/documents/notes-copy.txt',
