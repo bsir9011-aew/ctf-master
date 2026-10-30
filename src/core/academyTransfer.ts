@@ -8,6 +8,7 @@ import {shareCase,shareCompleted} from './chgrp.ts';
 import {redirectionCase,redirectionCompleted} from './redirection.ts';
 import {quotingCase,quotingCompleted} from './quoting.ts';
 import {statusCase,statusCompleted} from './exitStatus.ts';
+import {transferTestFixture,fileTestCompleted,fileTestMistake} from './fileTest.ts';
 
 const LAB='/home/player/practice';
 const hasFile=(s:LinuxState,name:string)=>Object.hasOwn(s.files,LAB+'/'+name);
@@ -72,6 +73,8 @@ export const transferChallenges:readonly TransferChallenge[]=[
     pass:(state,events)=>quotingCompleted('transfer',state,events)},
   {lessonId:'exit-status',assignment:'Sprawdź dziennik ~/practice/logs/review.log pod kątem wpisu CRITICAL, a następnie bezpośrednio zbadaj status komendy. Później wyszukaj ERROR i odczytaj jego status od razu po wyszukiwaniu. Zademonstruj różnicę między brakiem dopasowania a sukcesem.',
     pass:(_state,events)=>statusCompleted('transfer',events)},
+  {lessonId:'test',assignment:'Log ~/practice/logs/forensics/trace.log wygląda na czytelny (644), lecz katalog forensics blokuje przejście. Sprawdź test -r na pliku i natychmiast echo $?. Zdiagnozuj test -x na katalogu i odczytaj jego status. Następnie przywróć właścicielowi tylko brakujące prawo przejścia, po czym ponów test -r i echo $?. Nie otwieraj dostępu innym ani nie zmieniaj pliku.',
+    pass:(state,events)=>fileTestCompleted('transfer',state,events)},
   {lessonId:'investigation',assignment:'SOC otrzymał alert o nietypowych próbach logowania około 04:12. Samodzielnie rozpoznaj właściwy dziennik w ~/practice/logs, odczytaj ślad związanego z tym zdarzenia i zabezpiecz cały plik jako ~/practice/incident-evidence.log. Zachowaj oryginalne logi.',
     pass:(s,e)=>investigationStatus('transfer',s,e).completed},
   {lessonId:'find',assignment:'Znajdź audit-67.txt w podkatalogach ~/practice za pomocą find.',
@@ -123,7 +126,8 @@ export function createTransferState(lessonId:string):LinuxState {
   return {
     ...state,
     cwd:lessonId==='pwd'?LAB+'/logs':state.cwd,
-    dirs:lessonId==='namei'?[...state.dirs,recoveryFixture('transfer').directory]:state.dirs,
+    dirs:[...state.dirs,...(lessonId==='namei'?[recoveryFixture('transfer').directory]:[]),
+      ...(lessonId==='test'?[transferTestFixture.directory]:[])],
     identity:(lessonId==='id'||lessonId==='file-access'||lessonId==='chgrp')
       ?{uid:1001,user:'analyst',primary:{gid:1100,name:'security'},
         supplementary:[{gid:1200,name:'audit'}]}
@@ -132,6 +136,7 @@ export function createTransferState(lessonId:string):LinuxState {
       ...baseFiles,
       ...investigationFiles('transfer'),
       [LAB+'/logs/audit-67.txt']:'audit event 67',
+      ...(lessonId==='test'?{[transferTestFixture.file]:transferTestFixture.content}:{}),
       [quotingCase('transfer').source]:quotingCase('transfer').content,
       [shareCase('transfer').path]:shareCase('transfer').content,
       ...(lessonId==='namei'?{[recoveryFixture('transfer').file]:recoveryFixture('transfer').content}:{}),
@@ -148,7 +153,9 @@ export function createTransferState(lessonId:string):LinuxState {
     permissions:{...state.permissions,[LAB+'/team.key']:0o644,
       [LAB+'/logs/audit-share.log']:0o640,[LAB+'/logs/player-share.log']:0o640,
       [shareCase('transfer').path]:0o640,
-      ...(lessonId==='namei'?{[recoveryFixture('transfer').directory]:0o600}:{})},
+      ...(lessonId==='namei'?{[recoveryFixture('transfer').directory]:0o600}:{}),
+      ...(lessonId==='test'?{[transferTestFixture.directory]:0o600,
+        [transferTestFixture.file]:0o644}:{})},
     ownership:{...state.ownership,
       [LAB+'/logs/audit-share.log']:{uid:2000,gid:1200},
       [LAB+'/logs/player-share.log']:{uid:2000,gid:1000},
@@ -177,6 +184,7 @@ export function earnedMastery(completed:boolean,errors:number,usedHint:boolean):
 export function transferMistake(
   lessonId:string,result:CommandResult,completed:boolean
 ):boolean {
+  if(lessonId==='test')return fileTestMistake(result);
   if(lessonId==='exit-status'){
     const c=statusCase('transfer');
     if(result.command==='grep'&&result.target===c.file&&

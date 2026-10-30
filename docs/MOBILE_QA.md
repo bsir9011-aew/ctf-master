@@ -188,3 +188,12 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Błąd składni, np. niedomknięty cudzysłów, daje `2`; nieznana komenda daje `127`. Dostępna dokumentacja `man exit-status`.
 - [ ] Niezależny sprawdzian używa innego logu i innych słów wyszukiwania. Celowy brak dopasowania nie jest karany, ale błędna diagnoza już tak.
 - [ ] Zachowane stare sesje i licznik **31** ćwiczeń, cache RC.22. Realny test dotyku/PWA i działania offline nadal PENDING.
+
+
+## RC.23 - test i prawa katalogów
+
+- [ ] W Akademii sprawdź `test -f ~/practice/checks/locked.log`, potem `echo $?` (0). Następnie `test -r` na tym samym pliku i od razu `echo $?` (1).
+- [ ] Forma `[ -d ~/practice/checks ]` daje status 0; pominięcie zamykającego `]` daje 2. Komendy `man test` i `man exit-status` działają lokalnie.
+- [ ] Sprawdzian `~/practice/logs/forensics/trace.log`: `test -r` zwraca 1, `test -x` na katalogu zwraca 1; napraw tylko brakujące `u+x`, a `test -r` i `echo $?` dają 0.
+- [ ] Zbyt szerokie `chmod 777` nie zalicza minimalnej naprawy. Treść logu i jego uprawnienia zostają bez zmian.
+- [ ] Licznik 32 lekcji/sprawdzianów, zachowane wcześniejsze wyniki, cache RC.23. QA fizycznego urządzenia i pracy offline nadal PENDING.

@@ -7,6 +7,7 @@ import {shareCase,shareCompleted} from './chgrp.ts';
 import {redirectionCompleted} from './redirection.ts';
 import {quotingCase,quotingCompleted} from './quoting.ts';
 import {statusCompleted} from './exitStatus.ts';
+import {introTestFixture,fileTestCompleted} from './fileTest.ts';
 
 export type CommandLessonGroup = 'Podstawy' | 'Pliki i logi' | 'Administracja' | 'Sieć';
 export interface CommandLesson {
@@ -28,7 +29,7 @@ export function createAcademyState():LinuxState {
   const initial=initialLinux();
   return {
     ...initial,
-    dirs:[...initial.dirs,LAB,LAB+'/logs',recoveryFixture('intro').directory],
+    dirs:[...initial.dirs,LAB,LAB+'/logs',LAB+'/checks',recoveryFixture('intro').directory],
     files:{
       ...initial.files,
       [LAB+'/intro.txt']:'Practice is how commands become useful.',
@@ -45,12 +46,14 @@ export function createAcademyState():LinuxState {
       [LAB+'/move-me.txt']:'MOVE_ME',
       [LAB+'/delete-me.tmp']:'DELETE_ME',
       [LAB+'/private.txt']:'SIMULATED_PRACTICE_DATA',
+      [introTestFixture.visible]:introTestFixture.content,
       [LAB+'/operator.log']:'OPERATOR: shared evidence readable by group',
       [LAB+'/audit-only.log']:'AUDIT: other group access denied',
       [shareCase('intro').path]:shareCase('intro').content,
       [recoveryFixture('intro').file]:recoveryFixture('intro').content
     },
     permissions:{...initial.permissions,[LAB+'/private.txt']:0o644,
+      [introTestFixture.visible]:0o000,
       [LAB+'/operator.log']:0o640,[LAB+'/audit-only.log']:0o640,
       [shareCase('intro').path]:0o640,
       [recoveryFixture('intro').directory]:0o600},
@@ -189,6 +192,13 @@ export const commandLessons:readonly CommandLesson[]=[
     assignment:'Sprawdź, czy w ~/practice/events.log występuje FATAL. Zaraz po wyszukiwaniu odczytaj status przez echo $?. Następnie wyszukaj WARN w tym samym pliku i również natychmiast sprawdź status. Porównaj wyniki bez innych komend pomiędzy wyszukiwaniem a odczytem statusu.',
     hint:'Nie oceniaj powodzenia tylko po tekście na ekranie. $? to status POPRZEDNIEGO polecenia. Pamiętaj, że samo echo też kończy się statusem 0.',
     pass:(_state,events)=>statusCompleted('intro',events)},
+  {id:'test',title:'Plik istnieje czy jest dostępny?',group:'Pliki i logi',
+    purpose:'test sprawdza warunki na pliku i zgłasza wynik kodem zakończenia. Istnienie pliku nie oznacza prawa odczytu. Wersja z nawiasami [ ... ] jest równoważna.',
+    syntax:'test -f SCIEZKA, test -r SCIEZKA, echo $?',
+    example:'test -f ~/practice/checks/locked.log',
+    assignment:'Zweryfikuj, czy ~/practice/checks/locked.log jest zwykłym plikiem za pomocą test -f, i natychmiast sprawdź kod przez echo $?. Następnie sprawdź test -r na tym samym pliku i także od razu odczytaj kod. Nie zmieniaj uprawnień. Zrozum różnicę między istnieniem a dostępem.',
+    hint:'Test -f sprawdza typ pliku, test -r prawo odczytu. Brak tekstowego wyniku jest normalny: bezpośrednio po każdym teście wpisz echo $?.',
+    pass:(state,events)=>fileTestCompleted('intro',state,events)},
   {id:'investigation',title:'Śledztwo: nieznany incydent',group:'Pliki i logi',
     purpose:'Otrzymujesz objaw incydentu i sam wybierasz strategię diagnostyki. Najpierw potwierdź ślad, potem zabezpiecz oryginalny dziennik.',
     syntax:'Dobierz narzędzia na podstawie obserwacji',

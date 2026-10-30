@@ -22,6 +22,14 @@ export function explainAcademyAttempt(
   const cmd = result.command;
   const isFocusCommand = cmd === lessonId;
 
+  if(cmd==='test'&&result.testFlag){
+    const meaning:Record<string,string>={'-e':'istnienie obiektu','-f':'zwykły plik','-d':'katalog','-r':'prawo odczytu','-w':'prawo zapisu','-x':'prawo wykonania lub przejścia'};
+    return {
+      title:result.ok?'Warunek jest spełniony':'Warunek nie jest spełniony',
+      detail:'Test '+result.testFlag+' sprawdza '+meaning[result.testFlag]+'. Polecenie niczego nie zmieniło. Status '+(result.exitCode??'?')+' sprawdź natychmiast przez echo $?. Fałszywy warunek może być oczekiwanym wynikiem diagnozy.',
+      status:completed?'complete':'partial'
+    };
+  }
   if (!result.ok) {
     const output = result.output.toLowerCase();
     if (cmd === 'ls') {
