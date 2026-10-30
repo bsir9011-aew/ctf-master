@@ -23,6 +23,7 @@ const answers={
   redirect:'grep ERROR ~/practice/logs/incidents.log > ~/practice/incidents-summary.log',
   quoting:'mv "~/practice/logs/audit notes.txt" "~/practice/logs/incident notes.txt"',
   'exit-status':'grep CRITICAL ~/practice/logs/review.log',
+  test:'test -r ~/practice/logs/forensics/trace.log',
   investigation:'grep "LOGIN FAIL" ~/practice/logs/identity.log',
   find:'find ~/practice -name "audit-*.txt"',
   cp:'cp ~/practice/intro.txt ~/practice/intro-copy.txt',
@@ -39,8 +40,8 @@ const answers={
 };
 const originalIds=commandLessons.map(x=>x.id);
 
-test('all thirty lessons have one different transfer task in the same order',()=>{
-  assert.equal(transferChallenges.length,31);
+test('all thirty-two lessons have one different transfer task in the same order',()=>{
+  assert.equal(transferChallenges.length,32);
   assert.deepEqual(transferChallenges.map(x=>x.lessonId),originalIds);
   for(const ch of transferChallenges) {
     assert.ok(ch.assignment.length>25,ch.lessonId);
@@ -52,7 +53,20 @@ for(const challenge of transferChallenges) {
     const seed=createTransferState(challenge.lessonId);
     assert.equal(challenge.pass(seed,[]),false,challenge.lessonId);
     let result=submitTransfer(seed,[],answers[challenge.lessonId],challenge.lessonId);
-    assert.equal(result.result.ok,challenge.lessonId!=='exit-status',challenge.lessonId);
+    assert.equal(result.result.ok,!['exit-status','test'].includes(challenge.lessonId),challenge.lessonId);
+    if(challenge.lessonId==='test'){
+      assert.equal(result.completed,false);
+      result=submitTransfer(result.result.state,result.events,'echo $?',challenge.lessonId);
+      result=submitTransfer(result.result.state,result.events,
+        'test -x ~/practice/logs/forensics',challenge.lessonId);
+      assert.equal(result.result.ok,false);
+      result=submitTransfer(result.result.state,result.events,'echo $?',challenge.lessonId);
+      result=submitTransfer(result.result.state,result.events,
+        'chmod u+x ~/practice/logs/forensics',challenge.lessonId);
+      result=submitTransfer(result.result.state,result.events,
+        'test -r ~/practice/logs/forensics/trace.log',challenge.lessonId);
+      result=submitTransfer(result.result.state,result.events,'echo $?',challenge.lessonId);
+    }
     if(challenge.lessonId==='exit-status'){
       assert.equal(result.completed,false);
       result=submitTransfer(result.result.state,result.events,'echo $?','exit-status');
