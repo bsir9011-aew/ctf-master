@@ -1,5 +1,6 @@
 import { executeLinux, initialLinux, type CommandResult, type LinuxState } from './linux.ts';
 import { investigationFiles, investigationStatus } from './investigation.ts';
+import { usedManualBefore } from './manual.ts';
 
 export type CommandLessonGroup = 'Podstawy' | 'Pliki i logi' | 'Administracja' | 'Sieć';
 export interface CommandLesson {
@@ -26,6 +27,7 @@ export function createAcademyState():LinuxState {
       ...initial.files,
       [LAB+'/intro.txt']:'Practice is how commands become useful.',
       [LAB+'/events.log']:'INFO boot ready\nWARN backup delayed\nINFO sync complete',
+      [LAB+'/manual.log']:'INFO backup requested\nERROR backup permission denied\nINFO job skipped\n',
       [LAB+'/timeline.log']:'INFO boot\nWARN latency\nINFO cache\nERROR timeout\nINFO retry\nWARN queue\nINFO stable\n',
       [LAB+'/names.txt']:'zoe\nanna\nmarta\n',
       [LAB+'/levels.txt']:'INFO\nINFO\nWARN\nWARN\nINFO\n',
@@ -79,6 +81,15 @@ export const commandLessons:readonly CommandLesson[]=[
     assignment:'Odczytaj plik ~/practice/intro.txt.',
     hint:'Użyj cat oraz ścieżki do pliku intro.txt.',
     pass:(_s,e)=>observed(e,'cat',r=>r.target===LAB+'/intro.txt' && r.output.includes('Practice is how'))},
+  {id:'man',title:'Dokumentacja komend',group:'Podstawy',
+    purpose:'man to podrecznik dostepnych polecen. Pomaga samodzielnie odkrywac opcje zamiast zgadywac skladnie.',
+    syntax:'man POLECENIE | man -k HASLO',
+    example:'man ls',
+    assignment:'Nie pamietasz, jaka opcja grep ignoruje wielkosc liter. Najpierw przeczytaj man grep, potem odszukaj wpis ERROR w ~/practice/manual.log, uzywajac wyszukiwania bez rozrozniania wielkosci liter.',
+    hint:'W man grep zajrzyj do sekcji OPCJE. Sam odczyt dokumentacji nie konczy zadania - zastosuj poznana opcje w terminalu.',
+    pass:(_s,e)=>usedManualBefore(e,'grep','grep',r=>
+      r.target===LAB+'/manual.log' && r.grepCaseInsensitive===true &&
+      r.output==='ERROR backup permission denied')},
   {id:'grep',title:'Szukaj wpisu w logu',group:'Pliki i logi',
     purpose:'grep wyszukuje pasujące wiersze. Tutaj wzorzec jest dosłownym tekstem.',
     syntax:'grep [-i] TEKST PLIK',example:'grep INFO /var/log/auth.log',
