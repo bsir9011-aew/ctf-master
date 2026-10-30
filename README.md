@@ -14,9 +14,9 @@ W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefoni
 ## Co dziala w 1.0 RC (Akademia komend)
 
 - 16 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
-- Trzy tryby: **Komendy** (24 lekcje techniczne + 1 dochodzenie, 25 sprawdzianów), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
+- Trzy tryby: **Komendy** (25 lekcji technicznych + 1 dochodzenie, 26 sprawdzianów), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
 - Zwinięta domyślnie **Mapa nauki** z 5 rozdziałami: cele, komendy, licznik postępu, przejście do pierwszej dostępnej misji.
-- Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `man POLECENIE`, `man -k HASLO`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `id`, `groups`, `help`, `clear`.
+- Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `man POLECENIE`, `man -k HASLO`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `id`, `groups`, `namei -l`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
 - Walidacja efektu zadania, nie porownywanie odpowiedzi 1:1.
 - Podpowiedzi 3 poziomow, kontekstowe komunikaty o bledach, licznik prob i punkt samodzielnego rozwiazania.
@@ -215,3 +215,11 @@ Dodano 25. ćwiczenie Akademii (i osobny sprawdzian) dotyczące **uprawnień wł
 Symulator sprawdza prawa `rwx` względem właściciela albo jednej pasującej grupy albo pozostałych — **bez łączenia uprawnień z kilku klas**. Odczyt wymaga również prawa przejścia `x` we wszystkich katalogach nadrzędnych. Dotyczy to m.in. `cat`, `grep`, `head`, `tail`, `wc`, `sort`, `uniq` i odczytu wejścia potoku. `ls`/ `find`, `cd`, `mkdir`, `touch`, `cp`, `mv`, `rm` sprawdzają odpowiednie uprawnienia w uproszczonym modelu. `chmod` obsługuje własne pliki **i katalogi**, a `stat` oraz `ls -l` pokazują ich faktycznego właściciela i grupę. Nowe pliki zachowują właściciela; `cp` tworzy plik z bieżącym UID/GID, a `mv` przenosi metadane.
 
 To nadal **symulacja edukacyjna**, nie pełna kontrola dostępu POSIX. Nie ma `chown`, `sudo`, ACL, bitów specjalnych, zmiany konta w terminalu ani prawdziwego wykonania poleceń. Stare sesje bez metadanych własności domyślnie traktują pliki jako należące do `player`; dotychczasowe klucze postępu nie są zmieniane. Testy na fizycznym telefonie i offline PWA pozostają do wykonania.
+
+## Diagnozowanie błędów dostępu - RC.17
+
+Dodano **26. ćwiczenie Akademii** oraz samodzielny sprawdzian: `namei -l SCIEZKA` pokazuje prawa właściciela, grupy i pozostałych dla kolejnych elementów ścieżki, aż do pierwszego katalogu bez skutecznego prawa `x`. Symulator nie pokazuje wówczas metadanych niedostępnych elementów potomnych. `namei` działa tylko na wirtualnych plikach, bez wykonywania systemowych poleceń.
+
+Wprowadzenie: plik `~/practice/diagnostics/service.log` ma prawo odczytu, ale jego katalog nie pozwala na przejście. Uczeń najpierw stawia diagnozę przez `namei -l`, potem przywraca tylko `x` właścicielowi i potwierdza odczyt; zaliczenie wymaga zachowania trybu `700`, a nie otwarcia `777`. Sprawdzian przenosi ten mechanizm na inną głębokość katalogów i inny plik.
+
+Obsługiwane są `man namei`, kontekstowe wyjaśnienia błędów i zwykłe komendy `chmod`/`cat`. Przy okazji skorygowano feedback poprawnych wyników `id`. Łącznie **26 lekcji, 26 transferów, 16 misji i 20 wariantów powtórek**. Dotychczasowe klucze localStorage i ukończone ćwiczenia pozostają zachowane. Ręczne testy Android oraz PWA offline pozostają niewykonane.
