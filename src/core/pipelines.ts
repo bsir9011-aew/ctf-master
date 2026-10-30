@@ -54,7 +54,9 @@ export function executePipeline(
   // Stage 1 is a read-only command. Convert displayed lines into a stream
   // whose lines end with LF; later stages receive that content, never a path.
   stages.push(commands[0][0]);
-  let stream=fromLines(asLines(first.output));
+  // cat preserves the file's exact trailing-newline behavior. Other
+  // read-only commands display rows and produce newline-terminated output.
+  let stream=commands[0][0]==='cat'?first.output:fromLines(asLines(first.output));
   for(let i=1;i<commands.length;i++){
     const [command,...args]=commands[i];
     stages.push(command);
@@ -95,6 +97,9 @@ export function executePipeline(
   }
   return {
     state,ok:true,command:'pipeline',target:first.target,
-    stages,output:stream.replace(/\n$/,'')
+    stages,
+    filterPattern:commands[0][0]==='grep'
+      ? (commands[0][1]==='-i'?commands[0][2]:commands[0][1]) : undefined,
+    output:stream.replace(/\n$/,'')
   };
 }
