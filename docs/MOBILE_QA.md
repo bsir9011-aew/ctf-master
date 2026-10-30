@@ -160,3 +160,12 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] `chgrp operators ~/practice/operator.log` musi zostać odrzucone, bo ten plik nie należy do użytkownika.
 - [ ] W sprawdzianie działasz jako `analyst`: zmień grupę innego raportu na `audit`, a następnie potwierdź zmianę. Czyste opanowanie wymaga poprawnej grupy bez nietrafionych prób.
 - [ ] Zachowaj wszystkie dotychczasowe wyniki, licznik **28** lekcji i cache RC.19. Zrealizuj fizyczne QA telefonu/PWA offline osobno; nadal PENDING.
+
+## RC.20 - przekierowanie danych do wirtualnego pliku
+
+- [ ] W Akademii wybierz „Zapisz wynik analizy do pliku”. Wpisz `grep WARN ~/practice/alerts.log > ~/practice/alerts-summary.log`, a następnie `grep INFO ~/practice/alerts.log >> ~/practice/alerts-summary.log`.
+- [ ] `cat ~/practice/alerts-summary.log` pokazuje najpierw cztery WARN, potem dwa INFO; `cat ~/practice/alerts.log` wciąż pokazuje oryginał.
+- [ ] Ponowne `>` nadpisuje poprzedni raport, a `>>` dopisuje; nowy plik ma prawa wynikające z umask, istniejący wymaga zapisu.
+- [ ] `grep FATAL ~/practice/alerts.log > ~/practice/alerts-summary.log` nie może skasować raportu, bo źródłowe polecenie kończy się błędem.
+- [ ] Sprawdzian używa innego pliku wejściowego `incidents.log` i innej nazwy raportu. Zaliczenie wymaga dwóch przekierowań i późniejszego `cat`.
+- [ ] Licznik **29** i wersja RC.20, postępy starszych 28 ćwiczeń niezmienione. Fizyczne QA telefonu i offline PWA nadal PENDING.
