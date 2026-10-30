@@ -14,9 +14,9 @@ W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefoni
 ## Co dziala w 1.0 RC (Akademia komend)
 
 - 16 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
-- Trzy tryby: **Komendy** (31 lekcji technicznych + 1 dochodzenie, 32 sprawdziany), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
+- Trzy tryby: **Komendy** (32 lekcje techniczne + 1 dochodzenie, 33 sprawdziany), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
 - Zwinięta domyślnie **Mapa nauki** z 5 rozdziałami: cele, komendy, licznik postępu, przejście do pierwszej dostępnej misji.
-- Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `man POLECENIE`, `man -k HASLO`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `umask`, `chgrp`, `>`, `>>`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `id`, `groups`, `namei -l`, `help`, `clear`.
+- Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `man POLECENIE`, `man -k HASLO`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `umask`, `chgrp`, `>`, `>>`, `&&`, `||`, `test`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `id`, `groups`, `namei -l`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
 - Walidacja efektu zadania, nie porownywanie odpowiedzi 1:1.
 - Podpowiedzi 3 poziomow, kontekstowe komunikaty o bledach, licznik prob i punkt samodzielnego rozwiazania.
@@ -268,3 +268,12 @@ Każda zakończona komenda wirtualnego terminala zapisuje swój kod wyjścia w s
 Komenda `test` oraz równoważna forma `[ ... ]` sprawdzają wirtualne pliki i katalogi bez wypisywania wyniku: `-e` istnienie, `-f` zwykły plik, `-d` katalog, `-r` odczyt, `-w` zapis, `-x` wykonanie/przejście. Każdy test uwzględnia brak prawa przejścia przez katalogi nadrzędne. `echo $?` pokazuje wynik: `0` dla spełnionego warunku, `1` dla niespełnionego, `2` dla niepoprawnej składni. Komendy są wyłącznie symulowane, bez wywołań systemu gospodarza.
 
 **32. lekcja** porównuje istnienie pliku `locked.log` z brakiem prawa odczytu. **32. niezależny sprawdzian** bada niedostępny log pod katalogiem bez `x`, wymaga diagnozy `test -x` i minimalnej poprawki praw przed powtórnym odczytem statusu. Automatyczne testy sprawdzają też, że fałszywy warunek nie jest pomyłką ucznia. Nie zmieniono kluczy postępów. Fizyczne QA telefonu i działania offline PWA nadal PENDING.
+
+
+## RC.24 - warunkowe wykonanie komend (`&&`, `||`)
+
+Nowy, ograniczony interpreter łączy do pięciu komend w jednym łańcuchu. `A && B` wykona B tylko, gdy A zakończyło się kodem `0`, a `A || B` uruchomi B wyłącznie po niezerowym statusie A. Operatory mają ten sam priorytet i są łączone od lewej do prawej. Pominięty fragment nie modyfikuje ani plików, ani statusu, a `echo $?` działa również wewnątrz łańcucha. Można łączyć istniejące bezpieczne potoki oraz przekierowania.
+
+**33. lekcja i niezależny sprawdzian** wymagają rzeczywistej kopii pod warunkiem istnienia źródła, pominięcia operacji na nieistniejącym pliku oraz wykonania działania awaryjnego po niepowodzeniu. Zaliczenie uwzględnia faktycznie wykonane/pominięte polecenia, kolejność oraz stan wirtualnych plików, a nie samo wpisanie tekstu.
+
+Nie ma wykonywania systemowej powłoki, `eval`, separatorów `;`, `&`, skryptów, podstawień, ani nieograniczonych łańcuchów. Wersja RC.24 nie zmienia kluczy localStorage. Fizyczne QA telefonu i PWA offline pozostaje **PENDING**.

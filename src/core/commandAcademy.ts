@@ -8,6 +8,7 @@ import {redirectionCompleted} from './redirection.ts';
 import {quotingCase,quotingCompleted} from './quoting.ts';
 import {statusCompleted} from './exitStatus.ts';
 import {introTestFixture,fileTestCompleted} from './fileTest.ts';
+import {conditionalCompleted} from './conditionalLesson.ts';
 
 export type CommandLessonGroup = 'Podstawy' | 'Pliki i logi' | 'Administracja' | 'Sieć';
 export interface CommandLesson {
@@ -199,6 +200,13 @@ export const commandLessons:readonly CommandLesson[]=[
     assignment:'Zweryfikuj, czy ~/practice/checks/locked.log jest zwykłym plikiem za pomocą test -f, i natychmiast sprawdź kod przez echo $?. Następnie sprawdź test -r na tym samym pliku i także od razu odczytaj kod. Nie zmieniaj uprawnień. Zrozum różnicę między istnieniem a dostępem.',
     hint:'Test -f sprawdza typ pliku, test -r prawo odczytu. Brak tekstowego wyniku jest normalny: bezpośrednio po każdym teście wpisz echo $?.',
     pass:(state,events)=>fileTestCompleted('intro',state,events)},
+  {id:'conditionals',title:'Działaj tylko po spełnieniu warunku',group:'Pliki i logi',
+    purpose:'&& wykonuje kolejną komendę tylko po sukcesie poprzedniej. || wykonuje ją tylko po niepowodzeniu. Pominięta komenda nie zmienia systemu, a kod wyjścia pochodzi z ostatniej wykonanej.',
+    syntax:'test -f PLIK && cp PLIK KOPIA  lub  test -f BRAKUJACY || touch ZNACZNIK',
+    example:'test -f ~/practice/source.txt && cp ~/practice/source.txt ~/practice/guarded-copy.txt',
+    assignment:'Przygotuj kopię źródła ~/practice/source.txt jako guarded-copy.txt, wykonując cp tylko gdy test -f potwierdzi obecność pliku (&&). Następnie zabezpiecz system: sprawdź nieistniejący not-present.log i przez && pomiń próbę utworzenia should-not-exist.tmp. Na koniec użyj ||, aby utworzyć follow-up.flag tylko po braku not-present.log. Odczytaj skopiowany plik przez cat. Wszystkie komendy w tym zadaniu mają działać na wirtualnych plikach ~/practice.',
+    hint:'Każde działanie po && lub || jest warunkowe. Prawdziwy test pozwala wykonać cp, fałszywy test blokuje touch po && i uruchamia touch po ||. Sprawdź skutek i kod zakończenia.',
+    pass:(state,events)=>conditionalCompleted('intro',state,events)},
   {id:'investigation',title:'Śledztwo: nieznany incydent',group:'Pliki i logi',
     purpose:'Otrzymujesz objaw incydentu i sam wybierasz strategię diagnostyki. Najpierw potwierdź ślad, potem zabezpiecz oryginalny dziennik.',
     syntax:'Dobierz narzędzia na podstawie obserwacji',

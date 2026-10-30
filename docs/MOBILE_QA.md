@@ -197,3 +197,13 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Sprawdzian `~/practice/logs/forensics/trace.log`: `test -r` zwraca 1, `test -x` na katalogu zwraca 1; napraw tylko brakujące `u+x`, a `test -r` i `echo $?` dają 0.
 - [ ] Zbyt szerokie `chmod 777` nie zalicza minimalnej naprawy. Treść logu i jego uprawnienia zostają bez zmian.
 - [ ] Licznik 32 lekcji/sprawdzianów, zachowane wcześniejsze wyniki, cache RC.23. QA fizycznego urządzenia i pracy offline nadal PENDING.
+
+
+## RC.24 - krótkie łańcuchy poleceń
+
+- [ ] W Akademii otwórz lekcję „Działaj tylko po spełnieniu warunku”. Spróbuj `test -f ~/practice/source.txt && cp ~/practice/source.txt ~/practice/guarded-copy.txt` i sprawdź, że powstała kopia, a oryginał się nie zmienił.
+- [ ] `test -f ~/practice/not-present.log && touch ~/practice/should-not-exist.tmp` nie może utworzyć pliku i ma status 1; `echo $?` pokazuje 1.
+- [ ] `test -f ~/practice/not-present.log || touch ~/practice/follow-up.flag` ma utworzyć znacznik, a późniejsze `echo $?` zwrócić 0.
+- [ ] `cat ~/practice/guarded-copy.txt` potwierdza kopię i zamyka lekcję. Sprawdzian używa innego logu i innych nazw plików.
+- [ ] Znaki `&&` i `||` w cudzysłowach lub poprzedzone backslashem nie uruchamiają logiki. Błędna składnia nie zmienia plików.
+- [ ] 33 lekcje/sprawdziany i cache RC.24 bez utraty poprzednich wyników. Rzeczywiste testy offline PWA i obsługi na telefonie pozostają PENDING.

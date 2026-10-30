@@ -154,7 +154,7 @@ test('manual and old session do not introduce host execution or forced migration
 });
 
 test('catalogue grows to 32 intro and independent transfer lessons',()=>{
-  assert.equal(commandLessons.length,32);
-  assert.equal(transferChallenges.length,32);
+  assert.equal(commandLessons.length,33);
+  assert.equal(transferChallenges.length,33);
   assert.deepEqual(commandLessons.map(x=>x.id),transferChallenges.map(x=>x.lessonId));
 });

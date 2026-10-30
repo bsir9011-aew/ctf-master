@@ -11,6 +11,7 @@ import {parseRedirection,executeRedirection} from './redirection.ts';
 import {tokenizeShellWords} from './shellSyntax.ts';
 import {finishCommand,previousExitCode} from './exitStatus.ts';
 import {executeFileTest,type TestFlag} from './fileTest.ts';
+import {parseConditionals,executeConditionals,type ConditionalStep} from './conditionals.ts';
 import { executeUmask, newFileMode, newDirectoryMode, DEFAULT_UMASK } from './umask.ts';
 import { defaultIdentity, executeIdentityCommand, identityOf, type SimIdentity } from './identity.ts';
 
@@ -44,6 +45,7 @@ export interface CommandResult {
   sourceCommand?: string;
   exitCode?: number;
   testFlag?: TestFlag;
+  conditionalTrace?: ConditionalStep[];
 }
 
 const HOME = '/home/player';
@@ -96,6 +98,9 @@ const parent = (p: string) => p === '/' ? '/' : p.slice(0, p.lastIndexOf('/')) |
 const base = (p: string) => p === '/' ? '/' : p.slice(p.lastIndexOf('/') + 1);
 
 export function executeLinux(state: LinuxState, raw: string): CommandResult {
+  const chain=parseConditionals(raw);
+  if(chain===null)return finishCommand({state,output:'warunki: niepoprawna skladnia && / ||',ok:false,command:'conditional'});
+  if(chain)return finishCommand(executeConditionals(state,chain,executeLinux));
   return finishCommand(runLinux(state,raw));
 }
 
@@ -153,7 +158,7 @@ function runLinux(state: LinuxState, raw: string): CommandResult {
       if(/^echo\s+\$\?$/.test(command))return done(String(previousExitCode(state)),true,state,'previous-exit');
       return done('echo: w tej lekcji obslugiwane jest tylko echo $? bez cytowania',false);
     case 'help':
-      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE SCIEZKA, stat PLIK, namei -l SCIEZKA, umask [NNN], chgrp GRUPA PLIK, man POLECENIE, man -k HASLO, whoami, id [-u|-g|-G], groups, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Potoki: komenda_czytajaca PLIK | grep|sort|uniq|head|tail|wc (max 5 etapow). Warunki plików: test -f SCIEZKA lub [ -r SCIEZKA ] (man test). Status ostatniej komendy: echo $? (man exit-status). Przekierowania odczytu: POLECENIE > PLIK lub POLECENIE >> PLIK. Sciezki ze spacjami: uzyj cudzyslowow lub backslasha (man quoting); brak podstawiania zmiennych i wykonywania host shell.');
+      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE SCIEZKA, stat PLIK, namei -l SCIEZKA, umask [NNN], chgrp GRUPA PLIK, man POLECENIE, man -k HASLO, whoami, id [-u|-g|-G], groups, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Potoki: komenda_czytajaca PLIK | grep|sort|uniq|head|tail|wc (max 5 etapow). Łańcuchy warunkowe: KOMENDA && KOMENDA albo KOMENDA || KOMENDA (man conditionals, do 5 poleceń). Warunki plików: test -f SCIEZKA lub [ -r SCIEZKA ] (man test). Status ostatniej komendy: echo $? (man exit-status). Przekierowania odczytu: POLECENIE > PLIK lub POLECENIE >> PLIK. Sciezki ze spacjami: uzyj cudzyslowow lub backslasha (man quoting); brak podstawiania zmiennych i wykonywania host shell.');
     case 'whoami':
       return args.length ? done('whoami: nieoczekiwany argument', false) : done(identityOf(state).user);
     case 'pwd':

@@ -87,7 +87,6 @@ test('empty and malformed pipelines are rejected',()=>{
   for(const raw of [
     'cat ~/practice/names.txt |',
     '| wc -l',
-    'cat ~/practice/names.txt || wc -l',
     'cat ~/practice/names.txt | | sort',
     'cat ~/practice/names.txt | grep "oops',
     'cat ~/practice/names.txt | grep',
@@ -142,8 +141,8 @@ test('no matching grep stage stops the pipeline with a useful error',()=>{
 });
 
 test('lesson completion validates real output, source and allowed stage sequence',()=>{
-  assert.equal(commandLessons.length,32);
-  assert.equal(transferChallenges.length,32);
+  assert.equal(commandLessons.length,33);
+  assert.equal(transferChallenges.length,33);
   const id='pipeline',base=createAcademyState();
   const wrong=academySubmit(base,[],'grep WARN ~/practice/alerts.log | wc -l',id);
   assert.equal(wrong.result.ok,true);

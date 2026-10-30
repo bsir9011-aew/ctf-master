@@ -9,6 +9,7 @@ import {redirectionCase,redirectionCompleted} from './redirection.ts';
 import {quotingCase,quotingCompleted} from './quoting.ts';
 import {statusCase,statusCompleted} from './exitStatus.ts';
 import {transferTestFixture,fileTestCompleted,fileTestMistake} from './fileTest.ts';
+import {conditionalCompleted,conditionalMistake} from './conditionalLesson.ts';
 
 const LAB='/home/player/practice';
 const hasFile=(s:LinuxState,name:string)=>Object.hasOwn(s.files,LAB+'/'+name);
@@ -75,6 +76,8 @@ export const transferChallenges:readonly TransferChallenge[]=[
     pass:(_state,events)=>statusCompleted('transfer',events)},
   {lessonId:'test',assignment:'Log ~/practice/logs/forensics/trace.log wygląda na czytelny (644), lecz katalog forensics blokuje przejście. Sprawdź test -r na pliku i natychmiast echo $?. Zdiagnozuj test -x na katalogu i odczytaj jego status. Następnie przywróć właścicielowi tylko brakujące prawo przejścia, po czym ponów test -r i echo $?. Nie otwieraj dostępu innym ani nie zmieniaj pliku.',
     pass:(state,events)=>fileTestCompleted('transfer',state,events)},
+  {lessonId:'conditionals',assignment:'Przygotuj raport dowodowy z ~/practice/logs/review.log do ~/practice/logs/review-evidence.log, używając test -f i &&, aby nie wykonywać cp bez źródła. Następnie sprawdź brak unknown-evidence.log i upewnij się przez &&, że skip-this.tmp NIE powstanie. Gdy unknown-evidence.log nie istnieje, przez || utwórz investigate.flag. Potwierdź treść kopii poleceniem cat. Zachowaj oryginalny log.',
+    pass:(state,events)=>conditionalCompleted('transfer',state,events)},
   {lessonId:'investigation',assignment:'SOC otrzymał alert o nietypowych próbach logowania około 04:12. Samodzielnie rozpoznaj właściwy dziennik w ~/practice/logs, odczytaj ślad związanego z tym zdarzenia i zabezpiecz cały plik jako ~/practice/incident-evidence.log. Zachowaj oryginalne logi.',
     pass:(s,e)=>investigationStatus('transfer',s,e).completed},
   {lessonId:'find',assignment:'Znajdź audit-67.txt w podkatalogach ~/practice za pomocą find.',
@@ -184,6 +187,7 @@ export function earnedMastery(completed:boolean,errors:number,usedHint:boolean):
 export function transferMistake(
   lessonId:string,result:CommandResult,completed:boolean
 ):boolean {
+  if(lessonId==='conditionals')return conditionalMistake(result);
   if(lessonId==='test')return fileTestMistake(result);
   if(lessonId==='exit-status'){
     const c=statusCase('transfer');
