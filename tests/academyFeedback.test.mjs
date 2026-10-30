@@ -1,3 +1,4 @@
+import {assertWorldUnchanged} from './assertWorldUnchanged.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { academySubmit,createAcademyState } from '../src/core/commandAcademy.ts';
@@ -48,7 +49,7 @@ test('cd recognizes attempted entry into a file instead of misreporting missing 
   const result=executeLinux(state,'cd ~/practice/intro.txt');
   assert.equal(result.ok,false);
   assert.match(result.output,/Not a directory/);
-  assert.equal(result.state,state);
+  assertWorldUnchanged(result.state,state);
   const feedback=explainAcademyAttempt('cd',state,result,false);
   assert.equal(feedback.status,'error');
   assert.match(feedback.title,/wymaga katalogu/);
