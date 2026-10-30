@@ -44,7 +44,8 @@
 - [x] Exit status: 0/1/2/127, echo $?, zapis w sesji i natychmiastowa obserwacja, 31. lekcja i transfer
 - [x] Test -e/-f/-d/-r/-w/-x oraz [ ... ]: warunki plików, odmowa przejścia przez katalog, status i niezależna diagnoza w transferze
 - [x] && i ||: krótkie łańcuchy warunkowe, pomijanie poleceń, ślad działania, lekcja i niezależny sprawdzian
-- [ ] Manual QA na fizycznym telefonie (1.0 RC.24)
+- [x] Misja 17 - korelacja dwóch logów SOC, warunkowe kopie, raport > i >> oraz odczyt dowodów; szósty rozdział końcowy
+- [ ] Manual QA na fizycznym telefonie (1.0 RC.25)
 
 ## Etap 1 - Linux Administrator
 - [x] Podstawy chmod, stat, tryby rwx i testy Permission denied

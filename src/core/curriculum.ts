@@ -42,6 +42,13 @@ export const learningChapters: readonly LearningChapter[] = [
     commands:'ip · ping · ss · nslookup · nc · trace',
     outcome:'Wskazujesz etap, na którym połączenie przestaje działać.',
     missionIds:['gateway-repair','api-listener','dns-repair','packet-layers']
+  },
+  {
+    id:'soc-capstone',title:'SOC: pełne śledztwo',
+    purpose:'Połączysz rozpoznanie incydentu, ochronę oryginałów, kopiowanie warunkowe i raportowanie.',
+    commands:'grep · test · && · cp · > · >> · cat',
+    outcome:'Samodzielnie korelujesz zdarzenia z różnych logów i zabezpieczasz dowody.',
+    missionIds:['incident-correlation']
   }
 ];
 
