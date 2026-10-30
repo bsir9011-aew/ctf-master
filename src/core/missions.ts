@@ -1,6 +1,7 @@
 import type { CommandResult, LinuxState } from './linux';
 import { modeOf } from './permissions.ts';
 import {incidentCaseProgress} from './incidentCapstone.ts';
+import {hypothesisProgress} from './hypothesisCase.ts';
 
 export interface Mission {
   id: string;
@@ -198,5 +199,15 @@ export const missions: Mission[] = [
       'Potwierdź osobno grep ALERT /var/log/app.log i grep DENIED /var/log/auth.log. Potem test -f ZRÓDŁO && cp ZRÓDŁO CEL dla obu logów. Zapisz grep ALERT > ~/documents/case17-report.log, dopisz grep DENIED >> do tego samego raportu i przeczytaj cat.'
     ],
     success:(state,events)=>incidentCaseProgress(state,events).completed
+  },
+  {
+    id:'incident-hypotheses',title:'INC-018: trzy możliwe przyczyny',category:'Linux Investigator',
+    briefing:'Po wdrożeniu pojawiają się HTTP 502. Równolegle widać nietypowe próby logowania, a operator podejrzewa też problemy z dyskiem. W katalogu ~/documents/cases masz pięć logów case18-*.log (edge, auth, db, deploy, host). Zbadaj każdy i porównaj czas oraz znaczenie zdarzeń. Wybierz najbardziej prawdopodobne wyjaśnienie przez hypothesis ID PEWNOSC (man hypothesis). Następnie zachowaj dwa najważniejsze oryginały jako case18-db-evidence.log i case18-deploy-evidence.log, sporządź case18-analysis.log z wierszem zmiany konfiguracji i wpisem o błędzie bazy, korzystając z > oraz >>, i odczytaj raport. Nie zmieniaj logów źródłowych. To ocena na podstawie śladów, nie dowód absolutnej przyczynowości.',
+    hints:[
+      'Jednoczesne zdarzenia nie muszą mieć wspólnej przyczyny. Sprawdź pięć źródeł, porównaj znaczniki czasu i szukaj mechanizmu łączącego zmianę z objawem.',
+      'W szczególności odróżnij próby logowania od rzeczywistego problemu backendu oraz odczytaj dane o kondycji hosta. Zajrzyj do man hypothesis, a po decyzji zabezpiecz dwa najbardziej rozstrzygające logi.',
+      'Po zbadaniu wszystkich pięciu plików użyj hypothesis z ID najbardziej pasującej hipotezy i poziomem pewności. Skopiuj całe logi deploy i db, a raport zbuduj przez grep POOL_LIMIT_REDUCED ... > oraz grep POOL_EXHAUSTED ... >>, po czym cat.'
+    ],
+    success:(state,events)=>hypothesisProgress(state,events).completed
   }
 ];

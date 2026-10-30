@@ -13,8 +13,8 @@ W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefoni
 
 ## Co dziala w 1.0 RC (Akademia komend)
 
-- 17 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
-- Trzy tryby: **Komendy** (32 lekcje techniczne + 1 dochodzenie, 33 sprawdziany), **Misje** (17 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
+- 18 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
+- Trzy tryby: **Komendy** (32 lekcje techniczne + 1 dochodzenie, 33 sprawdziany), **Misje** (18 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
 - Zwinięta domyślnie **Mapa nauki** z 6 rozdziałami: cele, komendy, licznik postępu, przejście do pierwszej dostępnej misji.
 - Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `man POLECENIE`, `man -k HASLO`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `umask`, `chgrp`, `>`, `>>`, `&&`, `||`, `test`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `id`, `groups`, `namei -l`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
@@ -284,3 +284,12 @@ Nie ma wykonywania systemowej powłoki, `eval`, separatorów `;`, `&`, skryptów
 Nowy, finałowy rozdział **SOC: pełne śledztwo** obejmuje scenariusz INC-017 na istniejących wirtualnych logach `/var/log/app.log` i `/var/log/auth.log`. Uczeń sam lokalizuje i potwierdza dwa niezależne ślady, wykonuje dwie kopie pełnych plików dopiero po `test -f` z `&&`, a następnie tworzy dwuwierszowy raport przez `grep` z `>` i `>>`, odczytując go na końcu. Zaliczenie wymaga oryginalnych logów i praw bez zmian, pełnych kopii, prawidłowych danych w raporcie i autentycznej sekwencji wykonanych kroków w wirtualnym terminalu.
 
 Karta misji pokazuje cztery etapy (śledztwo, kopie, korelacja, odczyt) bez zdradzania rozwiązań. Misja jest **dopisana jako 17.**, bez przesuwania poprzednich numerów, bez nowych pól lokalnej sesji i bez wymagania ponownego przejścia wcześniej zaliczonych misji. Wszystkie dane pozostają symulowane. Rozbudowa nie dowodzi rzeczywistej pracy PWA na telefonie: **manual mobile QA nadal PENDING**.
+
+
+## RC.26 - misja 18: hipotezy pod niepewnością
+
+Po INC-017 nowa misja **INC-018** wymaga samodzielnej oceny **trzech konkurencyjnych wyjaśnień** błędów HTTP 502: zdarzenia uwierzytelniania, kłopotu z zasobami hosta albo wyczerpania puli połączeń z bazą. W katalogu `~/documents/cases` pojawia się pięć wirtualnych logów `case18-*.log` dotyczących aplikacji, logowania, bazy, wdrożenia i zdrowia serwera. Nie wszystkie zdarzenia, które wystąpiły w tym samym czasie, muszą być przyczyną problemu.
+
+Przez `man hypothesis` poznasz trzy dopuszczalne identyfikatory oraz składnię `hypothesis <ID> <low|medium|high>`. Wypowiedzenie hipotezy bez uprzedniego zbadania wszystkich pięciu źródeł nie zalicza zadania. Po ocenie należy zabezpieczyć dwa pełne źródła najważniejszych dowodów, przygotować dwuwierszowy raport przez `grep`, `>`, `>>` i przeczytać go `cat`. Ocena sprawdza wcześniejsze odczyty, hipotezę, autentyczne kopie, nienaruszone oryginały, kolejność raportu i jego weryfikację. Poziom pewności jest zapisywany, ale nie udaje gwarancji przyczynowości.
+
+Misja jest **dopisana jako 18.**, a 17 wcześniejszych zachowuje numery. Nowe wirtualne logi są dodawane dopiero przy wejściu do misji lub odtworzeniu jej aktywnej sesji, bez nadpisywania istniejących plików i bez zmiany kluczy zapisu. Uruchomienie komendy `hypothesis` **nie wykonuje poleceń na komputerze**. Rzeczywiste QA telefonu i PWA offline nadal **PENDING**.

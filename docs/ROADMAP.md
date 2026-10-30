@@ -45,7 +45,8 @@
 - [x] Test -e/-f/-d/-r/-w/-x oraz [ ... ]: warunki plików, odmowa przejścia przez katalog, status i niezależna diagnoza w transferze
 - [x] && i ||: krótkie łańcuchy warunkowe, pomijanie poleceń, ślad działania, lekcja i niezależny sprawdzian
 - [x] Misja 17 - korelacja dwóch logów SOC, warunkowe kopie, raport > i >> oraz odczyt dowodów; szósty rozdział końcowy
-- [ ] Manual QA na fizycznym telefonie (1.0 RC.25)
+- [x] Misja 18 - konkurencyjne hipotezy, fałszywe tropy, poziom pewności, analiza pięciu źródeł, zabezpieczenie i weryfikacja raportu
+- [ ] Manual QA na fizycznym telefonie (1.0 RC.26)
 
 ## Etap 1 - Linux Administrator
 - [x] Podstawy chmod, stat, tryby rwx i testy Permission denied

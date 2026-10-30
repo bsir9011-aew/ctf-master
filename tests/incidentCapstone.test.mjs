@@ -32,11 +32,11 @@ const report=[
 const complete=()=>run([...investigate,...backups,...report]);
 
 test('mission 17 is appended without changing earlier mission ordering',()=>{
-  assert.equal(missions.length,17);
-  assert.equal(missions.at(-1).id,'incident-correlation');
+  assert.equal(missions.length,18);
+  assert.equal(missions[16].id,'incident-correlation');
   assert.equal(missions[0].id,'orientation');
   assert.equal(missions[15].id,'packet-layers');
-  assert.equal(missions.at(-1).success(initialLinux(),[]),false);
+  assert.equal(missions[16].success(initialLinux(),[]),false);
 });
 
 test('capstone uses existing session logs and does not require new seeded files',()=>{
@@ -67,7 +67,7 @@ test('investigation, guarded preservation, correlation and readback advance sepa
     const {state,events}=run(prefixes[i]);
     const p=incidentCaseProgress(state,events);
     assert.deepEqual([p.observed,p.preserved,p.correlated,p.verified],expected[i],String(i));
-    assert.equal(missions.at(-1).success(state,events),i===4);
+    assert.equal(missions[16].success(state,events),i===4);
   }
 });
 
@@ -98,7 +98,7 @@ test('mere filenames from direct cp cannot bypass conditional copy evidence',()=
   assert.equal(q.state.files[c.report]!==undefined,true);
   assert.equal(incidentCaseProgress(q.state,q.events).observed,true);
   assert.equal(incidentCaseProgress(q.state,q.events).preserved,false);
-  assert.equal(missions.at(-1).success(q.state,q.events),false);
+  assert.equal(missions[16].success(q.state,q.events),false);
 });
 
 test('copying before confirming both clues does not count as evidence chain',()=>{

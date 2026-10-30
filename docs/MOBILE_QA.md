@@ -217,3 +217,13 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Wykonaj grep ALERT > ~/documents/case17-report.log, następnie grep DENIED >> tego samego pliku. Sprawdź, że raport ma dwa wiersze w odpowiedniej kolejności i odczytaj go cat.
 - [ ] Bez warunkowej kopii (`test -f` i `&&`) oraz po zmodyfikowaniu źródłowego logu misja nie może zostać zaliczona. Pliki źródłowe pozostają nienaruszone.
 - [ ] Sprawdź odświeżenie postępu, obsługę dotykiem oraz PWA offline po produkcyjnym buildzie RC.25. Wciąż PENDING do czasu fizycznego testu telefonu.
+
+
+## RC.26 - misja 18: konkurencyjne hipotezy
+
+- [ ] Po ukończeniu INC-017 odblokowuje się misja 18; wcześniejsze 17 numerów i postęp nie ulegają zmianie.
+- [ ] Misja otwiera pięć wirtualnych źródeł case18-*.log w ~/documents/cases bez modyfikowania dotychczasowych plików. Na telefonie sprawdź długie nazwy oraz terminal bez przewijania poziomego.
+- [ ] W sekcji etapów „Źródła” wymaga odczytu pięciu logów; samo polecenie hypothesis bez analizy nie zalicza etapu oceny.
+- [ ] man hypothesis pokazuje dostępne opcje i pewność; wprowadzenie błędnej hipotezy nie zalicza śledztwa, ale można ją poprawić na podstawie dalszej analizy.
+- [ ] Skopiuj oba rozstrzygające oryginały do plików evidence, następnie zapisz dwa fakty w raporcie przez > i >>; cat raportu powinien zaliczyć czwarty etap. Zmiana któregoś oryginalnego logu blokuje zaliczenie.
+- [ ] Po odświeżeniu powinna zachować się aktywna sesja misji, nowy raport i postępy poprzednich zadań. Produkcyjna PWA RC.26 offline, obsługa ekranu i klawiatury na fizycznym telefonie nadal PENDING.
