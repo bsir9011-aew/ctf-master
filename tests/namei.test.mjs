@@ -1,3 +1,4 @@
+import {assertWorldUnchanged} from './assertWorldUnchanged.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {executeLinux,initialLinux} from '../src/core/linux.ts';
@@ -39,7 +40,7 @@ test('malformed namei and missing paths produce errors without state changes',()
     const r=executeLinux(state,raw);
     assert.equal(r.ok,false,raw);
     assert.equal(r.command,'namei');
-    assert.equal(r.state,state);
+    assertWorldUnchanged(r.state,state);
   }
   assert.deepEqual(state,snapshot);
 });
