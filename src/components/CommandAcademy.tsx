@@ -7,6 +7,7 @@ import {
 import {createTransferState,submitTransfer,earnedMastery,transferMistake,transferChallenges} from '../core/academyTransfer';
 import type { CommandResult, LinuxState } from '../core/linux';
 import { academyTerminalHeight, needsRecommendation } from '../core/academyPresentation';
+import { investigationStatus } from '../core/investigation';
 import { rememberCommand, moveHistoryCursor } from '../core/commandHistory';
 import {
   recommendAcademy, recordCoachSignal, restoreCoachMetrics, type AcademyCoachMetrics
@@ -52,6 +53,7 @@ export default function CommandAcademy() {
   const lesson=commandLessons[index];
   const transfer=transferChallenges.find(item=>item.lessonId===lesson.id)!;
   const inTransfer=phase==='transfer';
+  const investigation=lesson.id==='investigation'?investigationStatus(phase,system,events):null;
   const complete=progress.completed.includes(lesson.id);
   const mastered=progress.mastered.includes(lesson.id);
   const suggestion=recommendAcademy(progress,metrics);
@@ -180,7 +182,7 @@ export default function CommandAcademy() {
       <div className="academy-topline-title">
         <p className="eyebrow">PRAKTYCZNY LINUX</p>
         <h2>Akademia komend</h2>
-        <p>Jedna komenda. Jedno zadanie. Wynik w terminalu.</p>
+        <p>Od poznawania komend do samodzielnych dochodzeń.</p>
       </div>
       <div className="academy-progress" aria-label="Postęp akademii">
         <strong>{progress.completed.length}/{commandLessons.length} poznanych</strong>
@@ -223,7 +225,7 @@ export default function CommandAcademy() {
           <p>{inTransfer
             ? 'Nowe dane, ta sama umiejętność. Rozwiąż zadanie bez gotowego przykładu.'
             : lesson.purpose}</p>
-          {!inTransfer&&<div className="academy-syntax">
+          {!inTransfer&&lesson.id!=='investigation'&&<div className="academy-syntax">
             <div><span>Składnia</span><code>{lesson.syntax}</code></div>
             <div><span>Przykład</span><code>{lesson.example}</code></div>
           </div>}
@@ -231,6 +233,10 @@ export default function CommandAcademy() {
             <strong>Twoje zadanie</strong>
             <p>{inTransfer?transfer.assignment:lesson.assignment}</p>
           </div>
+          {investigation&&<div className="academy-investigation-checks" role="status" aria-label="Etapy dochodzenia">
+            <span>{investigation.evidenceFound?'✓':'○'} 1. Potwierdź ślad w źródłowym logu</span>
+            <span>{investigation.evidencePreserved?'✓':'○'} 2. Zabezpiecz pełny log bez zmiany oryginału</span>
+          </div>}
 
           {!doneNow&&mastered&&<p className="academy-previous">✓ Ta komenda ma już status „opanowane”.</p>}
           {!doneNow&&!inTransfer&&complete&&!mastered&&
