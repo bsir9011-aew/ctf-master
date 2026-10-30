@@ -50,4 +50,12 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Po zaliczeniu ćwiczenia `pwd` na karcie pozostaje jeden dostępny przycisk „Sprawdź samodzielnie”; górna rekomendacja nie powiela go.
 - [ ] Gdy wpiszesz błędną ścieżkę, zobaczysz kontekstową informację zwrotną w panelu pod terminalem. Nie zdradza gotowej odpowiedzi do sprawdzianu.
 - [ ] Sprawdź wąski ekran 320–390 px — dwa przyciski historii nie zasłaniają pola wprowadzania i przycisku „Wykonaj”.
-- [ ] Header pokazuje 1.0.0-rc.7, a po ponownym uruchomieniu zachowane są wcześniejsze wyniki ćwiczeń, misji i powtórek.
+- [ ] Header pokazuje 1.0.0-rc.8, a po ponownym uruchomieniu zachowane są wcześniejsze wyniki ćwiczeń, misji i powtórek.
+
+## RC.8 — test krótkiej pętli uczenia
+
+- [ ] W ćwiczeniu `ls` wpisz `ls ~/documents`: komenda działa, ale zadanie nie jest zaliczone. Następnie spróbuj nieistniejącej ścieżki i sprawdź inne wyjaśnienie.
+- [ ] W `cd` spróbuj wejść do istniejącego pliku, a potem do nieistniejącego katalogu. Zwróć uwagę na rozróżnienie obu błędów.
+- [ ] W `grep` wpisz wzorzec z niewłaściwą wielkością liter, potem użyj `-i`; sprawdź, czy wyjaśnienia pomagają zrozumieć różnicę.
+- [ ] W drugim wariancie sprawdzianu informacja zwrotna nie może zdradzać nazwy docelowego pliku ani pełnej komendy.
+- [ ] Przełącz na Misje/Powtórki i odśwież — dane pozostają zachowane. Nagłówek powinien wskazywać RC.8.
