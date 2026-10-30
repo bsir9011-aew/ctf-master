@@ -14,7 +14,7 @@ W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefoni
 ## Co dziala w 1.0 RC (Akademia komend)
 
 - 16 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
-- Trzy tryby: **Komendy** (20 ćwiczeń + 20 sprawdzianów), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
+- Trzy tryby: **Komendy** (21 ćwiczeń + 21 sprawdzianów), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
 - Zwinięta domyślnie **Mapa nauki** z 5 rozdziałami: cele, komendy, licznik postępu, przejście do pierwszej dostępnej misji.
 - Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
@@ -164,6 +164,20 @@ Dodatkowo `find . -name WZORZEC` poprawnie interpretuje jawną ścieżkę `.` ja
 
 Akademia ma teraz **20 lekcji i 20 samodzielnych sprawdzianów**. Dodano pięć poleceń: `head [-n N] PLIK`, `tail [-n N] PLIK`, `wc [-l|-w|-c] PLIK`, `sort PLIK` oraz `uniq PLIK`. Każde ma osobne pliki treningowe, drugi wariant z innymi danymi oraz wynik zweryfikowany przez wirtualny interpreter.
 
-Ważne różnice: `head` i `tail` pokazują początek i koniec logu, `wc -l` liczy znaki końca wiersza (nie zawsze liczbę wizualnych wierszy), `sort` porządkuje wiersze bez zmiany pliku, a `uniq` usuwa **tylko sąsiadujące** powtórzenia. `uniq` nie deduplikuje wszystkich wpisów w całym pliku. Symulator celowo **nie obsługuje potoków ani przekierowania**; nowe komendy pracują na pojedynczym pliku i nie modyfikują jego zawartości. `wc -c` liczy bajty UTF-8, a `head/tail -n` dopuszczają od 1 do 100 wierszy.
+Ważne różnice: `head` i `tail` pokazują początek i koniec logu, `wc -l` liczy znaki końca wiersza (nie zawsze liczbę wizualnych wierszy), `sort` porządkuje wiersze bez zmiany pliku, a `uniq` usuwa **tylko sąsiadujące** powtórzenia. `uniq` nie deduplikuje wszystkich wpisów w całym pliku. W wersji RC.11 symulator **nie obsługiwał potoków ani przekierowania**; nowe komendy pracują na pojedynczym pliku i nie modyfikują jego zawartości. `wc -c` liczy bajty UTF-8, a `head/tail -n` dopuszczają od 1 do 100 wierszy.
 
 Wszystkie wcześniejsze zaliczenia i zapisane metryki pozostają zachowane pod dotychczasowymi kluczami localStorage; nowe lekcje zaczynają jako nieukończone. Test na fizycznym telefonie i instalacja PWA offline nadal wymagają wykonania.
+
+## Pierwsze bezpieczne potoki (1.0 RC.12)
+
+**Potok** `|` łączy wynik czytającej komendy z następnym etapem. Przykładowa analiza logów:
+
+```bash
+grep WARN ~/practice/alerts.log | sort | uniq | wc -l
+```
+
+Pierwszy etap czyta plik (`cat`, `grep`, `head`, `tail`, `sort` lub `uniq`). Kolejne mogą filtrować, sortować, deduplikować sąsiednie wiersze, wybierać ich fragment lub liczyć za pomocą `wc`. Obsługiwane są tylko potoki długości 2–5 etapów. `wc -l` liczy znaki końca wiersza w danych przekazanych do potoku, a `uniq` działa wyłącznie na sąsiednie duplikaty — dlatego często trzeba wcześniej użyć `sort`.
+
+Akademia ma teraz **21 lekcji i 21 niezależnych sprawdzianów**. Lekcja potoków liczy różne ostrzeżenia WARN, a transfer osobno analizuje ERROR w innym pliku. Wynik i kolejność rodzin komend muszą odpowiadać wymaganiu, a nie tylko zostać wpisane w odpowiednim formacie. Feedback objaśnia kolejne etapy.
+
+**Ograniczenia:** to symulator, nie Bash: nie ma dowolnych poleceń w potoku, przekierowań `>`, `<`, `; `, podstawiania komend ani prawdziwego uruchamiania procesów. Pojedyncze polecenia nadal zachowują dotychczasową składnię. Stare zapisy ukończeń nie są modyfikowane. Ręczny test na fizycznym telefonie/PWA nadal czeka na wykonanie.

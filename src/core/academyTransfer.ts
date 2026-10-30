@@ -42,6 +42,10 @@ export const transferChallenges:readonly TransferChallenge[]=[
   {lessonId:'uniq',assignment:'Pokaż ~/practice/review-levels.txt bez sąsiadujących powtórzeń wpisów.',
     pass:(_s,e)=>saw(e,'uniq',r=>r.target===LAB+'/review-levels.txt' &&
       r.output==='OK\nWARN\nOK')},
+  {lessonId:'pipeline',assignment:'W ~/practice/logs/incidents.log policz, ile różnych komunikatów ERROR wystąpiło. Użyj jednego potoku grep, sort, uniq i wc -l.',
+    pass:(_s,e)=>saw(e,'pipeline',r=>r.target===LAB+'/logs/incidents.log' &&
+      r.stages?.join('>')==='grep>sort>uniq>wc' &&
+      r.filterPattern==='ERROR' && r.output==='3')},
   {lessonId:'find',assignment:'Znajdź audit-67.txt w podkatalogach ~/practice za pomocą find.',
     pass:(_s,e)=>saw(e,'find',r=>r.target===LAB && r.output.split('\n').includes(LAB+'/logs/audit-67.txt'))},
   {lessonId:'cp',assignment:'Zachowaj kopię ~/practice/intro.txt w ~/practice/intro-copy.txt, nie usuwając oryginału.',
@@ -74,6 +78,7 @@ export function createTransferState(lessonId:string):LinuxState {
       [LAB+'/review.tmp']:'temporary review data',
       [LAB+'/team.key']:'SIMULATED_TEAM_KEY',
       [LAB+'/logs/review.log']:'WARN spike\nINFO stable\nERROR temp\nINFO review\nWARN resolved\n',
+      [LAB+'/logs/incidents.log']:'ERROR disk\nINFO ready\nERROR network\nERROR disk\nERROR memory\nINFO sync\nERROR network\n',
       [LAB+'/review-names.txt']:'tomasz\nadam\nola\n',
       [LAB+'/review-levels.txt']:'OK\nOK\nWARN\nWARN\nOK\n'
     },

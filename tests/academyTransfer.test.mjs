@@ -17,6 +17,7 @@ const answers={
   wc:'wc -l ~/practice/logs/review.log',
   sort:'sort ~/practice/review-names.txt',
   uniq:'uniq ~/practice/review-levels.txt',
+  pipeline:'grep ERROR ~/practice/logs/incidents.log | sort | uniq | wc -l',
   find:'find ~/practice -name "audit-*.txt"',
   cp:'cp ~/practice/intro.txt ~/practice/intro-copy.txt',
   mv:'mv ~/practice/source.txt ~/practice/source-renamed.txt',
@@ -28,8 +29,8 @@ const answers={
 };
 const originalIds=commandLessons.map(x=>x.id);
 
-test('all twenty lessons have one different transfer task in the same order',()=>{
-  assert.equal(transferChallenges.length,20);
+test('all twenty-one lessons have one different transfer task in the same order',()=>{
+  assert.equal(transferChallenges.length,21);
   assert.deepEqual(transferChallenges.map(x=>x.lessonId),originalIds);
   for(const ch of transferChallenges) {
     assert.ok(ch.assignment.length>25,ch.lessonId);

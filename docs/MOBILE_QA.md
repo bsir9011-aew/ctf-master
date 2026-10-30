@@ -85,3 +85,13 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Zaliczenie pierwszego ćwiczenia pozwala uruchomić sprawdzian tej samej komendy na **innym pliku**. Nowe dane są izolowane od poprzedniej misji.
 - [ ] Nie ma potoków — `sort plik | uniq` powinno zostać odrzucone, a nie działać w rzeczywistym shellu.
 - [ ] Zapisane misje i powtórki po odświeżeniu pozostają niezmienione; w nagłówku widać 1.0.0-rc.11.
+
+## RC.12 — bezpieczne potoki w treningu logów
+
+- [ ] W Akademii sprawdź 21 lekcji; poprzednie zaliczenia nie mogą zniknąć.
+- [ ] W lekcji „Połącz komendy potokiem” wykonaj `grep WARN ~/practice/alerts.log | sort | uniq | wc -l`; wynik powinien wynosić `2`, a feedback pokazywać cztery etapy.
+- [ ] `grep WARN ~/practice/alerts.log | uniq | wc -l` daje inny wynik, bo duplikaty nie sąsiadują. Zobacz wyjaśnienie różnicy.
+- [ ] W sprawdzianie przeanalizuj nowy plik z inną kategorią logów, bez gotowej podpowiedzi; wynik powinien zostać oceniony na podstawie etapów i skutku.
+- [ ] Sprawdź cudzysłowy, pusty potok, przekierowanie i niedozwoloną komendę `rm` w potoku; nie mogą uruchomić realnych poleceń.
+- [ ] Na telefonie upewnij się, że dłuższy tekst potoku mieści się w polu wprowadzania, a feedback/terminal nie przewijają poziomo całej strony.
+- [ ] Nagłówek powinien pokazać RC.12; PWA offline nadal sprawdzamy w produkcyjnym podglądzie na porcie 4173.
