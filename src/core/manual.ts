@@ -31,6 +31,7 @@ const PAGES:Readonly<Record<string,ManualPage>>={
   sort:{synopsis:'sort PLIK',description:'Wyswietla wiersze w kolejnosci leksykograficznej. Nie modyfikuje zrodlowego pliku.',search:'sortowanie porzadkowanie tekst'},
   uniq:{synopsis:'uniq PLIK',description:'Usuwa tylko BEZPOSREDNIO SASIADUJACE, identyczne wiersze w wyswietlanym wyniku.',search:'duplikaty wiersze log'},
   stat:{synopsis:'stat PLIK_LUB_KATALOG',description:'Wyswietla informacje o wskazanym obiekcie, w tym uprawnienia.',search:'uprawnienia metadane tryb'},
+  namei:{synopsis:'namei -l SCIEZKA',description:'Pokazuje kolejne katalogi i plik na podanej sciezce, wlasciciela, grupe i bity rwx. Zatrzymuje sie, gdy brakuje prawa x do katalogu.',options:'-l  Pokaz uprawnienia i nazwy wlascicieli/grup. To ograniczony diagnostyczny tryb symulatora.',search:'sciezka katalog przejscie permission denied x diagnostyka'},
   chmod:{synopsis:'chmod MODE PLIK_LUB_KATALOG',description:'Zmienia uprawnienia wlasnego pliku lub katalogu. Prawo x w katalogu pozwala wejsc do srodka.',options:'MODE: trzy cyfry osemkowe (np. 600) lub u/g/o/a +/- rwx.',search:'uprawnienia rwx bezpieczenstwo'},
   ps:{synopsis:'ps [aux]',description:'Pokazuje symulowane procesy wraz z ich PID.',search:'procesy pid'},
   kill:{synopsis:'kill PID',description:'Konczy wskazany wirtualny proces.',search:'proces pid zatrzymanie'},
