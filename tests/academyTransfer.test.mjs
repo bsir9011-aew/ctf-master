@@ -18,6 +18,7 @@ const answers={
   sort:'sort ~/practice/review-names.txt',
   uniq:'uniq ~/practice/review-levels.txt',
   pipeline:'grep ERROR ~/practice/logs/incidents.log | sort | uniq | wc -l',
+  investigation:'grep "LOGIN FAIL" ~/practice/logs/identity.log',
   find:'find ~/practice -name "audit-*.txt"',
   cp:'cp ~/practice/intro.txt ~/practice/intro-copy.txt',
   mv:'mv ~/practice/source.txt ~/practice/source-renamed.txt',
@@ -29,8 +30,8 @@ const answers={
 };
 const originalIds=commandLessons.map(x=>x.id);
 
-test('all twenty-one lessons have one different transfer task in the same order',()=>{
-  assert.equal(transferChallenges.length,21);
+test('all twenty-two lessons have one different transfer task in the same order',()=>{
+  assert.equal(transferChallenges.length,22);
   assert.deepEqual(transferChallenges.map(x=>x.lessonId),originalIds);
   for(const ch of transferChallenges) {
     assert.ok(ch.assignment.length>25,ch.lessonId);
@@ -41,8 +42,13 @@ for(const challenge of transferChallenges) {
     const original=createAcademyState();
     const seed=createTransferState(challenge.lessonId);
     assert.equal(challenge.pass(seed,[]),false,challenge.lessonId);
-    const result=submitTransfer(seed,[],answers[challenge.lessonId],challenge.lessonId);
+    let result=submitTransfer(seed,[],answers[challenge.lessonId],challenge.lessonId);
     assert.equal(result.result.ok,true,challenge.lessonId);
+    if(challenge.lessonId==='investigation') {
+      assert.equal(result.completed,false);
+      result=submitTransfer(result.result.state,result.events,
+        'cp ~/practice/logs/identity.log ~/practice/incident-evidence.log',challenge.lessonId);
+    }
     assert.equal(result.completed,true,challenge.lessonId);
     assert.equal(earnedMastery(result.completed,0,false),true);
     assert.deepEqual(original,createAcademyState(),'academy base mutated');
