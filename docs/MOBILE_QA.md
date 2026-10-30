@@ -131,3 +131,13 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] `chmod 600 ~/practice/logs` usuwa x. `cd ~/practice/logs`, `find ~/practice/logs` i `cat ~/practice/logs/edge.log` nie powinny działać; `chmod u+x ~/practice/logs` przywraca przejście.
 - [ ] `chmod 777 ~/practice/operator.log` jako nie-właściciel ma zostać odrzucone. `stat` pokazuje prawdziwe UID/GID właściciela.
 - [ ] Po odświeżeniu wcześniejsze zaliczenia pozostają zachowane; jest **25** ćwiczeń i wersja RC.16. Mobilne QA na fizycznym telefonie oraz działanie PWA offline nadal wymagają weryfikacji.
+
+## RC.17 - diagnoza przejścia przez katalogi
+
+- [ ] W Akademii wybierz „Dlaczego plik jest niedostępny?”; `cat ~/practice/diagnostics/service.log` powinno odmówić dostępu.
+- [ ] `namei -l ~/practice/diagnostics/service.log` pokazuje dostępne katalogi, a na blokującym kończy listę ze wskazaniem braku x - nie ujawnia metadanych pliku wewnątrz.
+- [ ] `chmod u+x ~/practice/diagnostics`, następnie `cat ~/practice/diagnostics/service.log` odblokowują odczyt; tryb katalogu po zmianie wynosi 700.
+- [ ] `chmod 777 ~/practice/diagnostics` pozwala odczytać plik, ale **nie zalicza** minimalnej naprawy.
+- [ ] W sprawdzianie plik znajduje się na innej głębokości: `~/practice/logs/locked/health.log`. Znajdź właściwy katalog zamiast odtwarzać poprzednią ścieżkę.
+- [ ] Sprawdź `man namei`, niepoprawne argumenty, feedback `id -G`, brak utraty dawnych wyników oraz licznik **26** ćwiczeń i wersję RC.17.
+- [ ] Sprawdź realny telefon i aplikację PWA offline. Ten krok jest nadal PENDING i nie był wykonywany automatycznie.
