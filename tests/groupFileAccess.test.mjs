@@ -1,3 +1,4 @@
+import {assertWorldUnchanged} from './assertWorldUnchanged.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {executeLinux, initialLinux} from '../src/core/linux.ts';
@@ -77,7 +78,7 @@ test('non-owner cannot chmod group-readable file',()=>{
   const r=use(seed,'chmod 777 ~/practice/operator.log');
   assert.equal(r.ok,false);
   assert.match(r.output,/Permission denied/);
-  assert.deepEqual(r.state,snapshot);
+  assertWorldUnchanged(r.state,snapshot);
   assert.deepEqual(seed,snapshot);
 });
 
