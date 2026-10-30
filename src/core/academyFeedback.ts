@@ -131,7 +131,26 @@ export function explainAcademyAttempt(
       detail:result.output+' Sprawdź, w którym etapie wystąpił problem. Kolejne polecenie pobiera dane z poprzedniego, nie z pliku.',
       status:'error'
     };
-    if(cmd==='man') return {
+    if(cmd==='id'||cmd==='groups') return {
+      title:'Niepoprawne parametry tożsamości',
+      detail:'id pokazuje UID i GID: -u, -g, -G oraz warianty nazw -un, -gn, -Gn. groups nie przyjmuje argumentów w tym symulatorze. W razie wątpliwości sprawdź man id.',
+      status:'error'
+    };
+    if(cmd==='id'||cmd==='groups') {
+    const meaning=result.target==='group-ids'
+      ?'To numery GID wszystkich grup: pierwsza jest podstawowa, następne to grupy dodatkowe.'
+      :result.target==='group-names'
+        ?'To nazwy grup. Sama przynależność do grupy nie nadaje uprawnień root.'
+        :result.target==='primary-gid'||result.target==='primary-name'
+          ?'To tylko grupa podstawowa; użytkownik może należeć także do grup dodatkowych.'
+          :'UID identyfikuje użytkownika, GID identyfikuje grupę. To dwa różne rodzaje identyfikatorów.';
+    return {
+      title:completed?'Tożsamość odczytana — cel osiągnięty':'Tożsamość odczytana — sprawdź dalszy cel',
+      detail:meaning+' Polecenie jedynie odczytało dane wirtualnej sesji.',
+      status:completed?'complete':'partial'
+    };
+  }
+  if(cmd==='man') return {
       title:'Podręcznik nie został otwarty',
       detail:'Sprawdź nazwę polecenia albo wyszukaj temat przez man -k HASLO. man pokazuje tylko dokumentację obsługiwaną przez symulator.',
       status:'error'
