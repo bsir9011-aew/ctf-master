@@ -40,7 +40,7 @@ test('malformed quoting, trailing escapes and unsupported shell separators fail 
     "cat '~/practice/x",
     'touch ~/practice/unfinished\\',
     'touch ~/practice/a.txt; rm ~/practice/source.txt',
-    'touch ~/practice/a.txt && rm ~/practice/source.txt',
+    'touch ~/practice/a.txt &&',
     'cat ~/practice/alerts.log < ~/practice/source.txt',
     'cat ~/practice/alerts.log > "~/practice/unfinished',
     'cat ~/practice/alerts.log > a > b'
@@ -130,7 +130,7 @@ test('transfer has distinct filenames and successful wrong move counts as mistak
 });
 
 test('catalogues add exactly one independent lesson and transfer each',()=>{
-  assert.equal(commandLessons.length,32);
-  assert.equal(transferChallenges.length,32);
+  assert.equal(commandLessons.length,33);
+  assert.equal(transferChallenges.length,33);
   assert.deepEqual(transferChallenges.map(x=>x.lessonId),commandLessons.map(x=>x.id));
 });
