@@ -14,9 +14,9 @@ W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefoni
 ## Co dziala w 1.0 RC (Akademia komend)
 
 - 16 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
-- Trzy tryby: **Komendy** (25 lekcji technicznych + 1 dochodzenie, 26 sprawdzianów), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
+- Trzy tryby: **Komendy** (26 lekcji technicznych + 1 dochodzenie, 27 sprawdzianów), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
 - Zwinięta domyślnie **Mapa nauki** z 5 rozdziałami: cele, komendy, licznik postępu, przejście do pierwszej dostępnej misji.
-- Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `man POLECENIE`, `man -k HASLO`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `id`, `groups`, `namei -l`, `help`, `clear`.
+- Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `man POLECENIE`, `man -k HASLO`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `umask`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `id`, `groups`, `namei -l`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
 - Walidacja efektu zadania, nie porownywanie odpowiedzi 1:1.
 - Podpowiedzi 3 poziomow, kontekstowe komunikaty o bledach, licznik prob i punkt samodzielnego rozwiazania.
@@ -223,3 +223,11 @@ Dodano **26. ćwiczenie Akademii** oraz samodzielny sprawdzian: `namei -l SCIEZK
 Wprowadzenie: plik `~/practice/diagnostics/service.log` ma prawo odczytu, ale jego katalog nie pozwala na przejście. Uczeń najpierw stawia diagnozę przez `namei -l`, potem przywraca tylko `x` właścicielowi i potwierdza odczyt; zaliczenie wymaga zachowania trybu `700`, a nie otwarcia `777`. Sprawdzian przenosi ten mechanizm na inną głębokość katalogów i inny plik.
 
 Obsługiwane są `man namei`, kontekstowe wyjaśnienia błędów i zwykłe komendy `chmod`/`cat`. Przy okazji skorygowano feedback poprawnych wyników `id`. Łącznie **26 lekcji, 26 transferów, 16 misji i 20 wariantów powtórek**. Dotychczasowe klucze localStorage i ukończone ćwiczenia pozostają zachowane. Ręczne testy Android oraz PWA offline pozostają niewykonane.
+
+## Domyślne uprawnienia — umask (RC.18)
+
+Dostępne jest `umask` (odczyt bieżącej maski) i `umask NNN` (ustawienie wirtualnej maski sesji). **Nowe pliki** utworzone przez `touch` i `cp` otrzymują tryb `0666 & ~umask`, a **nowe katalogi** `0777 & ~umask`. Ustawienie nie zmienia istniejących plików, katalogów ani uprawnień hosta. Domyślna maska `022` zachowuje wcześniejsze działanie, czyli `644` dla nowych plików i `755` dla katalogów.
+
+**27. ćwiczenie Akademii**: zastosuj `umask 077` i utwórz nowy plik o prawach `600` oraz katalog `700`. **27. sprawdzian**: na innych nazwach ustaw maskę skutkującą uprawnieniami `640` i `750`. Walidacja wymaga rzeczywistego utworzenia obiektów po zmianie maski; `chmod` wykonany po utworzeniu nie zastępuje rozwiązania. `man umask` działa offline.
+
+Wersja RC.18 utrzymuje 16 misji, 20 wariantów powtórek oraz wcześniejsze zapisy postępów. Starsze sesje bez pola `umask` nadal korzystają z domyślnej maski `022`. Fizyczne testy telefonu/PWA offline pozostają PENDING.

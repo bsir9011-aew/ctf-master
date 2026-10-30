@@ -2,6 +2,7 @@ import { executeLinux, initialLinux, type CommandResult, type LinuxState } from 
 import { investigationFiles, investigationStatus } from './investigation.ts';
 import { usedManualBefore } from './manual.ts';
 import { recoveryFixture, recoveryCompleted } from './pathRecovery.ts';
+import { umaskExerciseCompleted } from './umask.ts';
 
 export type CommandLessonGroup = 'Podstawy' | 'Pliki i logi' | 'Administracja' | 'Sieć';
 export interface CommandLesson {
@@ -212,6 +213,14 @@ export const commandLessons:readonly CommandLesson[]=[
     assignment:'Log ~/practice/diagnostics/service.log istnieje, ale cat zwraca Permission denied. Zdiagnozuj całą ścieżkę przez namei -l, przywróć tylko brakujące prawo przejścia właścicielowi blokującego katalogu i odczytaj log. Nie otwieraj dostępu grupie ani pozostałym.',
     hint:'Najpierw sprawdź namei -l na ścieżce pliku. Na katalogu x oznacza możliwość przejścia; r na pliku pozwala czytać treść.',
     pass:(state,events)=>recoveryCompleted('intro',state,events)},
+  {id:'umask',title:'Domyślne uprawnienia nowych plików',group:'Administracja',
+    purpose:'umask odbiera wybrane bity z praw początkowych (666 dla plików, 777 dla katalogów). Nie modyfikuje istniejących plików.',
+    syntax:'umask [NNN]',
+    example:'umask',
+    assignment:'Tworzysz prywatne dane. Ustaw umask 077, a potem utwórz pusty plik ~/practice/private-created.txt i katalog ~/practice/private-created. Sprawdź ich tryby przez stat. Plik ma mieć 600, katalog 700 - bez późniejszego chmod.',
+    hint:'Nowy plik startuje z 666, katalog z 777. Maska 077 odbiera prawa grupie i pozostałym. Zmień maskę PRZED tworzeniem obiektów.',
+    pass:(state,events)=>umaskExerciseCompleted(state,events,0o077,
+      LAB+'/private-created.txt',LAB+'/private-created')},
   {id:'chmod',title:'Minimalne uprawnienia',group:'Administracja',
     purpose:'chmod reguluje prawa rwx: właściciel, grupa i pozostali.',
     syntax:'chmod TRYB PLIK',example:'chmod 600 ~/documents/credentials.txt',

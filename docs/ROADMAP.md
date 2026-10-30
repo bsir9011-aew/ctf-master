@@ -37,7 +37,8 @@
 - [x] Tożsamość UID/GID: grupy podstawowe i dodatkowe, zmienione konto w transferze, dokumentacja i feedback
 - [x] Dostęp do plików wg właściciela/grupy/pozostałych, x katalogów i osobne ćwiczenie transferowe
 - [x] namei -l: znajdowanie katalogu bez prawa x, naprawa z najmniejszym dostępem i niezależny wariant
-- [ ] Manual QA na fizycznym telefonie (1.0 RC.17)
+- [x] umask: domyślne prawa plików i katalogów tworzone z maską, nauka i transfer
+- [ ] Manual QA na fizycznym telefonie (1.0 RC.18)
 
 ## Etap 1 - Linux Administrator
 - [x] Podstawy chmod, stat, tryby rwx i testy Permission denied

@@ -3,6 +3,7 @@ import { createAcademyState } from './commandAcademy.ts';
 import { investigationFiles, investigationStatus } from './investigation.ts';
 import { usedManualBefore } from './manual.ts';
 import {recoveryFixture,recoveryCompleted} from './pathRecovery.ts';
+import {umaskExerciseCompleted} from './umask.ts';
 
 const LAB='/home/player/practice';
 const hasFile=(s:LinuxState,name:string)=>Object.hasOwn(s.files,LAB+'/'+name);
@@ -84,6 +85,9 @@ export const transferChallenges:readonly TransferChallenge[]=[
     }},
   {lessonId:'namei',assignment:'Nowy katalog ~/practice/logs/locked blokuje dostęp do health.log, mimo że sam plik ma prawo odczytu. Znajdź brakujący bit przez namei -l, przywróć najmniejsze niezbędne uprawnienia właścicielowi katalogu i potwierdź odczyt pliku. Nie otwieraj uprawnień pozostałym.',
     pass:(state,events)=>recoveryCompleted('transfer',state,events)},
+  {lessonId:'umask',assignment:'Zespół potrzebuje pliku, który grupa może odczytać, ale inni nie. Ustaw maskę tak, aby NOWY plik ~/practice/team-draft.txt miał prawa 640, a NOWY katalog ~/practice/team-work miał prawa 750. Nie zmieniaj uprawnień po utworzeniu.',
+    pass:(state,events)=>umaskExerciseCompleted(state,events,0o027,
+      LAB+'/team-draft.txt',LAB+'/team-work')},
   {lessonId:'chmod',assignment:'Zabezpiecz ~/practice/team.key, pozostawiając prawo czytania i zapisu wyłącznie właścicielowi.',
     pass:s=>hasFile(s,'team.key') && s.permissions?.[LAB+'/team.key']===0o600},
   {lessonId:'ps',assignment:'Sprawdź działające procesy. Odszukaj proces cpu-burn.',
@@ -167,5 +171,8 @@ export function transferMistake(
     return !result.ok || (result.command==='cat' && !completed);
   if(lessonId==='namei')
     return !result.ok || (result.command==='chmod' && !completed && result.target!==recoveryFixture('transfer').directory);
+  if(lessonId==='umask')
+    return !result.ok || (result.command==='umask'&&result.target!=='027') ||
+      (result.command==='chmod' && !completed);
   return !result.ok || (result.command===lessonId && !completed);
 }
