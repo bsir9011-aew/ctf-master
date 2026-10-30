@@ -131,7 +131,7 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
 
   switch (cmd) {
     case 'help':
-      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE PLIK, stat PLIK, man POLECENIE, man -k HASLO, whoami, id [-u|-g|-G], groups, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Potoki: komenda_czytajaca PLIK | grep|sort|uniq|head|tail|wc (max 5 etapow). Brak przekierowan.');
+      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE SCIEZKA, stat PLIK, man POLECENIE, man -k HASLO, whoami, id [-u|-g|-G], groups, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Potoki: komenda_czytajaca PLIK | grep|sort|uniq|head|tail|wc (max 5 etapow). Brak przekierowan.');
     case 'whoami':
       return args.length ? done('whoami: nieoczekiwany argument', false) : done(identityOf(state).user);
     case 'pwd':
