@@ -4,6 +4,7 @@ import { executeLinux, initialLinux, type CommandResult, type LinuxState } from 
 import { missions } from './core/missions';
 import {incidentCaseProgress} from './core/incidentCapstone';
 import {hypothesisProgress,seedHypothesisCase} from './core/hypothesisCase';
+import {responseProgress,seedResponseCase} from './core/responseCase';
 import PacketPath from './components/PacketPath';
 import CurriculumMap from './components/CurriculumMap';
 import CommandAcademy from './components/CommandAcademy';
@@ -109,6 +110,8 @@ function restore(): SavedSession {
     }
     if(missions[missionIndex]?.id==='incident-hypotheses')
       p.state=seedHypothesisCase(p.state);
+    if(missions[missionIndex]?.id==='incident-response')
+      p.state=seedResponseCase(p.state);
     p.learning = restoreLearning(p.learning);
     p.reviewHistory = restoreReviewHistory(p.reviewHistory);
     p.reviewAttempt = restoreReviewAttempt(p.reviewAttempt);
@@ -134,6 +137,8 @@ export default function App() {
     ? incidentCaseProgress(session.state,session.events) : null;
   const hypothesisCaseProgress = mission.id==='incident-hypotheses'
     ? hypothesisProgress(session.state,session.events) : null;
+  const remediationProgress = mission.id==='incident-response'
+    ? responseProgress(session.state,session.events) : null;
   const unlocked = Math.max(0,...session.completed.map(n => n + 1));
   const stats = session.learning[mission.id] ?? {commands:0,errors:0,hints:0,usedHelp:false,independent:false};
   const reviews = availableReviews(session.completed.map(n => missions[n]?.id).filter((id):id is string => !!id),
@@ -205,7 +210,9 @@ export default function App() {
     if (index > unlocked || index >= missions.length) return;
     setSession(old => ({...old,missionIndex:index,
       state:missions[index].id==='incident-hypotheses'
-        ?seedHypothesisCase(old.state):old.state,events:[],
+        ?seedHypothesisCase(old.state)
+        :missions[index].id==='incident-response'
+          ?seedResponseCase(old.state):old.state,events:[],
       lines:[{output:'Misja: ' + missions[index].title + '. Wpisz help, jesli potrzebujesz listy komend.',ok:true}]}));
     setMode('missions'); setCommand(''); setFeedback(''); setPacketExpanded(false); setHistoryCursor(null);
   }
@@ -316,6 +323,12 @@ export default function App() {
             <span>Ocena hipotezy: {hypothesisCaseProgress.assessed?'✓':'oczekuje'}</span>
             <span>Dowody: {hypothesisCaseProgress.evidence?'✓':'oczekuje'}</span>
             <span>Raport: {hypothesisCaseProgress.report?'✓':'oczekuje'}</span>
+          </div>}
+          {remediationProgress && !missionComplete && <div className="learning-stats" aria-label="Etapy reakcji na incydent">
+            <span>Wykrycie awarii: {remediationProgress.baseline?'✓':'oczekuje'}</span>
+            <span>Diagnoza: {remediationProgress.diagnosed?'✓':'oczekuje'}</span>
+            <span>Przywrócenie: {remediationProgress.rollback?'✓':'oczekuje'}</span>
+            <span>Weryfikacja: {remediationProgress.verified?'✓':'oczekuje'}</span>
           </div>}
           {missionComplete && <div className="success" role="status">
             <span>✓ Cel misji osiągnięty! {stats.independent ? 'Samodzielnie, bez błędów i podpowiedzi.' : 'Powtórz umiejętność w nowym wariancie.'}</span>

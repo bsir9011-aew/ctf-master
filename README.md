@@ -13,8 +13,8 @@ W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefoni
 
 ## Co dziala w 1.0 RC (Akademia komend)
 
-- 18 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
-- Trzy tryby: **Komendy** (32 lekcje techniczne + 1 dochodzenie, 33 sprawdziany), **Misje** (18 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
+- 19 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
+- Trzy tryby: **Komendy** (32 lekcje techniczne + 1 dochodzenie, 33 sprawdziany), **Misje** (19 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
 - Zwinięta domyślnie **Mapa nauki** z 6 rozdziałami: cele, komendy, licznik postępu, przejście do pierwszej dostępnej misji.
 - Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `man POLECENIE`, `man -k HASLO`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `umask`, `chgrp`, `>`, `>>`, `&&`, `||`, `test`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `id`, `groups`, `namei -l`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
@@ -293,3 +293,12 @@ Po INC-017 nowa misja **INC-018** wymaga samodzielnej oceny **trzech konkurencyj
 Przez `man hypothesis` poznasz trzy dopuszczalne identyfikatory oraz składnię `hypothesis <ID> <low|medium|high>`. Wypowiedzenie hipotezy bez uprzedniego zbadania wszystkich pięciu źródeł nie zalicza zadania. Po ocenie należy zabezpieczyć dwa pełne źródła najważniejszych dowodów, przygotować dwuwierszowy raport przez `grep`, `>`, `>>` i przeczytać go `cat`. Ocena sprawdza wcześniejsze odczyty, hipotezę, autentyczne kopie, nienaruszone oryginały, kolejność raportu i jego weryfikację. Poziom pewności jest zapisywany, ale nie udaje gwarancji przyczynowości.
 
 Misja jest **dopisana jako 18.**, a 17 wcześniejszych zachowuje numery. Nowe wirtualne logi są dodawane dopiero przy wejściu do misji lub odtworzeniu jej aktywnej sesji, bez nadpisywania istniejących plików i bez zmiany kluczy zapisu. Uruchomienie komendy `hypothesis` **nie wykonuje poleceń na komputerze**. Rzeczywiste QA telefonu i PWA offline nadal **PENDING**.
+
+
+## RC.27 - misja 19: bezpieczna reakcja na incydent
+
+Po INC-018 dostępna jest misja **INC-019: napraw przyczynę, nie objaw**. Przedmiotem śledztwa jest symulowane API, które zwraca HTTP 503 z powodu ograniczonej puli połączeń. Pliki `~/documents/cases/case19-api.conf` i `case19-api.safe.conf` przedstawiają odpowiednio bieżącą konfigurację (`POOL_LIMIT=1`) i ostatnią bezpieczną (`POOL_LIMIT=8`). Nowe pliki i opcjonalny stan działającej konfiguracji są inicjalizowane dopiero po wejściu do misji 19 albo odtworzeniu jej aktywnej sesji.
+
+Należy zaobserwować błąd `curl -i http://api.ctf.test/health`, sprawdzić oba pliki `cat`, przywrócić stabilny wariant za pomocą `cp`, wykonać `systemctl restart api`, a następnie sprawdzić endpoint ponownie. **Kopia pliku sama nie zmienia konfiguracji załadowanej do procesu** - wymaga ponownego uruchomienia usługi. Sam restart bez zmiany konfiguracji także nie rozwiązuje problemu. Nie wolno naruszyć SSH, kolejki, uprawnień ani kopii bezpiecznej konfiguracji. Przy odpowiedzi HTTP 503 symulowany `curl` bez flagi `-f` nadal kończy się kodem powłoki `0`, co rozróżnia wynik programu od statusu HTTP.
+
+Przed uruchomieniem: to **zamknięty wirtualny endpoint**, nie realne żądanie sieciowe. Podzbiór `curl` obsługuje wyłącznie `-i http://api.ctf.test/health`. Wymagany jest ślad kolejnych działań w terminalu, nie sam końcowy stan plików. Poprzednie misje i klucze localStorage pozostają bez zmian; fizyczne testy telefonu i PWA offline nadal **PENDING**.

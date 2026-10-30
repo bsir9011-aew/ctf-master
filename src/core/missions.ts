@@ -2,6 +2,7 @@ import type { CommandResult, LinuxState } from './linux';
 import { modeOf } from './permissions.ts';
 import {incidentCaseProgress} from './incidentCapstone.ts';
 import {hypothesisProgress} from './hypothesisCase.ts';
+import {responseProgress} from './responseCase.ts';
 
 export interface Mission {
   id: string;
@@ -209,5 +210,15 @@ export const missions: Mission[] = [
       'Po zbadaniu wszystkich pięciu plików użyj hypothesis z ID najbardziej pasującej hipotezy i poziomem pewności. Skopiuj całe logi deploy i db, a raport zbuduj przez grep POOL_LIMIT_REDUCED ... > oraz grep POOL_EXHAUSTED ... >>, po czym cat.'
     ],
     success:(state,events)=>hypothesisProgress(state,events).completed
+  },
+  {
+    id:'incident-response',title:'INC-019: napraw przyczynę, nie objaw',category:'Linux Investigator',
+    briefing:'Kontynuacja INC-018. API odpowiada HTTP 503 po ograniczeniu puli połączeń. Administrator sugeruje restart API, ktoś chce zatrzymać SSH, a inny proponuje zwiększyć pulę bez sprawdzenia jej limitu. Masz dwa wirtualne pliki w ~/documents/cases: case19-api.conf (bieżąca konfiguracja) i case19-api.safe.conf (ostatnia stabilna). Najpierw sprawdź odpowiedź curl -i http://api.ctf.test/health, obejrzyj oba pliki, wybierz minimalne bezpieczne działanie i zastosuj konfigurację. Następnie ponownie sprawdź endpoint. Nie wyłączaj SSH ani kolejki; zachowaj plik kopii i uprawnienia. To symulacja, a nie rzeczywisty curl.',
+    hints:[
+      'Oddziel objaw (HTTP 503) od stanu konfiguracji na dysku oraz konfiguracji już załadowanej w pamięci działającej usługi. Sam restart może nie naprawić przyczyny.',
+      'Sprawdź man curl, status usług oraz porównaj aktywny i stabilny plik POOL_LIMIT. Zastanów się, co musi się wydarzyć, żeby proces API zastosował konfigurację.',
+      'Po sprawdzeniu obu plików przywróć stabilny wariant przez cp z case19-api.safe.conf do case19-api.conf. Następnie wykonaj systemctl restart api i ponownie curl -i http://api.ctf.test/health. Potwierdź też, że sshd i queue pozostały aktywne.'
+    ],
+    success:(state,events)=>responseProgress(state,events).completed
   }
 ];

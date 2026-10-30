@@ -54,7 +54,7 @@ test('advancing into network does not mark its later tasks complete',()=>{
 test('all successful mission ids mark all chapters complete',()=>{
   const chapters=show(allIds,allIds.length-1);
   assert.ok(chapters.every(x=>x.status==='completed'));
-  assert.equal(chapters.reduce((sum,c)=>sum+c.completedCount,0),18);
+  assert.equal(chapters.reduce((sum,c)=>sum+c.completedCount,0),19);
   assert.equal(chapters[4].recommendedIndex,12);
 });
 
