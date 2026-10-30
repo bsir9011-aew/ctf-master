@@ -84,10 +84,10 @@ function operationalPenalty(events:readonly CommandResult[]):{count:number;notes
         notes.push('Wyłączono API podczas incydentu kolejki');
       if(r.target==='api.service'&&r.state.services?.queue?.status!=='active'&&
          r.state.services?.api?.status==='active'&&
-         r.output.includes('active'))
+         r.output==='api.service active')
         notes.push('Restart API nie usuwa przyczyny w kolejce');
       if(r.target==='queue.service'&&r.state.services?.queue?.status!=='active'&&
-         r.output.includes('inactive'))
+         r.output==='queue.service inactive')
         notes.push('Utrzymano przerwę pracy kolejki');
     }
     if(r.command==='kill'){
@@ -131,7 +131,7 @@ export function opsProgress(state:LinuxState,events:readonly CommandResult[]):Op
   const repaired=events.findIndex((e,i)=>i>afterDiagnosis&&
     e.ok&&e.command==='systemctl'&&e.target==='queue.service'&&
     e.state.services?.queue?.status==='active'&&
-    /active|started successfully/.test(e.output));
+    e.output==='queue.service active');
   const restored=repaired>=0&&state.services?.queue?.status==='active';
   if(!restored)return {...base,baseline,diagnosed};
   const healthy=events.findIndex((e,i)=>i>repaired&&e.ok&&
