@@ -28,6 +28,20 @@ export const transferChallenges:readonly TransferChallenge[]=[
     pass:(_s,e)=>saw(e,'cat',r=>r.target===LAB+'/logs/audit-67.txt' && r.output.includes('audit event 67'))},
   {lessonId:'grep',assignment:'W dzienniku ~/practice/events.log odszukaj wpis INFO sync complete.',
     pass:(_s,e)=>saw(e,'grep',r=>r.target===LAB+'/events.log' && r.output.includes('INFO sync complete'))},
+  {lessonId:'head',assignment:'Zobacz pierwsze 2 wiersze nowego dziennika ~/practice/logs/review.log.',
+    pass:(_s,e)=>saw(e,'head',r=>r.target===LAB+'/logs/review.log' &&
+      r.output==='WARN spike\nINFO stable')},
+  {lessonId:'tail',assignment:'Zobacz ostatnie 3 wiersze ~/practice/logs/review.log.',
+    pass:(_s,e)=>saw(e,'tail',r=>r.target===LAB+'/logs/review.log' &&
+      r.output==='ERROR temp\nINFO review\nWARN resolved')},
+  {lessonId:'wc',assignment:'Policz wiersze nowego dziennika ~/practice/logs/review.log.',
+    pass:(_s,e)=>saw(e,'wc',r=>r.target===LAB+'/logs/review.log' && r.output==='5')},
+  {lessonId:'sort',assignment:'Wypisz wiersze ~/practice/review-names.txt w kolejności alfabetycznej.',
+    pass:(_s,e)=>saw(e,'sort',r=>r.target===LAB+'/review-names.txt' &&
+      r.output==='adam\nola\ntomasz')},
+  {lessonId:'uniq',assignment:'Pokaż ~/practice/review-levels.txt bez sąsiadujących powtórzeń wpisów.',
+    pass:(_s,e)=>saw(e,'uniq',r=>r.target===LAB+'/review-levels.txt' &&
+      r.output==='OK\nWARN\nOK')},
   {lessonId:'find',assignment:'Znajdź audit-67.txt w podkatalogach ~/practice za pomocą find.',
     pass:(_s,e)=>saw(e,'find',r=>r.target===LAB && r.output.split('\n').includes(LAB+'/logs/audit-67.txt'))},
   {lessonId:'cp',assignment:'Zachowaj kopię ~/practice/intro.txt w ~/practice/intro-copy.txt, nie usuwając oryginału.',
@@ -58,7 +72,10 @@ export function createTransferState(lessonId:string):LinuxState {
       ...state.files,
       [LAB+'/logs/audit-67.txt']:'audit event 67',
       [LAB+'/review.tmp']:'temporary review data',
-      [LAB+'/team.key']:'SIMULATED_TEAM_KEY'
+      [LAB+'/team.key']:'SIMULATED_TEAM_KEY',
+      [LAB+'/logs/review.log']:'WARN spike\nINFO stable\nERROR temp\nINFO review\nWARN resolved\n',
+      [LAB+'/review-names.txt']:'tomasz\nadam\nola\n',
+      [LAB+'/review-levels.txt']:'OK\nOK\nWARN\nWARN\nOK\n'
     },
     permissions:{...state.permissions,[LAB+'/team.key']:0o644}
   };
