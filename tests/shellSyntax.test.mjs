@@ -129,7 +129,7 @@ test('transfer has distinct filenames and successful wrong move counts as mistak
 });
 
 test('catalogues add exactly one independent lesson and transfer each',()=>{
-  assert.equal(commandLessons.length,30);
-  assert.equal(transferChallenges.length,30);
+  assert.equal(commandLessons.length,31);
+  assert.equal(transferChallenges.length,31);
   assert.deepEqual(transferChallenges.map(x=>x.lessonId),commandLessons.map(x=>x.id));
 });
