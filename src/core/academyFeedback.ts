@@ -136,6 +136,11 @@ export function explainAcademyAttempt(
       detail:'id pokazuje UID i GID: -u, -g, -G oraz warianty nazw -un, -gn, -Gn. groups nie przyjmuje argumentów w tym symulatorze. W razie wątpliwości sprawdź man id.',
       status:'error'
     };
+    if(cmd==='chgrp') return {
+      title:'Nie udało się zmienić grupy pliku',
+      detail:'chgrp wymaga, abyś był właścicielem pliku i należał do wybranej grupy. Sprawdź id -Gn, stat i uprawnienia katalogów nadrzędnych.',
+      status:'error'
+    };
     if(cmd==='umask') return {
       title:'Maska musi być zapisana w systemie ósemkowym',
       detail:'umask bez argumentów pokazuje aktualną maskę, a umask 077 ją ustawia. Użyj trzech cyfr od 0 do 7.',
@@ -268,6 +273,11 @@ export function explainAcademyAttempt(
     detail:result.blockedAt
       ?'W jednym z katalogów brakuje skutecznego prawa x dla bieżącego użytkownika. Nawet plik z prawem r będzie niedostępny bez przejścia przez katalogi nadrzędne.'
       :'Katalogi na tej ścieżce pozwalają na przejście. Jeśli odczyt nadal nie działa, zbadaj prawo r pliku.',
+    status:completed?'complete':'partial'
+  };
+  if(cmd==='chgrp') return {
+    title:completed?'Własność grupowa ustawiona poprawnie':'Grupa zmieniona - sprawdź rezultat',
+    detail:'chgrp zmienia numer GID właściciela grupowego, ale nie zmienia UID, zawartości ani bitów rwx. Zweryfikuj przez stat lub ls -l, kto może odczytać plik.',
     status:completed?'complete':'partial'
   };
   if(cmd==='umask') return {
