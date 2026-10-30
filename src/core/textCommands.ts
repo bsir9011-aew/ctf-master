@@ -1,5 +1,5 @@
 import type { CommandResult, LinuxState } from './linux.ts';
-import { modeOf } from './permissions.ts';
+import {canReadFile} from './permissions.ts';
 
 export type TextCommand = 'head' | 'tail' | 'wc' | 'sort' | 'uniq';
 const TEXT_COMMANDS:readonly TextCommand[]=['head','tail','wc','sort','uniq'];
@@ -44,7 +44,7 @@ export function executeTextCommand(
   const path=pathOf(requested);
   if(!Object.hasOwn(state.files,path))
     return done(command+': '+requested+': No such file',false);
-  if(!(modeOf(state,path)&0o400))
+  if(!canReadFile(state,path))
     return done(command+': '+requested+': Permission denied',false);
   const content=state.files[path];
   const lines=displayLines(content);
