@@ -239,3 +239,9 @@ Wirtualne polecenie `chgrp GRUPA PLIK` pozwala właścicielowi pliku zmienić je
 **28. lekcja**: przenieś istniejący raport o prawach `640` z grupy `player` do `operators`, a następnie odczytaj nowe metadane przez `stat` lub `ls -l`. **28. sprawdzian**: wykonaj analogiczne zadanie jako `analyst`, tym razem w grupie `audit` i na innym pliku. Zaliczenie wymaga poprawnego skutku i późniejszego odczytu metadanych, nie tylko wpisania polecenia. Sprawdzian rozróżnia poprawne poszukiwania od błędnej zmiany grupy.
 
 Utrzymano **28 lekcji i 28 sprawdzianów, 16 misji, 20 wariantów powtórek**, dotychczasowe klucze localStorage i zgodność ze starszymi sesjami. Realne QA na telefonie i offline PWA nadal pozostaje do wykonania.
+
+## RC.20 - bezpieczne przekierowania standardowego wyjścia
+
+Polecenia odczytujące w wirtualnym terminalu można teraz zakończyć `> PLIK` (utworzenie/nadpisanie) lub `>> PLIK` (utworzenie/dopisanie). Obsługiwane są wyniki filtrowania logów i ograniczonych potoków, np. `grep WARN ~/practice/alerts.log > ~/practice/alerts-summary.log`. Błąd źródła albo brak praw zapisu nie zmienia pliku. Dla nowego pliku obowiązuje umask, dla istniejącego potrzebne jest prawo zapisu; odczyt źródła do tego samego pliku jest świadomie odrzucany, aby nie tracić danych ćwiczeń.
+
+Nowa **29. lekcja i niezależny sprawdzian** uczą kolejno nadpisania, dopisania i odczytu wyniku. Nie ma wykonywania powłoki hosta, stdin, stderr, rozwinięć Basha, wielu przekierowań ani separatorów poleceń. Stan sesji i klucze postępów nie zmieniły formatu. Fizyczne QA telefonu/PWA offline nadal PENDING.
