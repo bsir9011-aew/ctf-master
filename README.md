@@ -107,3 +107,11 @@ Aplikacja startuje w zakładce **Komendy**. Dostępnych jest 15 krótkich ćwicz
 Wykonanie ćwiczeń i ich postęp **nie odblokowują misji CTF**. Akademia ma osobny stan w localStorage (`ctf-master:command-academy-v1`) i nie modyfikuje dotychczasowych kluczy misji oraz powtórek. Wznowienie po odświeżeniu zachowuje ukończone ćwiczenia i wybrany numer; niezakończone polecenia i pliki treningowe są resetowane po przejściu do innego trybu.
 
 Nadal wymagany jest test ręczny na fizycznym telefonie i sprawdzenie PWA offline według `docs/MOBILE_QA.md`.
+
+## Sprawdzian transferowy dla kazdej komendy (1.0 RC.4)
+
+Po pierwszym zaliczeniu komendy mozna otworzyc **Sprawdz samodzielnie**. Dostepnych jest 15 drugich wariantow, z innymi nazwami plikow, miejscem wykonania lub celem diagnostycznym. Sprawdzian uruchamia niezalezne, odtwarzalne srodowisko. Przyklad skladni nie jest w nim pokazywany, a podpowiedz jest ogolna.
+
+Akademia odroznia **poznane** (pierwsze cwiczenie) od **opanowane** (drugi wariant rozwiazany bez nieudanej komendy i bez podpowiedzi). Uzycie podpowiedzi albo blad nie przeszkadza w cwiczeniu, ale wymaga powtorzenia sprawdzianu od poczatku dla potwierdzenia samodzielnosci. Postep starszych wersji pozostaje zachowany; nie przyznajemy retrospektywnie opanowania dawnym zaliczeniom. Dane nadal sa lokalne, bez backendu i bez zmian stanu misji CTF.
+
+Testy automatyczne dotycza wszystkich 15 drugich wariantow, odtwarzania srodowiska, brakow uprawnien do przyznania mastery oraz odczytu starych zapisow. **QA na fizycznym telefonie: nadal do wykonania.**
