@@ -1,3 +1,4 @@
+import {assertWorldUnchanged} from './assertWorldUnchanged.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { executeLinux, initialLinux } from '../src/core/linux.ts';
@@ -57,7 +58,7 @@ test('unreadable file rejects cat, grep, cp without mutating data', () => {
   ]) {
     const output = executeLinux(state,command);
     assert.equal(output.ok,false,command);
-    assert.equal(output.state,state);
+    assertWorldUnchanged(output.state,state);
   }
 });
 
@@ -67,7 +68,7 @@ test('chmod rejects invalid modes and missing paths', () => {
     'chmod 600 missing.txt']) {
     const output = executeLinux(state,cmd);
     assert.equal(output.ok,false,cmd);
-    assert.equal(output.state,state,cmd);
+    assertWorldUnchanged(output.state,state,cmd);
   }
 });
 
