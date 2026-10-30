@@ -15,7 +15,7 @@ export function executeUmask(state:LinuxState,args:readonly string[]):CommandRes
   const result=(output:string,ok:boolean,next:LinuxState=state,target?:string):CommandResult=>({
     state:next,command:'umask',output,ok,target
   });
-  if(args.length===0)return result('0'+umaskOctal(sessionUmask(state)),true,'read');
+  if(args.length===0)return result('0'+umaskOctal(sessionUmask(state)),true,state,'read');
   if(args.length!==1||!/^0?[0-7]{3}$/.test(args[0]))
     return result('Uzycie: umask [000-777] (trzy cyfry osemkowe)',false);
   const mask=parseInt(args[0],8);
