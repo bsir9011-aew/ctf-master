@@ -2,7 +2,7 @@ import { commandLessons, type AcademyProgress } from './commandAcademy.ts';
 
 export interface AcademyLessonMetrics { errors: number; help: number }
 export type AcademyCoachMetrics = Record<string, AcademyLessonMetrics>;
-export type CoachSignal = 'error' | 'help';
+export type CoachSignal = 'errors' | 'help';
 export type AcademyNextStep = {lessonId:string; phase:'intro'|'transfer'; reason:string; score:number};
 
 const VALID = new Set(commandLessons.map(item=>item.id));
