@@ -141,8 +141,8 @@ test('no matching grep stage stops the pipeline with a useful error',()=>{
 });
 
 test('lesson completion validates real output, source and allowed stage sequence',()=>{
-  assert.equal(commandLessons.length,27);
-  assert.equal(transferChallenges.length,27);
+  assert.equal(commandLessons.length,28);
+  assert.equal(transferChallenges.length,28);
   const id='pipeline',base=createAcademyState();
   const wrong=academySubmit(base,[],'grep WARN ~/practice/alerts.log | wc -l',id);
   assert.equal(wrong.result.ok,true);
