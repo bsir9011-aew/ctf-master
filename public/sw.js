@@ -1,6 +1,6 @@
 /* Install the complete hashed Vite build; never serve a stale HTML shell forever. */
 const PREFIX='ctf-master-';
-const CACHE=PREFIX+'v1.0.0-rc13';
+const CACHE=PREFIX+'v1.0.0-rc14';
 const SHELL='/';
 const OFFLINE_ASSETS=['/index.html','/manifest.webmanifest','/icon-192.png','/icon-512.png'];
 
