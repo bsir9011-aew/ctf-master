@@ -131,6 +131,11 @@ export function explainAcademyAttempt(
       detail:result.output+' Sprawdź, w którym etapie wystąpił problem. Kolejne polecenie pobiera dane z poprzedniego, nie z pliku.',
       status:'error'
     };
+    if(cmd==='man') return {
+      title:'Podręcznik nie został otwarty',
+      detail:'Sprawdź nazwę polecenia albo wyszukaj temat przez man -k HASLO. man pokazuje tylko dokumentację obsługiwaną przez symulator.',
+      status:'error'
+    };
     const fallback = explainError(result);
     return {
       title: fallback?.title ?? 'Polecenie nie powiodło się',
@@ -229,6 +234,11 @@ export function explainAcademyAttempt(
     status:completed?'complete':'partial'
   };
 
+  if(cmd==='man') return {
+    title:completed?'Dokumentacja wykorzystana w zadaniu':'Podręcznik otwarty — pora wykorzystać wiedzę',
+    detail:'man pokazuje składnię i opis obsługiwanych opcji. Samo przeczytanie strony nie zmienia systemu ani nie rozwiązuje ćwiczenia. Teraz zastosuj poznaną funkcję.',
+    status:completed?'complete':'partial'
+  };
   return {
     title: completed ? 'Zadanie wykonane poprawnie' : 'Polecenie wykonane — zadanie nadal otwarte',
     detail: completed
