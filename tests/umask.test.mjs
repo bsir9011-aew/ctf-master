@@ -69,7 +69,7 @@ test('touch existing file does not retroactively apply new mask',()=>{
 
 test('umask rejects invalid syntax and leaves state unmodified',()=>{
   const state=initialLinux(),before=structuredClone(state);
-  for(const command of ['umask -S','umask 888','umask 22','umask 078','umask 077 foo','umask -077','umask 0000']){
+  for(const command of ['umask -S','umask 888','umask 22','umask 078','umask 077 foo','umask -077','umask 00000']){
     const r=executeLinux(state,command);
     assert.equal(r.ok,false,command);
     assert.equal(r.state,state,command);
