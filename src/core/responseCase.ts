@@ -80,7 +80,7 @@ export function executeResponseCurl(state:LinuxState,args:readonly string[]):Com
 const oldProbe=(e:CommandResult)=>
   e.ok&&e.command==='curl'&&e.target==='api-health'&&
   e.output.includes('HTTP/1.1 503')&&
-  e.output.includes('Reason: DB_POOL_EXHAUSTED');
+  e.state.response?.appliedPoolLimit===1;
 const fileRead=(e:CommandResult,path:string,body:string)=>
   e.ok&&e.command==='cat'&&e.target===path&&e.output===body;
 
