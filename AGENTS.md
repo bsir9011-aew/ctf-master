@@ -14,4 +14,4 @@ Mobile-first PWA teaching Linux and CTF through interactive, causal labs. Progre
 - Do not bloat validation. Before a PR: `npm run build` and manual smoke test for the changed mission. Add focused automated tests when engine becomes more complex.
 
 ## Near-term priority
-Next PR: collect real-browser and mobile UX feedback on Learning Workspace 1.0 RC.6. Verify desktop 2-column view and mobile stacked view, test offline PWA using docs/MOBILE_QA.md. Keep 15 command introductions, 15 transfer challenges, 16 missions and 20 reviews unchanged. Preserve progress and deterministic coach. Avoid adding networking complexity until ergonomic QA.
+Next PR: conduct physical Android/PWA QA per docs/MOBILE_QA.md. Exercise keyboard and touch command history, unsent draft restoration, contextual feedback and removal of duplicate CTAs. Preserve all 15 command introductions, 15 transfer checks, 16 missions, 20 reviews, and their localStorage keys. Do not add networking features until mobile ergonomics have been verified.
