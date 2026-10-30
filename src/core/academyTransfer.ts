@@ -44,7 +44,8 @@ export const transferChallenges:readonly TransferChallenge[]=[
       r.output==='OK\nWARN\nOK')},
   {lessonId:'pipeline',assignment:'W ~/practice/logs/incidents.log policz, ile różnych komunikatów ERROR wystąpiło. Użyj jednego potoku grep, sort, uniq i wc -l.',
     pass:(_s,e)=>saw(e,'pipeline',r=>r.target===LAB+'/logs/incidents.log' &&
-      r.stages?.join('>')==='grep>sort>uniq>wc' && r.output==='3')},
+      r.stages?.join('>')==='grep>sort>uniq>wc' &&
+      r.filterPattern==='ERROR' && r.output==='3')},
   {lessonId:'find',assignment:'Znajdź audit-67.txt w podkatalogach ~/practice za pomocą find.',
     pass:(_s,e)=>saw(e,'find',r=>r.target===LAB && r.output.split('\n').includes(LAB+'/logs/audit-67.txt'))},
   {lessonId:'cp',assignment:'Zachowaj kopię ~/practice/intro.txt w ~/practice/intro-copy.txt, nie usuwając oryginału.',
