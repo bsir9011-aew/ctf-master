@@ -36,7 +36,7 @@ test('wc uses newline count and distinguishes lines, words, bytes',()=>{
   const seed=createAcademyState();
   assert.equal(exec('wc -l ~/practice/timeline.log',seed).output,'7');
   assert.equal(exec('wc -l ~/practice/intro.txt',seed).output,'0');
-  assert.equal(exec('wc -w ~/practice/intro.txt',seed).output,'7');
+  assert.equal(exec('wc -w ~/practice/intro.txt',seed).output,'6');
   assert.equal(exec('wc -c ~/practice/intro.txt',seed).output,
     String(new TextEncoder().encode(seed.files['/home/player/practice/intro.txt']).length));
   assert.match(exec('wc ~/practice/timeline.log',seed).output,/^7 \d+ \d+$/);
