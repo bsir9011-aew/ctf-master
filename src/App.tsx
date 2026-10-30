@@ -5,6 +5,7 @@ import { missions } from './core/missions';
 import {incidentCaseProgress} from './core/incidentCapstone';
 import {hypothesisProgress,seedHypothesisCase} from './core/hypothesisCase';
 import {responseProgress,seedResponseCase} from './core/responseCase';
+import {opsProgress,seedOpsCase} from './core/opsRecovery';
 import PacketPath from './components/PacketPath';
 import CurriculumMap from './components/CurriculumMap';
 import CommandAcademy from './components/CommandAcademy';
@@ -112,6 +113,8 @@ function restore(): SavedSession {
       p.state=seedHypothesisCase(p.state);
     if(missions[missionIndex]?.id==='incident-response')
       p.state=seedResponseCase(p.state);
+    if(missions[missionIndex]?.id==='operational-recovery')
+      p.state=seedOpsCase(p.state);
     p.learning = restoreLearning(p.learning);
     p.reviewHistory = restoreReviewHistory(p.reviewHistory);
     p.reviewAttempt = restoreReviewAttempt(p.reviewAttempt);
@@ -139,6 +142,8 @@ export default function App() {
     ? hypothesisProgress(session.state,session.events) : null;
   const remediationProgress = mission.id==='incident-response'
     ? responseProgress(session.state,session.events) : null;
+  const operationalProgress = mission.id==='operational-recovery'
+    ? opsProgress(session.state,session.events) : null;
   const unlocked = Math.max(0,...session.completed.map(n => n + 1));
   const stats = session.learning[mission.id] ?? {commands:0,errors:0,hints:0,usedHelp:false,independent:false};
   const reviews = availableReviews(session.completed.map(n => missions[n]?.id).filter((id):id is string => !!id),
@@ -212,7 +217,9 @@ export default function App() {
       state:missions[index].id==='incident-hypotheses'
         ?seedHypothesisCase(old.state)
         :missions[index].id==='incident-response'
-          ?seedResponseCase(old.state):old.state,events:[],
+          ?seedResponseCase(old.state)
+          :missions[index].id==='operational-recovery'
+            ?seedOpsCase(old.state):old.state,events:[],
       lines:[{output:'Misja: ' + missions[index].title + '. Wpisz help, jesli potrzebujesz listy komend.',ok:true}]}));
     setMode('missions'); setCommand(''); setFeedback(''); setPacketExpanded(false); setHistoryCursor(null);
   }
@@ -330,6 +337,16 @@ export default function App() {
             <span>Przywrócenie: {remediationProgress.rollback?'✓':'oczekuje'}</span>
             <span>Weryfikacja: {remediationProgress.verified?'✓':'oczekuje'}</span>
           </div>}
+          {operationalProgress && <div className="learning-stats" aria-label="Etapy oraz konsekwencje interwencji">
+            <span>Awaria: {operationalProgress.baseline?'✓':'oczekuje'}</span>
+            <span>Przyczyna: {operationalProgress.diagnosed?'✓':'oczekuje'}</span>
+            <span>Naprawa: {operationalProgress.restored?'✓':'oczekuje'}</span>
+            <span>Kontrola: {operationalProgress.verified?'✓':'oczekuje'}</span>
+            <span>Dodatkowe skutki: {operationalProgress.sideEffects}</span>
+            <span>Dostępność: {operationalProgress.availability==='healthy'?'zdrowa':'ograniczona'}</span>
+          </div>}
+          {operationalProgress && operationalProgress.sideEffectNotes.length>0 &&
+            <p className="feedback-note" role="status">Skutki działań: {operationalProgress.sideEffectNotes.join(' · ')}. Możesz naprawić awarię, ale historia decyzji pozostaje widoczna.</p>}
           {missionComplete && <div className="success" role="status">
             <span>✓ Cel misji osiągnięty! {stats.independent ? 'Samodzielnie, bez błędów i podpowiedzi.' : 'Powtórz umiejętność w nowym wariancie.'}</span>
             {session.missionIndex < missions.length-1
