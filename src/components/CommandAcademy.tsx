@@ -6,11 +6,20 @@ import {
 } from '../core/commandAcademy';
 import {createTransferState,submitTransfer,earnedMastery,transferChallenges} from '../core/academyTransfer';
 import type { CommandResult, LinuxState } from '../core/linux';
+import {
+  recommendAcademy, recordCoachSignal, restoreCoachMetrics, type AcademyCoachMetrics
+} from '../core/academyCoach';
 
 const STORAGE='ctf-master:command-academy-v1';
+const COACH_STORAGE='ctf-master:academy-coach-v1';
 interface TerminalLine {input?:string;output:string;ok:boolean}
 const groups:CommandLessonGroup[]=['Podstawy','Pliki i logi','Administracja','Sieć'];
 const firstLine:TerminalLine={output:'Osobny terminal treningowy. Nic, co tutaj zrobisz, nie zmieni misji CTF.',ok:true};
+
+function readMetrics():AcademyCoachMetrics {
+  try {return restoreCoachMetrics(JSON.parse(localStorage.getItem(COACH_STORAGE) ?? 'null'));}
+  catch {return {};}
+}
 
 function readProgress():AcademyProgress {
   try { return restoreAcademyProgress(JSON.parse(localStorage.getItem(STORAGE) ?? 'null')); }
@@ -19,6 +28,7 @@ function readProgress():AcademyProgress {
 
 export default function CommandAcademy() {
   const [progress,setProgress]=useState<AcademyProgress>(readProgress);
+  const [metrics,setMetrics]=useState<AcademyCoachMetrics>(readMetrics);
   const [system,setSystem]=useState<LinuxState>(createAcademyState);
   const [events,setEvents]=useState<CommandResult[]>([]);
   const [lines,setLines]=useState<TerminalLine[]>([firstLine]);
@@ -36,6 +46,8 @@ export default function CommandAcademy() {
   const lesson=commandLessons[index];
   const transfer=transferChallenges.find(ch=>ch.lessonId===lesson.id)!;
   const inTransfer=phase==='transfer';
+  const suggestion=recommendAcademy(progress,metrics);
+  const suggestedLesson=suggestion && commandLessons.find(item=>item.id===suggestion.lessonId);
   const last=events.at(-1);
   const coach=last ? explainError(last) : null;
 
@@ -43,23 +55,30 @@ export default function CommandAcademy() {
     try {localStorage.setItem(STORAGE,JSON.stringify(progress));}
     catch {/* quota or private browsing */}
   },[progress]);
+  useEffect(()=>{
+    try {localStorage.setItem(COACH_STORAGE,JSON.stringify(metrics));}
+    catch {/* quota or private browsing */}
+  },[metrics]);
   useEffect(()=>{ if(output.current) output.current.scrollTop=output.current.scrollHeight; },[lines.length,index]);
 
-  function chooseLesson(id:string) {
+  function openLesson(id:string,nextPhase:'intro'|'transfer'='intro') {
     if(!commandLessons.some(item=>item.id===id)) return;
+    if(nextPhase==='transfer' && !progress.completed.includes(id)) return;
     setProgress(old=>({...old,selectedId:id}));
-    setSystem(createAcademyState());setEvents([]);setLines([firstLine]);
+    setSystem(nextPhase==='transfer'?createTransferState(id):createAcademyState());
+    setEvents([]);setLines(nextPhase==='transfer'
+      ? [{output:'Nowy wariant. Pracujesz bez przykładu rozwiązania.',ok:true}]
+      : [firstLine]);
     setDraft('');setHintOpen(false);setDoneNow(false);
-    setPhase('intro');setErrors(0);setUsedHint(false);setIndependentNow(false);
+    setPhase(nextPhase);setErrors(0);setUsedHint(false);setIndependentNow(false);
   }
 
-  function startTransfer() {
-    if(!progress.completed.includes(lesson.id)) return;
-    setPhase('transfer');
-    setSystem(createTransferState(lesson.id));
-    setEvents([]);setLines([{output:'Nowy wariant. Pracujesz bez przykładu rozwiązania.',ok:true}]);
-    setDraft('');setHintOpen(false);setDoneNow(false);
-    setErrors(0);setUsedHint(false);setIndependentNow(false);
+  function chooseLesson(id:string) {openLesson(id);}
+
+  function startTransfer() {openLesson(lesson.id,'transfer');}
+
+  function openRecommended() {
+    if(suggestion) openLesson(suggestion.lessonId,suggestion.phase);
   }
 
   function restartCurrent() {
@@ -75,6 +94,15 @@ export default function CommandAcademy() {
       : academySubmit(system,events,raw,lesson.id);
     const newErrors=errors+Number(!next.result.ok);
     setErrors(newErrors);
+    if(!next.result.ok) {
+      setMetrics(old=>recordCoachSignal(old,lesson.id,'errors'));
+    }
+    const askedHelp=next.result.command==='help';
+    const assisted=usedHint || askedHelp;
+    if(askedHelp && !usedHint) {
+      setUsedHint(true);
+      setMetrics(old=>recordCoachSignal(old,lesson.id,'help'));
+    }
     setSystem(next.result.state);
     setEvents(next.events);
     setLines(old=>next.result.clear?[]:[...old,{
@@ -84,7 +112,7 @@ export default function CommandAcademy() {
     if(next.completed) {
       setDoneNow(true);
       if(inTransfer) {
-        const independent=earnedMastery(true,newErrors,usedHint);
+        const independent=earnedMastery(true,newErrors,assisted);
         setIndependentNow(independent);
         if(independent) {
           setProgress(old=>old.mastered.includes(lesson.id)?old:{
@@ -110,6 +138,17 @@ export default function CommandAcademy() {
       <div className="academy-progress" aria-label="Postęp akademii">
         <span>{progress.completed.length}/{commandLessons.length} poznanych · {progress.mastered.length}/{commandLessons.length} opanowanych</span>
         <div className="progress-track"><div style={{width:(progress.completed.length/commandLessons.length*100)+'%'}}/></div>
+      </div>
+      <div className="academy-recommendation" aria-live="polite">
+        {suggestion && suggestedLesson ? <>
+          <div>
+            <strong>Twój następny krok: {suggestedLesson.title}</strong>
+            <p>{suggestion.reason}</p>
+          </div>
+          <button type="button" onClick={openRecommended}>
+            {suggestion.phase==='transfer'?'Rozpocznij sprawdzian':'Ćwicz komendę'} →
+          </button>
+        </> : <p>✓ Wszystkie 15 komend ma status „opanowane”. Możesz wrócić do dowolnego ćwiczenia lub przejść do misji.</p>}
       </div>
     </header>
     <label className="academy-picker" htmlFor="academy-select">Ćwiczenie
@@ -141,7 +180,13 @@ export default function CommandAcademy() {
         :mastered?<p className="academy-previous">✓ Umiejętność opanowana wcześniej. Możesz ją powtórzyć.</p>
         :complete&&!inTransfer?<p className="academy-previous">• Poznane. Przejdź do sprawdzianu, aby potwierdzić samodzielność.</p>:null}
       <div className="academy-actions">
-        <button type="button" onClick={()=>{setHintOpen(open=>!open);setUsedHint(true);}}
+        <button type="button" onClick={()=>{
+            setHintOpen(open=>!open);
+            if(!usedHint) {
+              setUsedHint(true);
+              setMetrics(old=>recordCoachSignal(old,lesson.id,'help'));
+            }
+          }}
           aria-expanded={hintOpen} disabled={doneNow}>{hintOpen?'Ukryj podpowiedź':'Podpowiedź (liczy pomoc)'}</button>
         <button type="button" onClick={restartCurrent}>Reset {inTransfer?'sprawdzianu':'ćwiczenia'}</button>
         {inTransfer

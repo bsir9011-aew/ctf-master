@@ -115,3 +115,11 @@ Po pierwszym zaliczeniu komendy mozna otworzyc **Sprawdz samodzielnie**. Dostepn
 Akademia odroznia **poznane** (pierwsze cwiczenie) od **opanowane** (drugi wariant rozwiazany bez nieudanej komendy i bez podpowiedzi). Uzycie podpowiedzi albo blad nie przeszkadza w cwiczeniu, ale wymaga powtorzenia sprawdzianu od poczatku dla potwierdzenia samodzielnosci. Postep starszych wersji pozostaje zachowany; nie przyznajemy retrospektywnie opanowania dawnym zaliczeniom. Dane nadal sa lokalne, bez backendu i bez zmian stanu misji CTF.
 
 Testy automatyczne dotycza wszystkich 15 drugich wariantow, odtwarzania srodowiska, brakow uprawnien do przyznania mastery oraz odczytu starych zapisow. **QA na fizycznym telefonie: nadal do wykonania.**
+
+## Trener komend (1.0 RC.5)
+
+Akademia pokazuje **Twój następny krok**. Dla umiejętności poznanych, lecz jeszcze nieopanowanych zaleca sprawdzian na nowych danych; w pozostałych przypadkach proponuje kolejne ćwiczenie. Błędy oraz użycie podpowiedzi zwiększają priorytet danej umiejętności. Kolejność jest deterministyczna, bez AI i bez zewnętrznych połączeń.
+
+Lokalne liczniki trudności są zapisywane oddzielnie w `ctf-master:academy-coach-v1`. Nie zawierają wpisywanych komend ani ich wyników, wyłącznie zliczenia błędów i użycia pomocy. Starszy postęp Akademii, misji i powtórek pozostaje nienaruszony. W sprawdzianie wpisanie `help` jest traktowane tak samo jak ujawnienie podpowiedzi: można ukończyć zadanie, ale do zaliczenia samodzielności potrzeba nowej próby.
+
+To prosta heurystyka priorytetów, nie model psychometryczny i nie kalendarz spaced repetition. Ręczne QA na telefonie nadal czeka na wykonanie.

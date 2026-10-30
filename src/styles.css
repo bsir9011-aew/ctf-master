@@ -178,3 +178,15 @@
 
 .academy-transfer-note{color:#bad8cc!important;background:#223943;border:1px solid #47655d;border-radius:9px;padding:10px 12px;font-size:12px!important;line-height:1.6}
 .academy-actions button:disabled{cursor:not-allowed}
+
+/* Calm, accessible next-step recommendation; stays compact on mobile. */
+.academy-recommendation{margin-top:15px;padding:13px 14px;border:1px solid #4e7264;border-radius:12px;background:#1b3931;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.academy-recommendation>div{min-width:0;flex:1}
+.academy-recommendation strong{color:#e7ffef;font-size:13px}
+.academy-recommendation p{color:#bcd8ca;font-size:12px;line-height:1.55;margin:6px 0 0}
+.academy-recommendation>button{min-height:44px;max-width:200px;padding:10px 14px;border-radius:9px;background:#a0e3be;border:0;color:#123224;font-size:12px;font-weight:800}
+.academy-recommendation>button:focus-visible{outline:3px solid #e0fff0;outline-offset:3px}
+@media(max-width:650px){
+ .academy-recommendation{flex-direction:column;align-items:stretch}
+ .academy-recommendation>button{max-width:none;width:100%}
+}
