@@ -10,6 +10,7 @@ import { executeChgrp } from './chgrp.ts';
 import {parseRedirection,executeRedirection} from './redirection.ts';
 import {tokenizeShellWords} from './shellSyntax.ts';
 import {finishCommand,previousExitCode} from './exitStatus.ts';
+import {executeFileTest,type TestFlag} from './fileTest.ts';
 import { executeUmask, newFileMode, newDirectoryMode, DEFAULT_UMASK } from './umask.ts';
 import { defaultIdentity, executeIdentityCommand, identityOf, type SimIdentity } from './identity.ts';
 
@@ -42,6 +43,7 @@ export interface CommandResult {
   redirectMode?: 'overwrite'|'append';
   sourceCommand?: string;
   exitCode?: number;
+  testFlag?: TestFlag;
 }
 
 const HOME = '/home/player';
@@ -144,13 +146,14 @@ function runLinux(state: LinuxState, raw: string): CommandResult {
   if (cmd === 'chgrp') return executeChgrp(state,args,argPath);
   if (cmd === 'umask') return executeUmask(state,args);
   if (cmd === 'id' || cmd === 'groups') return executeIdentityCommand(state,cmd,args);
+  if (cmd === 'test' || cmd === '[') return executeFileTest(state,cmd,args,argPath);
 
   switch (cmd) {
     case 'echo':
       if(/^echo\s+\$\?$/.test(command))return done(String(previousExitCode(state)),true,state,'previous-exit');
       return done('echo: w tej lekcji obslugiwane jest tylko echo $? bez cytowania',false);
     case 'help':
-      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE SCIEZKA, stat PLIK, namei -l SCIEZKA, umask [NNN], chgrp GRUPA PLIK, man POLECENIE, man -k HASLO, whoami, id [-u|-g|-G], groups, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Potoki: komenda_czytajaca PLIK | grep|sort|uniq|head|tail|wc (max 5 etapow). Status ostatniej komendy: echo $? (man exit-status). Przekierowania odczytu: POLECENIE > PLIK lub POLECENIE >> PLIK. Sciezki ze spacjami: uzyj cudzyslowow lub backslasha (man quoting); brak podstawiania zmiennych i wykonywania host shell.');
+      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE SCIEZKA, stat PLIK, namei -l SCIEZKA, umask [NNN], chgrp GRUPA PLIK, man POLECENIE, man -k HASLO, whoami, id [-u|-g|-G], groups, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Potoki: komenda_czytajaca PLIK | grep|sort|uniq|head|tail|wc (max 5 etapow). Warunki plików: test -f SCIEZKA lub [ -r SCIEZKA ] (man test). Status ostatniej komendy: echo $? (man exit-status). Przekierowania odczytu: POLECENIE > PLIK lub POLECENIE >> PLIK. Sciezki ze spacjami: uzyj cudzyslowow lub backslasha (man quoting); brak podstawiania zmiennych i wykonywania host shell.');
     case 'whoami':
       return args.length ? done('whoami: nieoczekiwany argument', false) : done(identityOf(state).user);
     case 'pwd':
