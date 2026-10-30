@@ -14,9 +14,9 @@ W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefoni
 ## Co dziala w 1.0 RC (Akademia komend)
 
 - 16 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
-- Trzy tryby: **Komendy** (22 lekcje techniczne + 1 dochodzenie, 23 sprawdziany), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
+- Trzy tryby: **Komendy** (23 lekcje techniczne + 1 dochodzenie, 24 sprawdziany), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
 - Zwinięta domyślnie **Mapa nauki** z 5 rozdziałami: cele, komendy, licznik postępu, przejście do pierwszej dostępnej misji.
-- Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `man POLECENIE`, `man -k HASLO`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `help`, `clear`.
+- Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `man POLECENIE`, `man -k HASLO`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `id`, `groups`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
 - Walidacja efektu zadania, nie porownywanie odpowiedzi 1:1.
 - Podpowiedzi 3 poziomow, kontekstowe komunikaty o bledach, licznik prob i punkt samodzielnego rozwiazania.
@@ -197,3 +197,13 @@ Dodano **`man POLECENIE`** oraz **`man -k HASLO`**. Są to krótkie, dostępne o
 Akademia ma teraz **23 ćwiczenia i 23 sprawdziany**: 22 lekcje techniczne (w tym `man`) oraz jedno wieloetapowe śledztwo. W lekcji `man` użytkownik musi **najpierw przeczytać dokumentację `grep`**, a następnie samodzielnie wykorzystać poznaną opcję, aby znaleźć wpis mimo różnic w wielkości liter. Sprawdzian wykorzystuje dokumentację innej komendy, `head`, oraz inny plik. Samo otwarcie `man` nie zalicza zadania.
 
 Bez nowych kont, backendu czy infrastruktury; zachowano dane poprzednich ćwiczeń i klucze localStorage. Fizyczne QA telefonu i PWA offline nadal są do wykonania.
+
+## Użytkownicy i grupy Linux (1.0 RC.15)
+
+CTF Master zawiera teraz **24 lekcje i 24 sprawdziany** (23 tematy techniczne i jedno śledztwo). Nowy rozdział Akademii uczy różnicy pomiędzy **UID** użytkownika, **GID** jego grupy podstawowej oraz grupami dodatkowymi, z użyciem `id`, `id -u`, `id -g`, `id -G`, `id -gn`, `id -Gn`, `groups` i `whoami`. Przykładowa sesja używa konta `player`, a sprawdzian osobnej tożsamości `analyst` — wynik nie zależy wyłącznie od zapamiętanego numeru.
+
+W obu wariantach trzeba wykonać **dwa celowe odczyty** i porównać podstawową grupę z pełną listą. Wyniki poleceń są generowane z wirtualnego modelu konta; nie są wykonywane na prawdziwym systemie, nie tworzą kont i nie przełączają użytkowników. `man id` i `man groups` opisują tylko obsługiwany podzbiór opcji.
+
+**Ograniczenie:** członkostwo w grupach nie wpływa jeszcze na sprawdzanie praw odczytu plików — to kolejny, osobny etap, podobnie jak uprawnienia katalogów i `chown`. Stare sesje bez pola `identity` nadal przyjmują domyślną tożsamość `player`, a stare postępy pozostają zachowane.
+
+Ręczne QA na fizycznym telefonie i PWA offline nadal nie zostało wykonane.
