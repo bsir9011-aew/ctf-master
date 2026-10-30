@@ -2,6 +2,8 @@ import type {CommandResult,LinuxState} from './linux.ts';
 import {canTraverse,canWriteDir,hasAccess} from './permissions.ts';
 import {identityOf} from './identity.ts';
 import {newFileMode} from './umask.ts';
+import {scanShell} from './shellSyntax.ts';
+import {splitPipeline} from './pipelines.ts';
 
 type RedirectMode='overwrite'|'append';
 export interface RedirectSpec {source:string;destination:string;mode:RedirectMode}
@@ -10,33 +12,24 @@ const READ_ONLY=new Set([
   'pwd','ls','find','stat','whoami','id','groups','ps','journalctl'
 ]);
 
-/** Parse one output redirect outside quotes. No eval, shell expansion, stdin or host I/O.
- * undefined = no redirect; null = malformed redirect.
+/** Parse one output redirect, ignoring quoted and escaped operators.
+ * undefined = no redirection, null = multiple/malformed redirects.
  */
-export function parseRedirection(
-  raw:string,tokenize:(raw:string)=>string[]|null
-):RedirectSpec|undefined|null {
-  let quote:"'"|'"'|null=null;
-  let position=-1;
-  for(let i=0;i<raw.length;i++){
-    const ch=raw[i];
-    if(ch==="'"||ch==='"'){
-      if(!quote)quote=ch;
-      else if(quote===ch)quote=null;
-    } else if(ch==='>'&&!quote){
-      position=i;
-      break;
-    }
-  }
-  if(position<0)return undefined;
-  const mode:RedirectMode=raw[position+1]==='>'?'append':'overwrite';
-  const source=raw.slice(0,position).trim();
-  const tail=raw.slice(position+(mode==='append'?2:1)).trim();
-  const tokens=tokenize(tail);
-  if(!source||!tokens||tokens.length!==1||!tokens[0]||
-     /[<>;|]/.test(tokens[0])||/[<>;]/.test(source))
+export function parseRedirection(raw:string):RedirectSpec|undefined|null {
+  const tokens=scanShell(raw);
+  if(!tokens)return undefined; // let the ordinary/pipeline parser report malformed quoting
+  const operators=tokens.filter(t=>t.kind==='overwrite'||t.kind==='append');
+  if(operators.length===0)return undefined;
+  if(operators.length!==1)return null;
+  const operator=operators[0];
+  const index=tokens.indexOf(operator);
+  const dest=tokens[index+1];
+  if(index===0||tokens.length!==index+2||dest.kind!=='word'||!dest.value)
     return null;
-  return {source,destination:tokens[0],mode};
+  const source=raw.slice(0,operator.start).trim();
+  if(!source)return null;
+  return {source,destination:dest.value,
+    mode:operator.kind==='append'?'append':'overwrite'};
 }
 
 const parent=(p:string)=>p.slice(0,p.lastIndexOf('/'))||'/';
@@ -50,7 +43,8 @@ export function executeRedirection(
   resolve:(path:string)=>string,
   run:(raw:string)=>CommandResult
 ):CommandResult {
-  const stage=tokenize(spec.source)?.[0];
+  const segments=splitPipeline(spec.source);
+  const stage=segments?tokenize(segments[0])?.[0]:undefined;
   if(!stage||!READ_ONLY.has(stage))
     return failure(state,'mozna zapisac tylko wynik polecenia odczytujacego');
   const destination=resolve(spec.destination);
