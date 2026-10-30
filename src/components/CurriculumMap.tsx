@@ -16,7 +16,7 @@ export default function CurriculumMap({completed,highestUnlocked,activeIndex,onS
     <details>
       <summary className="curriculum-summary">
         <span className="curriculum-summary-main">
-          <strong>Mapa nauki — 5 rozdziałów</strong>
+          <strong>Mapa nauki — 6 rozdziałów</strong>
           <small>Teraz: {current?.title ?? 'Terminal i pierwsza flaga'}</small>
         </span>
         <span className="curriculum-summary-action">Zobacz ścieżkę</span>
