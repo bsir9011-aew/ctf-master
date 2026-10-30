@@ -20,6 +20,7 @@ const solutions={
   sort:'sort ~/practice/names.txt',
   uniq:'uniq ~/practice/levels.txt',
   pipeline:'grep WARN ~/practice/alerts.log | sort | uniq | wc -l',
+  investigation:'grep "HTTP 502" ~/practice/logs/edge.log',
   find:'find ~/practice -name "ticket-*.txt"',
   cp:'cp ~/practice/source.txt ~/practice/backup.txt',
   mv:'mv ~/practice/move-me.txt ~/practice/renamed.txt',
@@ -31,9 +32,9 @@ const solutions={
 };
 const ids=commandLessons.map(lesson=>lesson.id);
 
-test('catalogue has 21 unique drills and all exercise texts',()=>{
-  assert.equal(ids.length,21);
-  assert.equal(new Set(ids).size,21);
+test('catalogue has 22 unique drills and all exercise texts',()=>{
+  assert.equal(ids.length,22);
+  assert.equal(new Set(ids).size,22);
   assert.deepEqual(ids,Object.keys(solutions));
   for (const lesson of commandLessons) {
     assert.ok(lesson.purpose && lesson.syntax && lesson.example && lesson.assignment && lesson.hint,lesson.id);
@@ -43,8 +44,13 @@ for(const lesson of commandLessons) {
   test('real virtual result completes command drill: '+lesson.id,()=>{
     const original=createAcademyState();
     assert.equal(lesson.pass(original,[]),false,'must not start completed');
-    const result=academySubmit(original,[],solutions[lesson.id],lesson.id);
+    let result=academySubmit(original,[],solutions[lesson.id],lesson.id);
     assert.equal(result.result.ok,true);
+    if(lesson.id==='investigation') {
+      assert.equal(result.completed,false);
+      result=academySubmit(result.result.state,result.events,
+        'cp ~/practice/logs/edge.log ~/practice/evidence.log',lesson.id);
+    }
     assert.equal(result.completed,true);
     assert.equal(lesson.pass(result.result.state,result.events),true);
   });

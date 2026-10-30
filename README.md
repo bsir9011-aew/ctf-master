@@ -14,7 +14,7 @@ W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefoni
 ## Co dziala w 1.0 RC (Akademia komend)
 
 - 16 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
-- Trzy tryby: **Komendy** (21 ćwiczeń + 21 sprawdzianów), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
+- Trzy tryby: **Komendy** (21 ćwiczeń technicznych + 1 dochodzenie, 22 sprawdziany), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
 - Zwinięta domyślnie **Mapa nauki** z 5 rozdziałami: cele, komendy, licznik postępu, przejście do pierwszej dostępnej misji.
 - Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
@@ -181,3 +181,11 @@ Pierwszy etap czyta plik (`cat`, `grep`, `head`, `tail`, `sort` lub `uniq`). Kol
 Akademia ma teraz **21 lekcji i 21 niezależnych sprawdzianów**. Lekcja potoków liczy różne ostrzeżenia WARN, a transfer osobno analizuje ERROR w innym pliku. Wynik i kolejność rodzin komend muszą odpowiadać wymaganiu, a nie tylko zostać wpisane w odpowiednim formacie. Feedback objaśnia kolejne etapy.
 
 **Ograniczenia:** to symulator, nie Bash: nie ma dowolnych poleceń w potoku, przekierowań `>`, `<`, `; `, podstawiania komend ani prawdziwego uruchamiania procesów. Pojedyncze polecenia nadal zachowują dotychczasową składnię. Stare zapisy ukończeń nie są modyfikowane. Ręczny test na fizycznym telefonie/PWA nadal czeka na wykonanie.
+
+## Śledztwo bez gotowych komend (1.0 RC.13)
+
+Dodano **22. ćwiczenie Akademii: „Śledztwo: nieznany incydent”**, z dwoma różnymi scenariuszami. Wprowadzenie dotyczy błędów HTTP 502 po wdrożeniu; sprawdzian transferowy dotyczy nietypowych logowań. **Nie podajemy na starcie nazwy źródłowego logu ani sekwencji poleceń.** Użytkownik analizuje dostępne pliki, potwierdza ślad w oryginalnym dzienniku i dopiero potem zabezpiecza pełną kopię dowodową.
+
+Pod kartą zadania pojawiają się dwa proste kamienie milowe: znalezienie śladu oraz zachowanie pełnej kopii bez zmiany oryginalnych danych. System sprawdza oba skutki na podstawie zdarzeń i wirtualnego stanu, a także kolejność operacji. Kopiowanie przypadkowego pliku, skopiowanie danych przed analizą albo usunięcie oryginału nie oznacza zaliczenia. W niezależnym sprawdzianie niecelne operacje `cp` liczą się jako błędne próby; poprawne polecenia rozpoznawcze nie są karane.
+
+To ćwiczenie nie jest nowym poleceniem terminala. Łączna liczba ćwiczeń i wariantów transferu to **22 + 22**, z czego 21 dotyczy pojedynczych komend/technik. Nadal jest 16 osobnych Misji CTF i 20 wariantów Powtórek. Zachowane są dotychczasowe klucze localStorage i poprzednie zaliczenia. Testy na prawdziwym telefonie i PWA offline pozostają do wykonania.

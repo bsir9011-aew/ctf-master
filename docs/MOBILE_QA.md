@@ -95,3 +95,13 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Sprawdź cudzysłowy, pusty potok, przekierowanie i niedozwoloną komendę `rm` w potoku; nie mogą uruchomić realnych poleceń.
 - [ ] Na telefonie upewnij się, że dłuższy tekst potoku mieści się w polu wprowadzania, a feedback/terminal nie przewijają poziomo całej strony.
 - [ ] Nagłówek powinien pokazać RC.12; PWA offline nadal sprawdzamy w produkcyjnym podglądzie na porcie 4173.
+
+## RC.13 — śledztwo z nieznanym plikiem źródłowym
+
+- [ ] W Akademii wybierz **Śledztwo: nieznany incydent**. Nie powinno być gotowej składni i przykładu komendy.
+- [ ] Sprawdź, czy widoczne są dwa kamienie milowe: potwierdzenie śladu i zachowanie kopii.
+- [ ] Użyj poleceń rozpoznawczych do zbadania katalogu logs; skopiowanie niepowiązanego dziennika nie może zaliczyć zadania.
+- [ ] Przeczytaj właściwy wpis dotyczący błędów HTTP 502, a potem zachowaj pełny dziennik w podanym miejscu. Po drugim kroku zadanie ma zostać zaliczone.
+- [ ] Po zaliczeniu uruchom samodzielny sprawdzian: pojawi się inny rodzaj incydentu i inne pliki. Podpowiedzi nie mogą zdradzać nazwy źródła.
+- [ ] Wykonaj udaną, ale błędną operację kopiowania w sprawdzianie, a potem rozwiąż problem. Status opanowania wymaga ponownej, czystej próby.
+- [ ] Zweryfikuj mobilną szerokość i przyciski, zachowanie starszych zaliczeń i wersję aplikacji RC.13.

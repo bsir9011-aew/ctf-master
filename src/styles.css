@@ -314,3 +314,18 @@
     min-height:44px;
   }
 }
+
+/* RC.13 — outcome-oriented log investigation with visible progress. */
+.academy-investigation-checks {
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  padding:12px 14px;
+  border:1px solid #355b50;
+  border-radius:10px;
+  background:#172f2d;
+  color:#c9e3d7;
+  font-size:12px;
+  line-height:1.5;
+}
+.academy-investigation-checks span {display:block}

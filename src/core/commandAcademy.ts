@@ -1,4 +1,5 @@
 import { executeLinux, initialLinux, type CommandResult, type LinuxState } from './linux.ts';
+import { investigationFiles, investigationStatus } from './investigation.ts';
 
 export type CommandLessonGroup = 'Podstawy' | 'Pliki i logi' | 'Administracja' | 'Sieć';
 export interface CommandLesson {
@@ -29,6 +30,7 @@ export function createAcademyState():LinuxState {
       [LAB+'/names.txt']:'zoe\nanna\nmarta\n',
       [LAB+'/levels.txt']:'INFO\nINFO\nWARN\nWARN\nINFO\n',
       [LAB+'/alerts.log']:'WARN storage\nINFO ready\nWARN auth\nWARN storage\nINFO heartbeat\nWARN auth\n',
+      ...investigationFiles('intro'),
       [LAB+'/logs/ticket-42.txt']:'Training ticket 42',
       [LAB+'/source.txt']:'COPY_ME',
       [LAB+'/move-me.txt']:'MOVE_ME',
@@ -126,6 +128,13 @@ export const commandLessons:readonly CommandLesson[]=[
     pass:(_s,e)=>observed(e,'pipeline',r=>r.target===LAB+'/alerts.log' &&
       r.stages?.join('>')==='grep>sort>uniq>wc' &&
       r.filterPattern==='WARN' && r.output==='2')},
+  {id:'investigation',title:'Śledztwo: nieznany incydent',group:'Pliki i logi',
+    purpose:'Otrzymujesz objaw incydentu i sam wybierasz strategię diagnostyki. Najpierw potwierdź ślad, potem zabezpiecz oryginalny dziennik.',
+    syntax:'Dobierz narzędzia na podstawie obserwacji',
+    example:'Brak gotowej sekwencji — rozpocznij od rozpoznania',
+    assignment:'Po wdrożeniu pojawiły się błędy HTTP 502 około 02:14. Zbadaj pliki w ~/practice/logs, odczytaj wpis potwierdzający incydent, a dopiero potem zachowaj pełny właściwy log jako ~/practice/evidence.log. Nie zmieniaj żadnego źródłowego dziennika.',
+    hint:'Zacznij od ustalenia, jakie pliki są w katalogu logs. Wybierz zdarzenie pasujące do objawu HTTP 502, potwierdź je w źródle i wykonaj kopię całego pliku.',
+    pass:(s,e)=>investigationStatus('intro',s,e).completed},
   {id:'find',title:'Znajdź plik',group:'Pliki i logi',
     purpose:'find przeszukuje także podkatalogi; -name dopasowuje nazwę pliku.',
     syntax:'find KATALOG -name WZORZEC',example:'find ~/downloads -name "*.tmp"',
