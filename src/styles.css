@@ -175,3 +175,6 @@
  .command-row.academy-command{grid-template-columns:22px minmax(0,1fr);row-gap:9px}
  .academy-command button[type=submit]{grid-column:1/-1}
 }
+
+.academy-transfer-note{color:#bad8cc!important;background:#223943;border:1px solid #47655d;border-radius:9px;padding:10px 12px;font-size:12px!important;line-height:1.6}
+.academy-actions button:disabled{cursor:not-allowed}
