@@ -32,7 +32,7 @@ const report=[
 const complete=()=>run([...investigate,...backups,...report]);
 
 test('mission 17 is appended without changing earlier mission ordering',()=>{
-  assert.equal(missions.length,19);
+  assert.equal(missions.length,20);
   assert.equal(missions[16].id,'incident-correlation');
   assert.equal(missions[0].id,'orientation');
   assert.equal(missions[15].id,'packet-layers');

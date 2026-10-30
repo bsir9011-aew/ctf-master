@@ -13,8 +13,8 @@ W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefoni
 
 ## Co dziala w 1.0 RC (Akademia komend)
 
-- 19 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
-- Trzy tryby: **Komendy** (32 lekcje techniczne + 1 dochodzenie, 33 sprawdziany), **Misje** (19 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
+- 20 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
+- Trzy tryby: **Komendy** (32 lekcje techniczne + 1 dochodzenie, 33 sprawdziany), **Misje** (20 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
 - Zwinięta domyślnie **Mapa nauki** z 6 rozdziałami: cele, komendy, licznik postępu, przejście do pierwszej dostępnej misji.
 - Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `man POLECENIE`, `man -k HASLO`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `umask`, `chgrp`, `>`, `>>`, `&&`, `||`, `test`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `id`, `groups`, `namei -l`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
@@ -302,3 +302,12 @@ Po INC-018 dostępna jest misja **INC-019: napraw przyczynę, nie objaw**. Przed
 Należy zaobserwować błąd `curl -i http://api.ctf.test/health`, sprawdzić oba pliki `cat`, przywrócić stabilny wariant za pomocą `cp`, wykonać `systemctl restart api`, a następnie sprawdzić endpoint ponownie. **Kopia pliku sama nie zmienia konfiguracji załadowanej do procesu** - wymaga ponownego uruchomienia usługi. Sam restart bez zmiany konfiguracji także nie rozwiązuje problemu. Nie wolno naruszyć SSH, kolejki, uprawnień ani kopii bezpiecznej konfiguracji. Przy odpowiedzi HTTP 503 symulowany `curl` bez flagi `-f` nadal kończy się kodem powłoki `0`, co rozróżnia wynik programu od statusu HTTP.
 
 Przed uruchomieniem: to **zamknięty wirtualny endpoint**, nie realne żądanie sieciowe. Podzbiór `curl` obsługuje wyłącznie `-i http://api.ctf.test/health`. Wymagany jest ślad kolejnych działań w terminalu, nie sam końcowy stan plików. Poprzednie misje i klucze localStorage pozostają bez zmian; fizyczne testy telefonu i PWA offline nadal **PENDING**.
+
+
+## RC.28 - misja 20: reagowanie i naprawianie skutków interwencji
+
+**INC-020: napraw po błędnej interwencji** symuluje awarię kolejki po wdrożeniu. Wirtualne SSH i API nadal działają. Użyj `curl -i http://ops.ctf.test/health`, `systemctl status queue` i `journalctl -u queue`, żeby wykryć przyczynę. Po naprawie kolejki sprawdź ponownie HTTP i potwierdź aktywność zarówno kolejki, jak i SSH. Wariant bezpieczny nie wymaga zatrzymywania innych usług.
+
+Błędne działania, np. zatrzymanie SSH czy niepotrzebny restart API, powodują widoczne konsekwencje. Możesz je odwrócić, lecz licznik **dodatkowych skutków interwencji** pozostaje w karcie misji (historia zdarzeń), żeby odróżnić naprawę bez zakłóceń od naprawy po dodatkowych błędach. Samo doprowadzenie do zdrowego stanu bez diagnostyki nie zalicza zadania. Symulowane `curl` może zakończyć się kodem wyjścia `0` przy HTTP 503 - sprawdzaj osobno kod HTTP i status usług.
+
+To **nie jest prawdziwe HTTP ani systemd**. Żadne żądanie sieciowe nie jest wysyłane, a komendy nie wykonują się na systemie gospodarza. Nowy stan scenariusza jest opcjonalny, dodawany tylko po wejściu lub odtworzeniu misji 20; pierwszych 19 misji, ich indeksów i kluczy localStorage nie zmieniono. Fizyczne QA telefonu i PWA offline nadal **PENDING**.

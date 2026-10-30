@@ -3,6 +3,7 @@ import { modeOf } from './permissions.ts';
 import {incidentCaseProgress} from './incidentCapstone.ts';
 import {hypothesisProgress} from './hypothesisCase.ts';
 import {responseProgress} from './responseCase.ts';
+import {opsProgress} from './opsRecovery.ts';
 
 export interface Mission {
   id: string;
@@ -220,5 +221,15 @@ export const missions: Mission[] = [
       'Po sprawdzeniu obu plików przywróć stabilny wariant przez cp z case19-api.safe.conf do case19-api.conf. Następnie wykonaj systemctl restart api i ponownie curl -i http://api.ctf.test/health. Potwierdź też, że sshd i queue pozostały aktywne.'
     ],
     success:(state,events)=>responseProgress(state,events).completed
+  },
+  {
+    id:'operational-recovery',title:'INC-020: napraw po błędnej interwencji',category:'Linux Investigator',
+    briefing:'Po awaryjnym wdrożeniu kolejka przestała obsługiwać zadania. API, SSH i kolejka to osobne wirtualne usługi: nie zatrzymuj ich na chybił trafił. Zbadaj curl -i http://ops.ctf.test/health, stan kolejki przez systemctl i jej dziennik journalctl. Przywróć potrzebną usługę oraz sprawdź ponownie health endpoint. Na koniec potwierdź przez systemctl, że kolejka i dostęp SSH są aktywne. Złe interwencje mogą wydłużyć awarię, jednak możesz je naprawić; ich konsekwencje pozostaną widoczne w podsumowaniu. Środowisko jest wyłącznie symulowane.',
+    hints:[
+      'HTTP 503 nie dowodzi, że API jest przyczyną. W pierwszej kolejności porównaj status kolejkowania z jej logiem, zamiast restartować losowe procesy.',
+      'Wykorzystaj man curl, systemctl status queue i journalctl -u queue. Przywrócenie pracy zależy od usług, które rzeczywiście nie działają. Jeśli przerwałeś SSH, najpierw napraw również tę konsekwencję.',
+      'Wykonaj curl -i http://ops.ctf.test/health, systemctl status queue, journalctl -u queue. Napraw queue przez systemctl start queue; sprawdź ponownie curl. Następnie systemctl status queue i systemctl status sshd. Jeżeli zatrzymałeś sshd lub api, uruchom je ponownie przed weryfikacją.'
+    ],
+    success:(state,events)=>opsProgress(state,events).completed
   }
 ];

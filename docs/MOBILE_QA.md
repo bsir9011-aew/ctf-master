@@ -237,3 +237,13 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] `cp case19-api.safe.conf case19-api.conf` modyfikuje plik, ale nie działający proces. Dopiero restart api stosuje właściwą konfigurację; ponowne `curl` potwierdza HTTP 200.
 - [ ] Zatrzymanie sshd lub queue powoduje brak pełnego zdrowia; zmiana kopii zapasowej lub nadmiernie szerokie prawa nie zalicza etapu.
 - [ ] Po odświeżeniu nie ginie raport z INC-018, obecny stan INC-019, ani postęp. Sprawdzenie klawiatury telefonu i działania PWA RC.27 offline nadal PENDING.
+
+
+## RC.28 - misja 20 i konsekwencje działań
+
+- [ ] Po odblokowaniu INC-020 widać 20 misji w sześciu rozdziałach, bez utraty dotychczasowych ukończeń.
+- [ ] `curl -i http://ops.ctf.test/health` zwraca fikcyjne HTTP 503 i shell exit 0; `systemctl status queue` pokazuje inactive, a `journalctl -u queue` zapis o awarii po wdrożeniu.
+- [ ] `systemctl start queue`, ponowny `curl`, `systemctl status queue` oraz `systemctl status sshd` prowadzą do zaliczenia przy zerowej liczbie dodatkowych skutków.
+- [ ] Niepotrzebny `systemctl restart api` w trakcie awarii zwiększa licznik skutków. `systemctl stop sshd` degraduje dostęp; po naprawie przez `systemctl start sshd` i kontroli HTTP misję można zaliczyć, ale historia działań pozostaje.
+- [ ] Odczyty `systemctl status` nie zwiększają licznika błędnych interwencji, a samo pozorowanie wyniku bez diagnozy nie zalicza misji.
+- [ ] Sprawdź powrót na misję, zachowanie postępów i historii, klawiaturę mobilną oraz PWA RC.28 offline. Fizyczne QA telefonu **PENDING**.
