@@ -114,3 +114,12 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Jeśli najpierw wpiszesz `head -n 2` na właściwym pliku, a dopiero potem `man head`, status opanowania wymaga nowej czystej próby.
 - [ ] Sprawdź `man not-real` i `man -k nieznany-tekst`: czytelne błędy. Na telefonie dłuższa strona man mieści się w przewijanym terminalu.
 - [ ] Stare zaliczenia są nienaruszone, licznik Akademii wskazuje **23**, a nagłówek wersję RC.14. PWA offline osobno do sprawdzenia na fizycznym urządzeniu.
+
+## RC.15 — użytkownik i grupy Linuksa
+
+- [ ] W terminalu wpisz `whoami`, `id`, `id -u`, `id -g`, `id -G`, `id -Gn`, `groups`. Obserwuj rozróżnienie UID, podstawowego GID i grup dodatkowych.
+- [ ] W Akademii wybierz „Kim jestem i do jakich grup należę?”. Samo `id` nie wystarcza; wyświetlenie numerów wszystkich grup w drugim kroku powinno zaliczyć lekcję.
+- [ ] W sprawdzianie tożsamość jest inna (`analyst`): sprawdź nazwę grupy podstawowej, potem nazwy wszystkich grup. `groups` oraz `id -Gn` powinny być dopuszczalnymi metodami końcowego odczytu.
+- [ ] Wpisz najpierw `groups`, potem poprawne rozwiązanie. Cel da się osiągnąć, ale do czystego opanowania wymagany jest reset sprawdzianu.
+- [ ] `man id` i `man groups` otwierają lokalny podręcznik, `id -a` i `groups user` zwracają błąd.
+- [ ] Po odświeżeniu stare ukończone lekcje pozostają zachowane; licznik ćwiczeń powinien wskazywać **24**, wersja RC.15. Android PWA/offline QA nadal ręcznie do wykonania.

@@ -81,6 +81,17 @@ export const commandLessons:readonly CommandLesson[]=[
     assignment:'Odczytaj plik ~/practice/intro.txt.',
     hint:'Użyj cat oraz ścieżki do pliku intro.txt.',
     pass:(_s,e)=>observed(e,'cat',r=>r.target===LAB+'/intro.txt' && r.output.includes('Practice is how'))},
+  {id:'id',title:'Kim jestem i do jakich grup należę?',group:'Podstawy',
+    purpose:'id pokazuje numery UID (użytkownika), GID (grupy podstawowej) i członkostwo w grupach. groups wypisuje nazwy grup.',
+    syntax:'id [OPCJA]  (lub osobno: groups)',
+    example:'id -u',
+    assignment:'Sprawdź pełną tożsamość bieżącego użytkownika poleceniem id, a następnie wyświetl NUMERY wszystkich jego grup za pomocą id. Zwróć uwagę na grupę podstawową i dodatkową.',
+    hint:'Pełne id pokazuje UID, GID i grupy. W man id znajdziesz opcję wypisania samych numerów grup.',
+    pass:(_s,e)=>{
+      const full=e.findIndex(r=>r.ok&&r.command==='id'&&r.target==='identity');
+      return full>=0&&e.slice(full+1).some(r=>r.ok&&r.command==='id'&&
+        r.target==='group-ids'&&r.output==='1000 1100');
+    }},
   {id:'man',title:'Dokumentacja komend',group:'Podstawy',
     purpose:'man to podrecznik dostepnych polecen. Pomaga samodzielnie odkrywac opcje zamiast zgadywac skladnie.',
     syntax:'man POLECENIE | man -k HASLO',
