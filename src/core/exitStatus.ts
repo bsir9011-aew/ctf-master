@@ -26,7 +26,7 @@ export function resultExitCode(result:CommandResult):number {
 }
 
 /** Set status once for the outer command; do not mutate a nested pipeline stage. */
-export function finishCommand(previous:LinuxState,result:CommandResult):CommandResult {
+export function finishCommand(result:CommandResult):CommandResult {
   const code=resultExitCode(result);
   const current=previousExitCode(result.state);
   const next=result.state.lastExitCode===code
