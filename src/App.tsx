@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { version as appVersion } from '../package.json';
 import { executeLinux, initialLinux, type CommandResult, type LinuxState } from './core/linux';
 import { missions } from './core/missions';
 import PacketPath from './components/PacketPath';
@@ -242,18 +243,18 @@ export default function App() {
     setCommandHistory([]); setHistoryCursor(null); commandDraft.current='';
   }
 
-  return <div className="app-shell">
+  return <div className={'app-shell'+(mode==='commands'?' academy-active':'')}>
     <header className="topbar">
       <div className="brand-mark" aria-hidden="true">&gt;_</div>
-      <div><strong>CTF MASTER</strong><span>CTF Master / 1.0 RC.3</span></div>
+      <div><strong>CTF MASTER</strong><span>Wersja {appVersion}</span></div>
       <span className="offline-tag">LOCAL SIM</span>
     </header>
     <main>
-      <section className="welcome">
+      {mode!=='commands'&&<section className="welcome">
         <p className="eyebrow">TWOJA DROGA DO CTF</p>
         <h1>Ucz się. Eksperymentuj.<br/><em>Zdobywaj flagi.</em></h1>
         <p>To nie quiz z odpowiedziami. Twoje polecenia zmieniają wirtualny system.</p>
-      </section>
+      </section>}
       <nav className="mode-switch" aria-label="Tryby nauki">
         <button className={mode === 'commands' ? 'active' : ''} aria-pressed={mode === 'commands'}
           onClick={() => {setMode('commands');setCommand('');setFeedback('');setPacketExpanded(false);setHistoryCursor(null);}}>Komendy</button>

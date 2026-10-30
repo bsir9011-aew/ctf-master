@@ -6,6 +6,7 @@ import {
 } from '../core/commandAcademy';
 import {createTransferState,submitTransfer,earnedMastery,transferChallenges} from '../core/academyTransfer';
 import type { CommandResult, LinuxState } from '../core/linux';
+import { academyTerminalHeight, needsRecommendation } from '../core/academyPresentation';
 import {
   recommendAcademy, recordCoachSignal, restoreCoachMetrics, type AcademyCoachMetrics
 } from '../core/academyCoach';
@@ -14,18 +15,18 @@ const STORAGE='ctf-master:command-academy-v1';
 const COACH_STORAGE='ctf-master:academy-coach-v1';
 interface TerminalLine {input?:string;output:string;ok:boolean}
 const groups:CommandLessonGroup[]=['Podstawy','Pliki i logi','Administracja','Sieć'];
-const firstLine:TerminalLine={output:'Osobny terminal treningowy. Nic, co tutaj zrobisz, nie zmieni misji CTF.',ok:true};
+const firstLine:TerminalLine={output:'Terminal treningowy. Polecenia nie zmieniają misji CTF.',ok:true};
 
 function readMetrics():AcademyCoachMetrics {
   try {return restoreCoachMetrics(JSON.parse(localStorage.getItem(COACH_STORAGE) ?? 'null'));}
   catch {return {};}
 }
-
 function readProgress():AcademyProgress {
-  try { return restoreAcademyProgress(JSON.parse(localStorage.getItem(STORAGE) ?? 'null')); }
-  catch { return restoreAcademyProgress(null); }
+  try {return restoreAcademyProgress(JSON.parse(localStorage.getItem(STORAGE) ?? 'null'));}
+  catch {return restoreAcademyProgress(null);}
 }
 
+/** A compact, responsive workbench: lesson and terminal share the same visual row. */
 export default function CommandAcademy() {
   const [progress,setProgress]=useState<AcademyProgress>(readProgress);
   const [metrics,setMetrics]=useState<AcademyCoachMetrics>(readMetrics);
@@ -42,64 +43,64 @@ export default function CommandAcademy() {
   const input=useRef<HTMLInputElement>(null);
   const output=useRef<HTMLDivElement>(null);
 
-  const index=Math.max(0,commandLessons.findIndex(lesson=>lesson.id===progress.selectedId));
+  const index=Math.max(0,commandLessons.findIndex(item=>item.id===progress.selectedId));
   const lesson=commandLessons[index];
-  const transfer=transferChallenges.find(ch=>ch.lessonId===lesson.id)!;
+  const transfer=transferChallenges.find(item=>item.lessonId===lesson.id)!;
   const inTransfer=phase==='transfer';
+  const complete=progress.completed.includes(lesson.id);
+  const mastered=progress.mastered.includes(lesson.id);
   const suggestion=recommendAcademy(progress,metrics);
-  const suggestedLesson=suggestion && commandLessons.find(item=>item.id===suggestion.lessonId);
+  const suggestedLesson=suggestion&&commandLessons.find(item=>item.id===suggestion.lessonId);
+  const showRecommendation=!!suggestedLesson&&needsRecommendation(suggestion,lesson.id,phase);
   const last=events.at(-1);
-  const coach=last ? explainError(last) : null;
+  const coach=last?explainError(last):null;
+
+  const outputHeight=academyTerminalHeight(lines);
 
   useEffect(()=>{
     try {localStorage.setItem(STORAGE,JSON.stringify(progress));}
-    catch {/* quota or private browsing */}
+    catch {/* Browser storage can be disabled; the session still works. */}
   },[progress]);
   useEffect(()=>{
     try {localStorage.setItem(COACH_STORAGE,JSON.stringify(metrics));}
-    catch {/* quota or private browsing */}
+    catch {/* Browser storage can be disabled; the session still works. */}
   },[metrics]);
-  useEffect(()=>{ if(output.current) output.current.scrollTop=output.current.scrollHeight; },[lines.length,index]);
+  useEffect(()=>{
+    if(output.current) output.current.scrollTop=output.current.scrollHeight;
+  },[lines.length,index,phase]);
 
   function openLesson(id:string,nextPhase:'intro'|'transfer'='intro') {
     if(!commandLessons.some(item=>item.id===id)) return;
-    if(nextPhase==='transfer' && !progress.completed.includes(id)) return;
+    if(nextPhase==='transfer'&&!progress.completed.includes(id)) return;
     setProgress(old=>({...old,selectedId:id}));
     setSystem(nextPhase==='transfer'?createTransferState(id):createAcademyState());
-    setEvents([]);setLines(nextPhase==='transfer'
-      ? [{output:'Nowy wariant. Pracujesz bez przykładu rozwiązania.',ok:true}]
+    setEvents([]);
+    setLines(nextPhase==='transfer'
+      ? [{output:'Nowy wariant: bez przykładu, z innymi danymi.',ok:true}]
       : [firstLine]);
-    setDraft('');setHintOpen(false);setDoneNow(false);
-    setPhase(nextPhase);setErrors(0);setUsedHint(false);setIndependentNow(false);
+    setDraft('');
+    setHintOpen(false);
+    setDoneNow(false);
+    setPhase(nextPhase);
+    setErrors(0);
+    setUsedHint(false);
+    setIndependentNow(false);
   }
 
-  function chooseLesson(id:string) {openLesson(id);}
-
-  function startTransfer() {openLesson(lesson.id,'transfer');}
-
-  function openRecommended() {
-    if(suggestion) openLesson(suggestion.lessonId,suggestion.phase);
-  }
-
-  function restartCurrent() {
-    if(inTransfer) {startTransfer();return;}
-    chooseLesson(lesson.id);
-  }
+  function startTransfer(){openLesson(lesson.id,'transfer');}
+  function restartCurrent(){openLesson(lesson.id,phase);}
 
   function submit(raw:string) {
-    if (!raw.trim()) return;
-    if(inTransfer && doneNow) return;
+    if(!raw.trim()||doneNow) return;
     const next=inTransfer
       ? submitTransfer(system,events,raw,lesson.id)
       : academySubmit(system,events,raw,lesson.id);
     const newErrors=errors+Number(!next.result.ok);
     setErrors(newErrors);
-    if(!next.result.ok) {
-      setMetrics(old=>recordCoachSignal(old,lesson.id,'errors'));
-    }
+    if(!next.result.ok) setMetrics(old=>recordCoachSignal(old,lesson.id,'errors'));
     const askedHelp=next.result.command==='help';
-    const assisted=usedHint || askedHelp;
-    if(askedHelp && !usedHint) {
+    const assisted=usedHint||askedHelp;
+    if(askedHelp&&!usedHint) {
       setUsedHint(true);
       setMetrics(old=>recordCoachSignal(old,lesson.id,'help'));
     }
@@ -128,99 +129,152 @@ export default function CommandAcademy() {
     input.current?.focus();
   }
 
-  const complete=progress.completed.includes(lesson.id);
-  const mastered=progress.mastered.includes(lesson.id);
-  return <section className="academy" aria-label="Trening komend Linux">
-    <header className="academy-header">
-      <p className="eyebrow">UCZ SIĘ KOMEND, ZANIM UŻYJESZ ICH W MISJI</p>
-      <h2>Akademia komend</h2>
-      <p>Najpierw poznaj komendę i wykonaj ćwiczenie. Następnie rozwiąż nowy wariant bez błędów i podpowiedzi, aby potwierdzić samodzielność.</p>
+  const feedbackTitle=doneNow
+    ? (inTransfer?(independentNow?'Sprawdzian zaliczony samodzielnie':'Cel osiągnięty — potrzebna czysta próba')
+      :'Zadanie wykonane poprawnie')
+    : last?(last.ok?'Polecenie zadziałało':'Polecenie nie powiodło się'):null;
+  const feedbackDetail=doneNow
+    ? (inTransfer
+      ? independentNow
+        ? 'Potrafisz zastosować tę komendę na nowych danych, bez podpowiedzi i błędów.'
+        : 'W tej próbie wykorzystano pomoc lub pojawił się błąd. Zresetuj sprawdzian, aby potwierdzić samodzielność.'
+      : lesson.purpose)
+    : last
+      ? (last.ok
+        ? 'System wykonał polecenie, ale sprawdź cel zadania: zaliczenie wymaga odpowiedniego rezultatu.'
+        : coach?.guidance??'Sprawdź składnię, argumenty i ścieżki.')
+      : '';
+
+  return <section className="academy academy-workbench" aria-label="Trening komend Linux">
+    <div className="academy-topline">
+      <div className="academy-topline-title">
+        <p className="eyebrow">PRAKTYCZNY LINUX</p>
+        <h2>Akademia komend</h2>
+        <p>Jedna komenda. Jedno zadanie. Wynik w terminalu.</p>
+      </div>
       <div className="academy-progress" aria-label="Postęp akademii">
-        <span>{progress.completed.length}/{commandLessons.length} poznanych · {progress.mastered.length}/{commandLessons.length} opanowanych</span>
-        <div className="progress-track"><div style={{width:(progress.completed.length/commandLessons.length*100)+'%'}}/></div>
+        <strong>{progress.completed.length}/{commandLessons.length} poznanych</strong>
+        <span>·</span>
+        <strong>{progress.mastered.length}/{commandLessons.length} opanowanych</strong>
+        <div className="progress-track"><div style={{width:(progress.mastered.length/commandLessons.length*100)+'%'}}/></div>
       </div>
-      <div className="academy-recommendation" aria-live="polite">
-        {suggestion && suggestedLesson ? <>
-          <div>
-            <strong>Twój następny krok: {suggestedLesson.title}</strong>
-            <p>{suggestion.reason}</p>
-          </div>
-          <button type="button" onClick={openRecommended}>
-            {suggestion.phase==='transfer'?'Rozpocznij sprawdzian':'Ćwicz komendę'} →
-          </button>
-        </> : <p>✓ Wszystkie 15 komend ma status „opanowane”. Możesz wrócić do dowolnego ćwiczenia lub przejść do misji.</p>}
-      </div>
-    </header>
-    <label className="academy-picker" htmlFor="academy-select">Ćwiczenie
-      <select id="academy-select" value={lesson.id} onChange={e=>chooseLesson(e.target.value)}>
-        {groups.map(group=><optgroup label={group} key={group}>
-          {commandLessons.filter(item=>item.group===group).map(item=>
-            <option value={item.id} key={item.id}>{progress.mastered.includes(item.id)?'✓ ':progress.completed.includes(item.id)?'• ':''}
-              {commandLessons.indexOf(item)+1}. {item.title}</option>)}
-        </optgroup>)}
-      </select>
-    </label>
-    <div className="academy-lesson">
-      <div className="academy-step"><span>{index+1} / {commandLessons.length} · {inTransfer?'Sprawdzian':'Nauka'}</span>
-        <span>{lesson.group}</span>
-      </div>
-      <h3>{lesson.title}</h3>
-      <p>{inTransfer?'Nowe dane, ta sama umiejętność. Sprawdź, czy potrafisz ją zastosować.':lesson.purpose}</p>
-      {!inTransfer&&<div className="academy-syntax">
-        <div><span>Składnia</span><code>{lesson.syntax}</code></div>
-        <div><span>Przykład</span><code>{lesson.example}</code></div>
-      </div>}
-      <div className="academy-task">
-        <strong>Twoje zadanie</strong>
-        <p>{inTransfer?transfer.assignment:lesson.assignment}</p>
-      </div>
-      {doneNow?<p className="academy-success" role="status">✓ {inTransfer
-          ? independentNow?'Sprawdzian zaliczony samodzielnie — umiejętność opanowana.':'Cel osiągnięty, ale z błędem lub podpowiedzią. Powtórz sprawdzian bez pomocy, aby uzyskać zaliczenie samodzielne.'
-          :'Ćwiczenie zaliczone. Możesz teraz przystąpić do sprawdzianu.'}</p>
-        :mastered?<p className="academy-previous">✓ Umiejętność opanowana wcześniej. Możesz ją powtórzyć.</p>
-        :complete&&!inTransfer?<p className="academy-previous">• Poznane. Przejdź do sprawdzianu, aby potwierdzić samodzielność.</p>:null}
-      <div className="academy-actions">
-        <button type="button" onClick={()=>{
-            setHintOpen(open=>!open);
-            if(!usedHint) {
-              setUsedHint(true);
-              setMetrics(old=>recordCoachSignal(old,lesson.id,'help'));
-            }
-          }}
-          aria-expanded={hintOpen} disabled={doneNow}>{hintOpen?'Ukryj podpowiedź':'Podpowiedź (liczy pomoc)'}</button>
-        <button type="button" onClick={restartCurrent}>Reset {inTransfer?'sprawdzianu':'ćwiczenia'}</button>
-        {inTransfer
-          ? <button type="button" onClick={()=>chooseLesson(lesson.id)}>Wróć do nauki</button>
-          : <button type="button" disabled={!complete} onClick={startTransfer}>Sprawdź samodzielnie →</button>}
-        {doneNow&&<button type="button" onClick={()=>chooseLesson(commandLessons[index+1].id)}
-          disabled={index===commandLessons.length-1}>Następna komenda →</button>}
-      </div>
-      {hintOpen&&<p className="academy-hint">{inTransfer?'Pomyśl, które polecenie umożliwiło podobną operację w pierwszym ćwiczeniu. Zwróć uwagę na nowe ścieżki i argumenty.':lesson.hint}</p>}
-      {inTransfer&&<p className="academy-transfer-note">Sprawdzian: {errors} nieudanych poleceń · {usedHint?'pomoc wykorzystana':'bez podpowiedzi'}. Reset daje nową próbę od początku.</p>}
     </div>
-    <section className="terminal" aria-label="Terminal akademii komend">
-      <div className="terminal-bar"><div className="dots"><i/><i/><i/></div>
-        <span>player@academy: {system.cwd}</span><span className="terminal-label">PRACTICE</span>
+
+    {showRecommendation&&<div className="academy-nudge">
+      <div><strong>Warto teraz: {suggestedLesson!.title}</strong>
+        <p>{suggestion!.reason}</p>
       </div>
-      <div className="terminal-output" role="log" aria-label="Wyniki ćwiczenia"
-        aria-live="off" ref={output}>
-        {lines.map((line,i)=><div className="terminal-line" key={i}>
-          {line.input&&<div className="prompt">{line.input}</div>}
-          {line.output&&<pre className={line.ok?'':'error'}>{line.output}</pre>}
-        </div>)}
+      <button type="button" onClick={()=>openLesson(suggestion!.lessonId,suggestion!.phase)}>
+        {suggestion!.phase==='transfer'?'Sprawdzian':'Ćwicz'} →
+      </button>
+    </div>}
+    {!suggestion&&<p className="academy-all-mastered">✓ Wszystkie komendy opanowane. Możesz przejść do Misji CTF.</p>}
+
+    <div className="academy-workspace" data-layout="learning-workspace">
+      <div className="academy-study-column">
+        <label className="academy-picker" htmlFor="academy-select">Wybierz ćwiczenie
+          <select id="academy-select" value={lesson.id} onChange={e=>openLesson(e.target.value)}>
+            {groups.map(group=><optgroup label={group} key={group}>
+              {commandLessons.filter(item=>item.group===group).map(item=>
+                <option value={item.id} key={item.id}>
+                  {progress.mastered.includes(item.id)?'✓ ':progress.completed.includes(item.id)?'• ':''}
+                  {commandLessons.indexOf(item)+1}. {item.title}
+                </option>)}
+            </optgroup>)}
+          </select>
+        </label>
+
+        <section className="academy-lesson" aria-labelledby="academy-lesson-title">
+          <div className="academy-step">
+            <span>{index+1}/{commandLessons.length} · {inTransfer?'Sprawdzian':'Nauka'}</span>
+            <span>{lesson.group}</span>
+          </div>
+          <h3 id="academy-lesson-title">{lesson.title}</h3>
+          <p>{inTransfer
+            ? 'Nowe dane, ta sama umiejętność. Rozwiąż zadanie bez gotowego przykładu.'
+            : lesson.purpose}</p>
+          {!inTransfer&&<div className="academy-syntax">
+            <div><span>Składnia</span><code>{lesson.syntax}</code></div>
+            <div><span>Przykład</span><code>{lesson.example}</code></div>
+          </div>}
+          <div className="academy-task">
+            <strong>Twoje zadanie</strong>
+            <p>{inTransfer?transfer.assignment:lesson.assignment}</p>
+          </div>
+
+          {!doneNow&&mastered&&<p className="academy-previous">✓ Ta komenda ma już status „opanowane”.</p>}
+          {!doneNow&&!inTransfer&&complete&&!mastered&&
+            <p className="academy-previous">• Poznane. Wykonaj sprawdzian, aby potwierdzić samodzielność.</p>}
+
+          <div className="academy-actions">
+            <button type="button" onClick={()=>{
+              setHintOpen(open=>!open);
+              if(!usedHint){
+                setUsedHint(true);
+                setMetrics(old=>recordCoachSignal(old,lesson.id,'help'));
+              }
+            }} aria-expanded={hintOpen} disabled={doneNow}>
+              {hintOpen?'Ukryj podpowiedź':'Podpowiedź'}
+            </button>
+            <button type="button" onClick={restartCurrent}>
+              Reset {inTransfer?'sprawdzianu':'ćwiczenia'}
+            </button>
+            {inTransfer&&<button type="button" onClick={()=>openLesson(lesson.id)}>
+              Wróć do nauki
+            </button>}
+            {!inTransfer&&complete&&!doneNow&&
+              <button type="button" onClick={startTransfer}>Sprawdź samodzielnie →</button>}
+          </div>
+          {hintOpen&&<p className="academy-hint">{inTransfer
+            ? 'Przypomnij sobie działanie komendy i dostosuj argumenty do nowych danych.'
+            : lesson.hint}</p>}
+          {inTransfer&&<p className="academy-transfer-note">
+            {errors} nieudanych poleceń · {usedHint?'pomoc wykorzystana':'bez podpowiedzi'}
+          </p>}
+        </section>
       </div>
-      <form className="command-row academy-command" onSubmit={e=>{e.preventDefault();submit(draft)}}>
-        <label htmlFor="academy-command">$</label>
-        <input id="academy-command" ref={input} value={draft} onChange={e=>setDraft(e.target.value)}
-          placeholder="Wpisz polecenie..." autoCapitalize="none" autoCorrect="off"
-          autoComplete="off" spellCheck={false} aria-label="Polecenie w akademii"/>
-        <button type="submit">Wykonaj ↵</button>
-      </form>
-    </section>
-    {last&&<p className="academy-result" role="status" aria-live="polite">
-      {last.ok?'✓ Polecenie wykonane. '+(!doneNow?'Sprawdź, czy osiągnąłeś cel zadania.':''):
-        'Polecenie nieudane. '+(coach?.guidance ?? 'Sprawdź argumenty i ścieżki.')}
-    </p>}
-    <p className="academy-disclaimer">Postęp ćwiczeń zapisuje się osobno. Nie odblokowuje misji CTF ani nie zmienia ich wirtualnych plików.</p>
+
+      <div className="academy-terminal-column">
+        <section className="terminal academy-terminal" aria-label="Terminal akademii komend">
+          <div className="terminal-bar">
+            <div className="dots"><i/><i/><i/></div>
+            <span>player@academy:{system.cwd}</span>
+            <span className="terminal-label">PRACTICE</span>
+          </div>
+          <div className="terminal-output" role="log" aria-label="Wyniki ćwiczenia"
+            aria-live="off" ref={output} style={{height:outputHeight}}>
+            {lines.map((line,i)=><div className="terminal-line" key={i}>
+              {line.input&&<div className="prompt">{line.input}</div>}
+              {line.output&&<pre className={line.ok?'':'error'}>{line.output}</pre>}
+            </div>)}
+          </div>
+          <form className="command-row academy-command" onSubmit={e=>{e.preventDefault();submit(draft)}}>
+            <label htmlFor="academy-command">$</label>
+            <input id="academy-command" ref={input} value={draft}
+              onChange={e=>setDraft(e.target.value)}
+              placeholder="Wpisz polecenie..." autoCapitalize="none" autoCorrect="off"
+              autoComplete="off" spellCheck={false}
+              disabled={doneNow} aria-label="Polecenie w akademii"/>
+            <button type="submit" disabled={doneNow}>Wykonaj ↵</button>
+          </form>
+        </section>
+
+        {feedbackTitle&&<div className={'academy-feedback '+
+          (doneNow?'academy-feedback-success':last&&!last.ok?'academy-feedback-error':'academy-feedback-info')}
+          role="status" aria-live="polite">
+          <strong>{doneNow?'✓ ':last&&!last.ok?'! ':'• '}{feedbackTitle}</strong>
+          <p>{feedbackDetail}</p>
+          {doneNow&&<div className="academy-next-actions">
+            {inTransfer
+              ? !independentNow&&<button type="button" onClick={restartCurrent}>Spróbuj ponownie ↻</button>
+              : <button type="button" onClick={startTransfer}>Sprawdź samodzielnie →</button>}
+            {index<commandLessons.length-1&&<button type="button"
+              className="academy-next-secondary"
+              onClick={()=>openLesson(commandLessons[index+1].id)}>Następna komenda →</button>}
+          </div>}
+        </div>}
+        <p className="academy-disclaimer">To bezpieczny symulator. Postęp treningu jest oddzielony od Misji CTF.</p>
+      </div>
+    </div>
   </section>;
 }

@@ -33,3 +33,12 @@ Ten zestaw jest do wykonania na **prawdziwym telefonie**. Zielony CI nie potwier
 Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekranu, który krok nie przeszedł i oczekiwane/zauważone zachowanie. Nie potrzebujemy masowych screenshotów.
 
 **Status:** MANUAL QA PENDING. Nie traktuj wersji 1.0 RC jako przetestowanego wydania mobilnego wyłącznie na podstawie zielonego CI.
+
+## Learning Workspace 1.0 RC.6 — dodatkowa kontrola
+
+- [ ] **Desktop (ok. 1280 px):** lekcja i terminal stoja obok siebie; naglowek jest krotki, podpowiedz i reset sa przy lekcji, a wynik pod terminalem.
+- [ ] **Mobile (320–390 px):** lekcja i terminal sa jeden pod drugim, bez poziomego przewijania; klawiatura ekranowa nie zakrywa przycisku wykonania.
+- [ ] Po wpisaniu `pwd` informacja o zaliczeniu pojawia sie bezposrednio pod terminalem z przyciskiem do samodzielnego sprawdzianu.
+- [ ] Po ponownym otwarciu wczesniej zaliczonej komendy mozna uruchomic sprawdzian bez koniecznosci powtarzania wstepnego zadania.
+- [ ] Sekcja rekomendacji nie duplikuje otwartej lekcji, jesli sugeruje dokladnie to samo cwiczenie.
+- [ ] Naglowek pokazuje faktyczna wersje pakietu: 1.0.0-rc.6. Odwiedz Misje i Powtorki — ich interfejsy i postepy musza byc niezmienione.
