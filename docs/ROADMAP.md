@@ -26,7 +26,8 @@
 - [x] Samodzielny sprawdzian transferowy dla 15 komend i osobny status opanowania
 - [x] Trener komend z rekomendacją na podstawie słabości i opanowania
 - [x] Learning Workspace: lekcja obok terminala na desktopie, kompaktowa nawigacja i bezposredni feedback
-- [ ] Manual QA na fizycznym telefonie (1.0 RC.6)
+- [x] Historia komend w Akademii (klawiatura i dotyk), mniej dublowanych przycisków i kontekstowy feedback
+- [ ] Manual QA na fizycznym telefonie (1.0 RC.7)
 
 ## Etap 1 - Linux Administrator
 - [x] Podstawy chmod, stat, tryby rwx i testy Permission denied
