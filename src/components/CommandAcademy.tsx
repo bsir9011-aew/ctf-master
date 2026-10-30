@@ -55,7 +55,7 @@ export default function CommandAcademy() {
   const mastered=progress.mastered.includes(lesson.id);
   const suggestion=recommendAcademy(progress,metrics);
   const suggestedLesson=suggestion&&commandLessons.find(item=>item.id===suggestion.lessonId);
-  const showRecommendation=!!suggestedLesson&&needsRecommendation(suggestion,lesson.id,phase);
+  const showRecommendation=!!suggestedLesson&&needsRecommendation(suggestion,lesson.id);
   const last=events.at(-1);
   const coach=last?explainError(last):null;
 
@@ -156,7 +156,7 @@ export default function CommandAcademy() {
   const feedbackTitle=doneNow
     ? (inTransfer?(independentNow?'Sprawdzian zaliczony samodzielnie':'Cel osiągnięty — potrzebna czysta próba')
       :'Zadanie wykonane poprawnie')
-    : last?(last.ok?'Polecenie zadziałało':'Polecenie nie powiodło się'):null;
+    : last?(last.ok?'Polecenie zadziałało':coach?.title??'Polecenie nie powiodło się'):null;
   const feedbackDetail=doneNow
     ? (inTransfer
       ? independentNow
