@@ -5,7 +5,7 @@
  */
 export type ShellToken =
   | {kind:'word';value:string;start:number;end:number}
-  | {kind:'pipe'|'overwrite'|'append';start:number;end:number};
+  | {kind:'pipe'|'overwrite'|'append'|'and'|'or';start:number;end:number};
 
 export function scanShell(raw:string):ShellToken[]|null {
   const result:ShellToken[]=[];
@@ -43,11 +43,21 @@ export function scanShell(raw:string):ShellToken[]|null {
       begin(i);value+=raw[++i];continue;
     }
     if(/\s/u.test(ch)){flush(i);continue;}
-    // Compound commands and input redirect are deliberately outside this subset.
-    if(ch===';'||ch==='<'||ch==='&')return null;
+    // Semicolon, input redirect and single & remain unsupported.
+    if(ch===';'||ch==='<')return null;
+    if(ch==='&'){
+      if(raw[i+1]!=='&')return null;
+      flush(i);
+      result.push({kind:'and',start:i,end:i+2});
+      i++;
+      continue;
+    }
     if(ch==='|'||ch==='>'){
       flush(i);
-      if(ch==='|')result.push({kind:'pipe',start:i,end:i+1});
+      if(ch==='|'&&raw[i+1]==='|'){
+        result.push({kind:'or',start:i,end:i+2});
+        i++;
+      } else if(ch==='|')result.push({kind:'pipe',start:i,end:i+1});
       else if(raw[i+1]==='>'){
         result.push({kind:'append',start:i,end:i+2});
         i++;
