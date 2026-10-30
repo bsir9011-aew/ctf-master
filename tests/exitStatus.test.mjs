@@ -120,7 +120,7 @@ test('unrelated failed command still penalizes the transfer',()=>{
 });
 
 test('curriculum adds exactly one lesson and transfer',()=>{
-  assert.equal(commandLessons.length,32);
-  assert.equal(transferChallenges.length,32);
+  assert.equal(commandLessons.length,33);
+  assert.equal(transferChallenges.length,33);
   assert.deepEqual(commandLessons.map(x=>x.id),transferChallenges.map(x=>x.lessonId));
 });
