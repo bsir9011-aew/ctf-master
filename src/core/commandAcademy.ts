@@ -5,6 +5,7 @@ import { recoveryFixture, recoveryCompleted } from './pathRecovery.ts';
 import { umaskExerciseCompleted } from './umask.ts';
 import {shareCase,shareCompleted} from './chgrp.ts';
 import {redirectionCompleted} from './redirection.ts';
+import {quotingCase,quotingCompleted} from './quoting.ts';
 
 export type CommandLessonGroup = 'Podstawy' | 'Pliki i logi' | 'Administracja' | 'Sieć';
 export interface CommandLesson {
@@ -35,6 +36,7 @@ export function createAcademyState():LinuxState {
       [LAB+'/timeline.log']:'INFO boot\nWARN latency\nINFO cache\nERROR timeout\nINFO retry\nWARN queue\nINFO stable\n',
       [LAB+'/names.txt']:'zoe\nanna\nmarta\n',
       [LAB+'/levels.txt']:'INFO\nINFO\nWARN\nWARN\nINFO\n',
+      [quotingCase('intro').source]:quotingCase('intro').content,
       [LAB+'/alerts.log']:'WARN storage\nINFO ready\nWARN auth\nWARN storage\nINFO heartbeat\nWARN auth\n',
       ...investigationFiles('intro'),
       [LAB+'/logs/ticket-42.txt']:'Training ticket 42',
@@ -172,6 +174,13 @@ export const commandLessons:readonly CommandLesson[]=[
     assignment:'Przygotuj ~/practice/alerts-summary.log z ~/practice/alerts.log. Najpierw zapisz wszystkie wpisy WARN przez >, a potem dopisz wpisy INFO przez >>. Zachowaj log źródłowy i na końcu odczytaj gotowy raport poleceniem cat.',
     hint:'Wynik grep możesz skierować do pliku przez >. Drugi wynik skieruj do TEGO SAMEGO pliku przez >>, aby go nie nadpisać. Ostatecznie użyj cat na raporcie.',
     pass:(state,events)=>redirectionCompleted('intro',state,events)},
+  {id:'quoting',title:'Pliki ze spacją w nazwie',group:'Pliki i logi',
+    purpose:'Spacje normalnie rozdzielają argumenty. Cudzysłowy i backslash pozwalają przekazać jedną nazwę pliku zawierającą spacje.',
+    syntax:'mv "PLIK ZE SPACJĄ" "NOWY PLIK"',
+    example:'mv "~/practice/report draft.txt" "~/practice/final report.txt"',
+    assignment:'Zmień nazwę ~/practice/report draft.txt na ~/practice/final report.txt. Obie nazwy mają spacje: przekaż je jako pojedyncze argumenty, zachowaj treść i odczytaj przeniesiony plik przez cat.',
+    hint:'Użyj cudzysłowów wokół całych ścieżek albo poprzedź każdą spację znakiem \\. W razie wątpliwości zajrzyj do man quoting.',
+    pass:(state,events)=>quotingCompleted('intro',state,events)},
   {id:'investigation',title:'Śledztwo: nieznany incydent',group:'Pliki i logi',
     purpose:'Otrzymujesz objaw incydentu i sam wybierasz strategię diagnostyki. Najpierw potwierdź ślad, potem zabezpiecz oryginalny dziennik.',
     syntax:'Dobierz narzędzia na podstawie obserwacji',
