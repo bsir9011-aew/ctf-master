@@ -131,3 +131,11 @@ Akademia Komend ma teraz **uklad dwukolumnowy na komputerze**: po lewej aktualne
 W trybie Komendy uproszczono gorny naglowek, zredukowano powtarzanie biezacej rekomendacji oraz przeniesiono informacje o rezultacie obok terminala. Po wykonaniu cwiczenia przycisk samodzielnego sprawdzianu pojawia sie pod terminalem; dla komend zaliczonych wczesniej jest dostepny takze po ponownym otwarciu zadania. Wersja aplikacji w pasku tytulowym jest odczytywana z `package.json`, a nie wpisana na stale.
 
 Zadna z tych zmian nie modyfikuje silnika Linux ani zapisanych danych. Dotychczasowe 15 cwiczen, 15 sprawdzianow, 16 misji i 20 powtorek nadal sa dostepne. Manualny test na prawdziwym telefonie i test PWA offline: nadal do wykonania.
+
+## Ergonomia terminala Akademii (1.0 RC.7)
+
+W trybie **Komendy** terminal obsluguje historie ostatnich 30 unikalnych wpisanych polecen: klawisze strzalek ↑/↓ w polu wprowadzania lub dwa przyciski przy terminalu, dostepne takze na ekranie dotykowym. Powrot za pomoca ↓ do nowego wpisu przywraca niezapisany szkic polecenia. Historia jest pamietana tylko w ramach biezacego cwiczenia/strony (nie zapisujemy surowych komend ani ich wynikow do localStorage).
+
+Panel „Warto teraz” nie duplikuje juz przycisku sprawdzianu **dla aktualnie wybranej komendy** — ten znajduje sie przy lekcji lub informacji zwrotnej pod terminalem. W razie bledu feedback wyswietla kontekstowa kategorie problemu, np. brak sciezki, uprawnienia lub blad skladni. Program nie zdradza automatycznie gotowej komendy w sprawdzianie. Dotychczasowy postep 15 cwiczen, 15 sprawdzianow, 16 misji i 20 powtorek pozostaje niezmieniony.
+
+QA fizycznego telefonu i faktycznej instalacji PWA nadal wymaga testu recznego.
