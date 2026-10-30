@@ -1,6 +1,7 @@
 import { executeLinux, initialLinux, type CommandResult, type LinuxState } from './linux.ts';
 import { investigationFiles, investigationStatus } from './investigation.ts';
 import { usedManualBefore } from './manual.ts';
+import { recoveryFixture, recoveryCompleted } from './pathRecovery.ts';
 
 export type CommandLessonGroup = 'Podstawy' | 'Pliki i logi' | 'Administracja' | 'Sieć';
 export interface CommandLesson {
@@ -22,7 +23,7 @@ export function createAcademyState():LinuxState {
   const initial=initialLinux();
   return {
     ...initial,
-    dirs:[...initial.dirs,LAB,LAB+'/logs'],
+    dirs:[...initial.dirs,LAB,LAB+'/logs',recoveryFixture('intro').directory],
     files:{
       ...initial.files,
       [LAB+'/intro.txt']:'Practice is how commands become useful.',
@@ -39,10 +40,12 @@ export function createAcademyState():LinuxState {
       [LAB+'/delete-me.tmp']:'DELETE_ME',
       [LAB+'/private.txt']:'SIMULATED_PRACTICE_DATA',
       [LAB+'/operator.log']:'OPERATOR: shared evidence readable by group',
-      [LAB+'/audit-only.log']:'AUDIT: other group access denied'
+      [LAB+'/audit-only.log']:'AUDIT: other group access denied',
+      [recoveryFixture('intro').file]:recoveryFixture('intro').content
     },
     permissions:{...initial.permissions,[LAB+'/private.txt']:0o644,
-      [LAB+'/operator.log']:0o640,[LAB+'/audit-only.log']:0o640},
+      [LAB+'/operator.log']:0o640,[LAB+'/audit-only.log']:0o640,
+      [recoveryFixture('intro').directory]:0o600},
     ownership:{...initial.ownership,
       [LAB+'/operator.log']:{uid:2000,gid:1100},
       [LAB+'/audit-only.log']:{uid:2000,gid:1200}}
@@ -202,6 +205,13 @@ export const commandLessons:readonly CommandLesson[]=[
         r.command==='cat'&&r.target===LAB+'/operator.log'&&
         r.output==='OPERATOR: shared evidence readable by group');
     }},
+  {id:'namei',title:'Dlaczego plik jest niedostępny?',group:'Administracja',
+    purpose:'namei -l pokazuje uprawnienia kolejnych elementów ścieżki. Samo r dla pliku nie wystarczy: katalogi po drodze potrzebują prawa x.',
+    syntax:'namei -l SCIEZKA',
+    example:'namei -l ~/documents/credentials.txt',
+    assignment:'Log ~/practice/diagnostics/service.log istnieje, ale cat zwraca Permission denied. Zdiagnozuj całą ścieżkę przez namei -l, przywróć tylko brakujące prawo przejścia właścicielowi blokującego katalogu i odczytaj log. Nie otwieraj dostępu grupie ani pozostałym.',
+    hint:'Najpierw sprawdź namei -l na ścieżce pliku. Na katalogu x oznacza możliwość przejścia; r na pliku pozwala czytać treść.',
+    pass:(state,events)=>recoveryCompleted('intro',state,events)},
   {id:'chmod',title:'Minimalne uprawnienia',group:'Administracja',
     purpose:'chmod reguluje prawa rwx: właściciel, grupa i pozostali.',
     syntax:'chmod TRYB PLIK',example:'chmod 600 ~/documents/credentials.txt',
