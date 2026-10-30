@@ -15,7 +15,8 @@ const TRANSFER={
   file:LAB+'/logs/forensics/trace.log',
   content:'SIMULATED FORENSIC RECORD'
 };
-export const testCase=(variant:'intro'|'transfer')=>variant==='intro'?INTRO:TRANSFER;
+export const introTestFixture=INTRO;
+export const transferTestFixture=TRANSFER;
 
 /** A pure virtual version of POSIX unary file predicates.
  * Absence, an inaccessible ancestor or a false condition yields status 1.
@@ -85,7 +86,9 @@ export function fileTestCompleted(
  */
 export function fileTestMistake(result:CommandResult):boolean{
   if(result.command==='test'){
-    return result.exitCode===2||!result.testFlag||!result.target;
+    return result.exitCode===2||
+      !((result.target===TRANSFER.file&&result.testFlag==='-r')||
+        (result.target===TRANSFER.directory&&result.testFlag==='-x'));
   }
   return !result.ok;
 }
