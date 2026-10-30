@@ -27,6 +27,7 @@ const solutions={
   quoting:'mv "~/practice/report draft.txt" "~/practice/final report.txt"',
   'exit-status':'grep FATAL ~/practice/events.log',
   test:'test -f ~/practice/checks/locked.log',
+  conditionals:'test -f ~/practice/source.txt && cp ~/practice/source.txt ~/practice/guarded-copy.txt',
   investigation:'grep "HTTP 502" ~/practice/logs/edge.log',
   find:'find ~/practice -name "ticket-*.txt"',
   cp:'cp ~/practice/source.txt ~/practice/backup.txt',
@@ -43,9 +44,9 @@ const solutions={
 };
 const ids=commandLessons.map(lesson=>lesson.id);
 
-test('catalogue has 32 unique drills and all exercise texts',()=>{
-  assert.equal(ids.length,32);
-  assert.equal(new Set(ids).size,32);
+test('catalogue has 33 unique drills and all exercise texts',()=>{
+  assert.equal(ids.length,33);
+  assert.equal(new Set(ids).size,33);
   assert.deepEqual(ids,Object.keys(solutions));
   for (const lesson of commandLessons) {
     assert.ok(lesson.purpose && lesson.syntax && lesson.example && lesson.assignment && lesson.hint,lesson.id);
@@ -57,6 +58,17 @@ for(const lesson of commandLessons) {
     assert.equal(lesson.pass(original,[]),false,'must not start completed');
     let result=academySubmit(original,[],solutions[lesson.id],lesson.id);
     assert.equal(result.result.ok,lesson.id!=='exit-status');
+    if(lesson.id==='conditionals'){
+      assert.equal(result.completed,false);
+      result=academySubmit(result.result.state,result.events,
+        'test -f ~/practice/not-present.log && touch ~/practice/should-not-exist.tmp',lesson.id);
+      assert.equal(result.result.ok,false);
+      result=academySubmit(result.result.state,result.events,
+        'test -f ~/practice/not-present.log || touch ~/practice/follow-up.flag',lesson.id);
+      assert.equal(result.completed,false);
+      result=academySubmit(result.result.state,result.events,
+        'cat ~/practice/guarded-copy.txt',lesson.id);
+    }
     if(lesson.id==='test'){
       assert.equal(result.completed,false);
       result=academySubmit(result.result.state,result.events,'echo $?',lesson.id);
