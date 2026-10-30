@@ -14,4 +14,4 @@ Mobile-first PWA teaching Linux and CTF through interactive, causal labs. Progre
 - Do not bloat validation. Before a PR: `npm run build` and manual smoke test for the changed mission. Add focused automated tests when engine becomes more complex.
 
 ## Near-term priority
-Next PR: prioritize real-device mobile QA (docs/MOBILE_QA.md) and manual learning-flow feedback after the new ls/cd/grep explanations. Keep feedback accurate and based on executed virtual command outcomes; do not reveal unseen transfer targets. Preserve 15 introductions, 15 transfers, 16 missions, 20 reviews and all existing localStorage keys. No real shell execution. Avoid new networking features before mobile ergonomics are verified.
+Next PR: perform real-phone UX/PWA QA using docs/MOBILE_QA.md. Verify explanations for ls/cd/grep/find/cp/chmod, including success vs wrong target. Keep read-only explanations grounded in the real before/after virtual state and do not leak undiscovered transfer answers. Preserve 15 introductions, 15 transfers, 16 missions, 20 reviews and all localStorage keys. Never run user commands in a real shell. Defer new network labs until mobile QA.

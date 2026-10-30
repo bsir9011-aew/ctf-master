@@ -145,3 +145,11 @@ QA fizycznego telefonu i faktycznej instalacji PWA nadal wymaga testu recznego.
 Rozszerzono wyjaśnienia dla trzech podstawowych poleceń: `ls`, `cd` i `grep`. Aplikacja rozróżnia nieistniejącą ścieżkę, próbę wejścia do pliku zamiast katalogu, błędną opcję `ls`, złą składnię `grep` i brak dopasowania (w tym znaczenie opcji `-i`). Poprawnie wykonane polecenie może nadal nie spełniać celu lekcji — panel pod terminalem wyjaśnia wtedy realny skutek operacji, a nie przyznaje automatycznie zaliczenia.
 
 Wskazówki opisują zasady, **nie ujawniają docelowej komendy ani niewidocznych plików w sprawdzianach transferowych**. Wirtualny `cd` wyświetla teraz komunikat „Not a directory” dla istniejącego pliku. Zachowano 15 ćwiczeń i 15 sprawdzianów, 16 misji, 20 powtórek i poprzednie zapisy. Test na rzeczywistym telefonie nadal jest do przeprowadzenia.
+
+## Feedback o skutku komendy (1.0 RC.9)
+
+Akademia ma bardziej szczegółowe wyjaśnienia dla **find, cp i chmod**. `find` odróżnia puste wyniki od problemów z katalogiem startowym i pokazuje liczbę odnalezionych ścieżek. `cp` rozróżnia błędną ścieżkę źródła, brak katalogu docelowego, odmowę odczytu i skopiowanie pliku; informuje o utworzeniu nowego pliku lub nadpisaniu istniejącego. `chmod` porównuje prawa pliku przed i po poleceniu, np. 644 → 600 (rw-------), i wyjaśnia, dlaczego samo pomyślne wykonanie komendy nie musi realizować celu zadania.
+
+Dla `cp` i `chmod` interfejs zachowuje w pamięci **stan bezpośrednio sprzed ostatniej komendy** wyłącznie na potrzeby opisania efektu (nie tworzy nowego klucza localStorage ani nie zapisuje surowych komend). Zaliczenie nadal zależy od warunku zadania, a nie od tekstu wyjaśnienia. W sprawdzianach transferowych nie ujawnia się ukrytej docelowej ścieżki. Silnik poleceń i dotychczasowy postęp pozostają bez zmian.
+
+Status: automatyczne testy logiczne i CI sprawdzają kod, lecz rzeczywisty test na telefonie i instalacja PWA offline nadal wymagają ręcznej weryfikacji.

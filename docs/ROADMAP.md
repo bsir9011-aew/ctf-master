@@ -28,7 +28,8 @@
 - [x] Learning Workspace: lekcja obok terminala na desktopie, kompaktowa nawigacja i bezposredni feedback
 - [x] Historia komend w Akademii (klawiatura i dotyk), mniej dublowanych przycisków i kontekstowy feedback
 - [x] Kontekstowe wyjaśnienia ls/cd/grep: sukces, częściowy rezultat i błędy bez zdradzania odpowiedzi
-- [ ] Manual QA na fizycznym telefonie (1.0 RC.8)
+- [x] Efekty find/cp/chmod: liczba ścieżek, kopiowanie, porównanie rwx przed i po komendzie
+- [ ] Manual QA na fizycznym telefonie (1.0 RC.9)
 
 ## Etap 1 - Linux Administrator
 - [x] Podstawy chmod, stat, tryby rwx i testy Permission denied

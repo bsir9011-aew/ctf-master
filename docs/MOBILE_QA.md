@@ -59,3 +59,11 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] W `grep` wpisz wzorzec z niewłaściwą wielkością liter, potem użyj `-i`; sprawdź, czy wyjaśnienia pomagają zrozumieć różnicę.
 - [ ] W drugim wariancie sprawdzianu informacja zwrotna nie może zdradzać nazwy docelowego pliku ani pełnej komendy.
 - [ ] Przełącz na Misje/Powtórki i odśwież — dane pozostają zachowane. Nagłówek powinien wskazywać RC.8.
+
+## RC.9 — rozumienie skutków find / cp / chmod
+
+- [ ] W Akademii `find`: wyszukaj istniejące pliki, potem użyj niepasującego wzorca i nieistniejącego katalogu. Sprawdź różnicę między pustym wynikiem a błędem.
+- [ ] W `cp`: skopiuj plik pod nową nazwą, później nadpisz istniejący plik. Feedback ma opisać różne skutki, nawet jeśli cel lekcji nie został zaliczony.
+- [ ] W `chmod`: porównaj `chmod 640` i `chmod 600` na tym samym pliku po resecie zadania. Wyjaśnienie powinno pokazać prawa przed i po.
+- [ ] W sprawdzianach transferowych: feedback nie może zdradzać nazwy docelowego pliku ani gotowej komendy.
+- [ ] Wróć do Misji/Powtórek i odśwież aplikację — postępy nie mogą się zmienić. W nagłówku wersja RC.9.

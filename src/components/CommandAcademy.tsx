@@ -32,6 +32,7 @@ export default function CommandAcademy() {
   const [progress,setProgress]=useState<AcademyProgress>(readProgress);
   const [metrics,setMetrics]=useState<AcademyCoachMetrics>(readMetrics);
   const [system,setSystem]=useState<LinuxState>(createAcademyState);
+  const [previousSystem,setPreviousSystem]=useState<LinuxState|null>(null);
   const [events,setEvents]=useState<CommandResult[]>([]);
   const [lines,setLines]=useState<TerminalLine[]>([firstLine]);
   const [draft,setDraft]=useState('');
@@ -57,7 +58,7 @@ export default function CommandAcademy() {
   const suggestedLesson=suggestion&&commandLessons.find(item=>item.id===suggestion.lessonId);
   const showRecommendation=!!suggestedLesson&&needsRecommendation(suggestion,lesson.id);
   const last=events.at(-1);
-  const insight=last?explainAcademyAttempt(lesson.id,system,last,doneNow):null;
+  const insight=last?explainAcademyAttempt(lesson.id,previousSystem??system,last,doneNow):null;
 
   const outputHeight=academyTerminalHeight(lines);
 
@@ -78,6 +79,7 @@ export default function CommandAcademy() {
     if(nextPhase==='transfer'&&!progress.completed.includes(id)) return;
     setProgress(old=>({...old,selectedId:id}));
     setSystem(nextPhase==='transfer'?createTransferState(id):createAcademyState());
+    setPreviousSystem(null);
     setEvents([]);
     setLines(nextPhase==='transfer'
       ? [{output:'Nowy wariant: bez przykładu, z innymi danymi.',ok:true}]
@@ -128,6 +130,7 @@ export default function CommandAcademy() {
       setUsedHint(true);
       setMetrics(old=>recordCoachSignal(old,lesson.id,'help'));
     }
+    setPreviousSystem(system);
     setSystem(next.result.state);
     setEvents(next.events);
     setLines(old=>next.result.clear?[]:[...old,{
