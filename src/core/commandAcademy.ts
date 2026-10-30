@@ -37,9 +37,15 @@ export function createAcademyState():LinuxState {
       [LAB+'/source.txt']:'COPY_ME',
       [LAB+'/move-me.txt']:'MOVE_ME',
       [LAB+'/delete-me.tmp']:'DELETE_ME',
-      [LAB+'/private.txt']:'SIMULATED_PRACTICE_DATA'
+      [LAB+'/private.txt']:'SIMULATED_PRACTICE_DATA',
+      [LAB+'/operator.log']:'OPERATOR: shared evidence readable by group',
+      [LAB+'/audit-only.log']:'AUDIT: other group access denied'
     },
-    permissions:{...initial.permissions,[LAB+'/private.txt']:0o644}
+    permissions:{...initial.permissions,[LAB+'/private.txt']:0o644,
+      [LAB+'/operator.log']:0o640,[LAB+'/audit-only.log']:0o640},
+    ownership:{...initial.ownership,
+      [LAB+'/operator.log']:{uid:2000,gid:1100},
+      [LAB+'/audit-only.log']:{uid:2000,gid:1200}}
   };
 }
 const observed=(events:CommandResult[],command:string,predicate:(e:CommandResult)=>boolean):boolean=>
@@ -181,6 +187,21 @@ export const commandLessons:readonly CommandLesson[]=[
     assignment:'Usuń wyłącznie ~/practice/delete-me.tmp.',
     hint:'rm wymaga ścieżki do pliku, nie katalogu.',
     pass:s=>!Object.hasOwn(s.files,LAB+'/delete-me.tmp') && s.files[LAB+'/source.txt']==='COPY_ME'},
+  {id:'file-access',title:'Dlaczego jeden plik otwiera się, a drugi nie?',group:'Administracja',
+    purpose:'Prawo dostępu zależy od uprawnień rwx, właściciela pliku oraz członkostwa w grupie. Odczyt r dla grupy nie oznacza odczytu dla wszystkich.',
+    syntax:'id -G ; ls -l PLIK ; cat PLIK',
+    example:'id -G',
+    assignment:'Dwa logi ~/practice/operator.log i ~/practice/audit-only.log mają identyczny tryb 640, ale różne grupy. Sprawdź swoje grupy, obejrzyj metadane i odczytaj dostępny log operator.log. Wyjaśnij sobie, dlaczego drugi powinien odmówić dostępu.',
+    hint:'id -G pokazuje grupy, ls -l albo stat pokazuje właściciela i grupę pliku. Porównaj je, zanim odczytasz log.',
+    pass:(_s,e)=>{
+      const groups=e.findIndex(r=>r.ok&&r.command==='id'&&r.target==='group-ids'&&r.output==='1000 1100');
+      const inspected=e.findIndex((r,i)=>i>groups&&r.ok&&
+        (r.command==='stat'||r.command==='ls')&&r.target===LAB+'/operator.log'&&
+        r.output.includes('operators'));
+      return groups>=0&&inspected>groups&&e.slice(inspected+1).some(r=>r.ok&&
+        r.command==='cat'&&r.target===LAB+'/operator.log'&&
+        r.output==='OPERATOR: shared evidence readable by group');
+    }},
   {id:'chmod',title:'Minimalne uprawnienia',group:'Administracja',
     purpose:'chmod reguluje prawa rwx: właściciel, grupa i pozostali.',
     syntax:'chmod TRYB PLIK',example:'chmod 600 ~/documents/credentials.txt',
