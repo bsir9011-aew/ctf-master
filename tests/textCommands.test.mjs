@@ -9,8 +9,8 @@ function exec(raw,state=createAcademyState()) {return executeLinux(state,raw);}
 const textIds=['head','tail','wc','sort','uniq'];
 
 test('all five command names are present in the learning and transfer catalogues',()=>{
-  assert.equal(commandLessons.length,20);
-  assert.equal(transferChallenges.length,20);
+  assert.equal(commandLessons.length,21);
+  assert.equal(transferChallenges.length,21);
   for(const id of textIds) {
     assert.equal(commandLessons.filter(x=>x.id===id).length,1);
     assert.equal(transferChallenges.filter(x=>x.lessonId===id).length,1);
@@ -76,7 +76,7 @@ test('invalid counts and unsupported pipes are not silently accepted',()=>{
     'head -n nope ~/practice/timeline.log','head -n 101 ~/practice/timeline.log',
     'tail -n 1.5 ~/practice/timeline.log',
     'wc -z ~/practice/timeline.log','sort ~/practice/names.txt foo',
-    'uniq ~/practice/levels.txt extra','sort ~/practice/names.txt | uniq']) {
+    'uniq ~/practice/levels.txt extra','sort ~/practice/names.txt | rm ~/practice/source.txt']) {
     const res=exec(raw);
     assert.equal(res.ok,false,raw);
   }
