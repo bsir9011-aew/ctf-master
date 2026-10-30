@@ -58,7 +58,7 @@ test('cp success actually creates a distinct file without modifying source',()=>
 test('cp distinguish overwriting a previously existing destination from new file',()=>{
   const r=attempt('cp','cp ~/practice/intro.txt ~/practice/source.txt');
   assert.equal(r.status,'partial');
-  assert.match(r.detail,/nadpisał istniejącą kopię/);
+  assert.match(r.detail,/nadpisał istniejący plik/);
   assert.equal(r.data.result.state.files['/home/player/practice/source.txt'],
     'Practice is how commands become useful.');
 });
