@@ -28,6 +28,7 @@ const solutions={
   mv:'mv ~/practice/move-me.txt ~/practice/renamed.txt',
   rm:'rm ~/practice/delete-me.tmp',
   'file-access':'id -G',
+  namei:'namei -l ~/practice/diagnostics/service.log',
   chmod:'chmod 600 ~/practice/private.txt',
   ps:'ps',
   systemctl:'systemctl status web',
@@ -35,9 +36,9 @@ const solutions={
 };
 const ids=commandLessons.map(lesson=>lesson.id);
 
-test('catalogue has 25 unique drills and all exercise texts',()=>{
-  assert.equal(ids.length,25);
-  assert.equal(new Set(ids).size,25);
+test('catalogue has 26 unique drills and all exercise texts',()=>{
+  assert.equal(ids.length,26);
+  assert.equal(new Set(ids).size,26);
   assert.deepEqual(ids,Object.keys(solutions));
   for (const lesson of commandLessons) {
     assert.ok(lesson.purpose && lesson.syntax && lesson.example && lesson.assignment && lesson.hint,lesson.id);
@@ -49,6 +50,14 @@ for(const lesson of commandLessons) {
     assert.equal(lesson.pass(original,[]),false,'must not start completed');
     let result=academySubmit(original,[],solutions[lesson.id],lesson.id);
     assert.equal(result.result.ok,true);
+    if(lesson.id==='namei') {
+      assert.equal(result.completed,false);
+      result=academySubmit(result.result.state,result.events,
+        'chmod u+x ~/practice/diagnostics',lesson.id);
+      assert.equal(result.completed,false);
+      result=academySubmit(result.result.state,result.events,
+        'cat ~/practice/diagnostics/service.log',lesson.id);
+    }
     if(lesson.id==='file-access') {
       assert.equal(result.completed,false);
       result=academySubmit(result.result.state,result.events,
