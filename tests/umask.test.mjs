@@ -1,3 +1,4 @@
+import {assertWorldUnchanged} from './assertWorldUnchanged.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {executeLinux,initialLinux} from '../src/core/linux.ts';
@@ -72,7 +73,7 @@ test('umask rejects invalid syntax and leaves state unmodified',()=>{
   for(const command of ['umask -S','umask 888','umask 22','umask 078','umask 077 foo','umask -077','umask 00000']){
     const r=executeLinux(state,command);
     assert.equal(r.ok,false,command);
-    assert.equal(r.state,state,command);
+    assertWorldUnchanged(r.state,state,command);
   }
   assert.deepEqual(state,before);
   assert.match(executeLinux(state,'man umask').output,/666/);

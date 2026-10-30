@@ -1,3 +1,4 @@
+import {assertWorldUnchanged} from './assertWorldUnchanged.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {executeLinux} from '../src/core/linux.ts';
@@ -75,7 +76,7 @@ test('no host shell, side-effecting sources, input redirection or extra targets'
   ]) {
     const r=run(state,raw);
     assert.equal(r.ok,false,raw);
-    assert.deepEqual(r.state,snapshot,raw);
+    assertWorldUnchanged(r.state,snapshot,raw);
   }
 });
 

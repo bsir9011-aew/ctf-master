@@ -14,7 +14,7 @@ W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefoni
 ## Co dziala w 1.0 RC (Akademia komend)
 
 - 16 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
-- Trzy tryby: **Komendy** (29 lekcji technicznych + 1 dochodzenie, 30 sprawdzianów), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
+- Trzy tryby: **Komendy** (30 lekcji technicznych + 1 dochodzenie, 31 sprawdzianów), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
 - Zwinięta domyślnie **Mapa nauki** z 5 rozdziałami: cele, komendy, licznik postępu, przejście do pierwszej dostępnej misji.
 - Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `man POLECENIE`, `man -k HASLO`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `umask`, `chgrp`, `>`, `>>`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `id`, `groups`, `namei -l`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
@@ -254,3 +254,10 @@ Wspólny lexer obsługuje spacje wewnątrz apostrofów i cudzysłowów, znak bac
 **30. lekcja:** przenieś raport o nazwie zawierającej spację i potwierdź zawartość przez cat. Niezależny sprawdzian przenosi inny plik z podkatalogu logs, również o nazwie ze spacjami. Dokumentacja man quoting opisuje ten ograniczony podzbiór.
 
 To nadal **nie jest pełny Bash**. Nie ma podstawiania zmiennych, podpowłok, globbingu powłoki, skryptów, wykonywania hosta ani pełnej semantyki escape w cudzysłowach. Symulator zachowuje dotychczasowe rozwijanie ~/ do wirtualnego katalogu domowego także wewnątrz cudzysłowów. Fizyczne QA telefonu oraz offline PWA nadal **PENDING**.
+
+
+## RC.22 - status zakończenia ostatniego polecenia
+
+Każda zakończona komenda wirtualnego terminala zapisuje swój kod wyjścia w sesji. Wspierane `echo $?` pokazuje poprzedni status, a samo kończy się kodem `0`. Obsługiwany podzbiór: `0` sukces, `1` brak dopasowania `grep` albo inny błąd wykonania, `2` błąd składni lub argumentów `grep`, `127` nieznana komenda. Wywołanie `echo $?` jest ograniczone do dokładnie tej formy (bez cytowania); inne ekspansje, pełny `echo`, `pipefail` i skrypty nie są obsługiwane.
+
+**31. lekcja i sprawdzian**: porównanie nieudanego `grep` i udanego `grep`, z odczytaniem statusu po każdym poleceniu. W sprawdzianie celowy brak dopasowania nie obniża oceny samodzielności. Stare sesje bez `lastExitCode` są czytane z domyślnym kodem `0`; inne dane i klucze localStorage bez zmian. Realne QA PWA na telefonie nadal PENDING.

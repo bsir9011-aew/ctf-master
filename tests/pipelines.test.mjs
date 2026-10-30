@@ -1,3 +1,4 @@
+import {assertWorldUnchanged} from './assertWorldUnchanged.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {executeLinux,initialLinux} from '../src/core/linux.ts';
@@ -120,7 +121,7 @@ test('unsafe stages, redirects, separators and invented commands are rejected wi
   ]) {
     const r=run(raw,seed);
     assert.equal(r.ok,false,raw);
-    assert.deepEqual(r.state,before,raw);
+    assertWorldUnchanged(r.state,before,raw);
   }
   assert.deepEqual(seed,before);
 });
@@ -141,8 +142,8 @@ test('no matching grep stage stops the pipeline with a useful error',()=>{
 });
 
 test('lesson completion validates real output, source and allowed stage sequence',()=>{
-  assert.equal(commandLessons.length,30);
-  assert.equal(transferChallenges.length,30);
+  assert.equal(commandLessons.length,31);
+  assert.equal(transferChallenges.length,31);
   const id='pipeline',base=createAcademyState();
   const wrong=academySubmit(base,[],'grep WARN ~/practice/alerts.log | wc -l',id);
   assert.equal(wrong.result.ok,true);

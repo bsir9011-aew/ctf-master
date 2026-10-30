@@ -285,6 +285,11 @@ export function explainAcademyAttempt(
       :'Katalogi na tej ścieżce pozwalają na przejście. Jeśli odczyt nadal nie działa, zbadaj prawo r pliku.',
     status:completed?'complete':'partial'
   };
+  if(cmd==='echo'&&result.target==='previous-exit')return {
+    title:completed?'Statusy porównane':'Odczytano kod poprzedniej komendy',
+    detail:'echo $? wypisuje poprzedni kod: 0 to sukces, 1 oznacza m.in. brak dopasowania, 2 błąd składni lub grep, 127 nieznane polecenie. Samo echo ustawia nowy kod 0; sprawdzaj bezpośrednio po badanej operacji.',
+    status:completed?'complete':'partial'
+  };
   if(cmd==='redirect')return {
     title:completed?'Raport zapisany i zweryfikowany':'Dane zapisane w pliku',
     detail:'Przekierowanie zmienia plik docelowy, a nie wejściowy. > zastępuje zawartość, >> ją dopisuje. Odczytaj wynik przez cat i sprawdź, czy oba zestawy wierszy są obecne.',

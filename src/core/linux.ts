@@ -9,6 +9,7 @@ import { executeNamei } from './namei.ts';
 import { executeChgrp } from './chgrp.ts';
 import {parseRedirection,executeRedirection} from './redirection.ts';
 import {tokenizeShellWords} from './shellSyntax.ts';
+import {finishCommand,previousExitCode} from './exitStatus.ts';
 import { executeUmask, newFileMode, newDirectoryMode, DEFAULT_UMASK } from './umask.ts';
 import { defaultIdentity, executeIdentityCommand, identityOf, type SimIdentity } from './identity.ts';
 
@@ -24,6 +25,7 @@ export interface LinuxState {
   network?: NetworkState;
   identity?: SimIdentity;
   umask?: number;
+  lastExitCode?: number;
 }
 
 export interface CommandResult {
@@ -39,6 +41,7 @@ export interface CommandResult {
   clear?: boolean;
   redirectMode?: 'overwrite'|'append';
   sourceCommand?: string;
+  exitCode?: number;
 }
 
 const HOME = '/home/player';
@@ -69,7 +72,8 @@ export const initialLinux = (): LinuxState => ({
   services: initialServices(),
   network: initialNetwork(),
   identity: defaultIdentity(),
-  umask: DEFAULT_UMASK
+  umask: DEFAULT_UMASK,
+  lastExitCode:0
 });
 
 export function resolvePath(cwd: string, requested: string): string {
@@ -90,17 +94,22 @@ const parent = (p: string) => p === '/' ? '/' : p.slice(0, p.lastIndexOf('/')) |
 const base = (p: string) => p === '/' ? '/' : p.slice(p.lastIndexOf('/') + 1);
 
 export function executeLinux(state: LinuxState, raw: string): CommandResult {
+  return finishCommand(runLinux(state,raw));
+}
+
+/** Internal execution does not update $? for stages within a pipeline/redirect. */
+function runLinux(state: LinuxState, raw: string): CommandResult {
   const command = raw.trim();
   const redirect=parseRedirection(command);
   if(redirect===null)return {state,output:'przekierowanie: niepoprawna skladnia',ok:false,command:'redirect'};
   if(redirect)return executeRedirection(state,redirect,tokenize,
-    path=>resolvePath(state.cwd,path),source=>executeLinux(state,source));
+    path=>resolvePath(state.cwd,path),source=>runLinux(state,source));
   if(command.includes('|')) {
     const segments=splitPipeline(command);
     if(!segments) return {state,output:'potok: niepoprawna skladnia lub cytowanie',
       ok:false,command:'pipeline'};
     if(segments.length>1)
-      return executePipeline(state,segments,tokenize,part=>executeLinux(state,part));
+      return executePipeline(state,segments,tokenize,part=>runLinux(state,part));
   }
   const parts = tokenize(command);
   const done = (output: string, ok = true, nextState = state, target?: string, clear = false): CommandResult => ({
@@ -137,8 +146,11 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
   if (cmd === 'id' || cmd === 'groups') return executeIdentityCommand(state,cmd,args);
 
   switch (cmd) {
+    case 'echo':
+      if(/^echo\s+\$\?$/.test(command))return done(String(previousExitCode(state)),true,state,'previous-exit');
+      return done('echo: w tej lekcji obslugiwane jest tylko echo $? bez cytowania',false);
     case 'help':
-      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE SCIEZKA, stat PLIK, namei -l SCIEZKA, umask [NNN], chgrp GRUPA PLIK, man POLECENIE, man -k HASLO, whoami, id [-u|-g|-G], groups, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Potoki: komenda_czytajaca PLIK | grep|sort|uniq|head|tail|wc (max 5 etapow). Przekierowania odczytu: POLECENIE > PLIK lub POLECENIE >> PLIK. Sciezki ze spacjami: uzyj cudzyslowow lub backslasha (man quoting); brak podstawiania zmiennych i wykonywania host shell.');
+      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE SCIEZKA, stat PLIK, namei -l SCIEZKA, umask [NNN], chgrp GRUPA PLIK, man POLECENIE, man -k HASLO, whoami, id [-u|-g|-G], groups, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Potoki: komenda_czytajaca PLIK | grep|sort|uniq|head|tail|wc (max 5 etapow). Status ostatniej komendy: echo $? (man exit-status). Przekierowania odczytu: POLECENIE > PLIK lub POLECENIE >> PLIK. Sciezki ze spacjami: uzyj cudzyslowow lub backslasha (man quoting); brak podstawiania zmiennych i wykonywania host shell.');
     case 'whoami':
       return args.length ? done('whoami: nieoczekiwany argument', false) : done(identityOf(state).user);
     case 'pwd':
@@ -263,8 +275,8 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
       if (!canReadFile(state,path)) return done('grep: Permission denied', false);
       const needle = insensitive ? rest[0].toLowerCase() : rest[0];
       const matches = state.files[path].split('\n').filter(line => (insensitive ? line.toLowerCase() : line).includes(needle));
-      if (!matches.length) return done('(brak dopasowan)', false, state, path);
-      return {...done(matches.join('\n'), true, state, path),grepCaseInsensitive:insensitive};
+      if (!matches.length)return {...done('(brak dopasowan)',false,state,path),filterPattern:rest[0],grepCaseInsensitive:insensitive};
+      return {...done(matches.join('\n'),true,state,path),filterPattern:rest[0],grepCaseInsensitive:insensitive};
     }
     case 'stat': {
       if (args.length !== 1) return done('Uzycie: stat PLIK_LUB_KATALOG', false);

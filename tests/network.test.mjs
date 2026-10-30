@@ -1,3 +1,4 @@
+import {assertWorldUnchanged} from './assertWorldUnchanged.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {executeLinux, initialLinux} from '../src/core/linux.ts';
@@ -51,7 +52,7 @@ test('gateway in other subnet is rejected without changing state',()=>{
     'ip route replace default via 10.20.30.25','ip route replace default via 10.20.30.1 extra']) {
     const result=executeLinux(initial,bad);
     assert.equal(result.ok,false,bad);
-    assert.equal(result.state,initial,bad);
+    assertWorldUnchanged(result.state,initial,bad);
   }
 });
 
@@ -88,7 +89,7 @@ test('invalid IP, prefix, unsupported shell and malformed ping leave state untou
   ]) {
     const result=executeLinux(state,cmd);
     assert.equal(result.ok,false,cmd);
-    assert.equal(result.state,state,cmd);
+    assertWorldUnchanged(result.state,state,cmd);
   }
 });
 
@@ -112,7 +113,7 @@ test('ss rejects unsupported flags and never opens actual sockets',()=>{
   for(const cmd of ['ss','ss -tulnp','ss -lntu']) {
     const result=executeLinux(state,cmd);
     assert.equal(result.ok,false,cmd);
-    assert.equal(result.state,state,cmd);
+    assertWorldUnchanged(result.state,state,cmd);
   }
 });
 

@@ -179,3 +179,12 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Cytowany lub escapowany znak | albo > w nazwie pliku nie uruchamia potoku ani przekierowania.
 - [ ] man quoting działa offline; niedomknięty cytat lub końcowy backslash nie może zmienić stanu.
 - [ ] Licznik 30 lekcji i sprawdzianów oraz cache RC.21, zachowane starsze postępy. Fizyczne QA PWA offline nadal PENDING.
+
+
+## RC.22 - status zakończenia polecenia
+
+- [ ] W trybie Komendy otwórz „Czy polecenie się powiodło?”. Po `grep FATAL ~/practice/events.log` odczytaj status przez `echo $?`; oczekuj `1`.
+- [ ] Ponowne `echo $?` musi zwrócić `0`, ponieważ echo zmienia status. Następnie `grep WARN ~/practice/events.log` i bezpośrednio `echo $?` zwracają status `0`.
+- [ ] Błąd składni, np. niedomknięty cudzysłów, daje `2`; nieznana komenda daje `127`. Dostępna dokumentacja `man exit-status`.
+- [ ] Niezależny sprawdzian używa innego logu i innych słów wyszukiwania. Celowy brak dopasowania nie jest karany, ale błędna diagnoza już tak.
+- [ ] Zachowane stare sesje i licznik **31** ćwiczeń, cache RC.22. Realny test dotyku/PWA i działania offline nadal PENDING.

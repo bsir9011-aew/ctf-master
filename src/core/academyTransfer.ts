@@ -7,6 +7,7 @@ import {umaskExerciseCompleted} from './umask.ts';
 import {shareCase,shareCompleted} from './chgrp.ts';
 import {redirectionCase,redirectionCompleted} from './redirection.ts';
 import {quotingCase,quotingCompleted} from './quoting.ts';
+import {statusCase,statusCompleted} from './exitStatus.ts';
 
 const LAB='/home/player/practice';
 const hasFile=(s:LinuxState,name:string)=>Object.hasOwn(s.files,LAB+'/'+name);
@@ -69,6 +70,8 @@ export const transferChallenges:readonly TransferChallenge[]=[
     pass:(state,events)=>redirectionCompleted('transfer',state,events)},
   {lessonId:'quoting',assignment:'W katalogu ~/practice/logs odnajdź plik audit notes.txt. Przenieś go do nowej nazwy incident notes.txt w tym samym katalogu, bez zmiany treści. Na końcu odczytaj przeniesiony plik poleceniem cat. Dobierz sposób ochrony spacji w ścieżkach.',
     pass:(state,events)=>quotingCompleted('transfer',state,events)},
+  {lessonId:'exit-status',assignment:'Sprawdź dziennik ~/practice/logs/review.log pod kątem wpisu CRITICAL, a następnie bezpośrednio zbadaj status komendy. Później wyszukaj ERROR i odczytaj jego status od razu po wyszukiwaniu. Zademonstruj różnicę między brakiem dopasowania a sukcesem.',
+    pass:(_state,events)=>statusCompleted('transfer',events)},
   {lessonId:'investigation',assignment:'SOC otrzymał alert o nietypowych próbach logowania około 04:12. Samodzielnie rozpoznaj właściwy dziennik w ~/practice/logs, odczytaj ślad związanego z tym zdarzenia i zabezpiecz cały plik jako ~/practice/incident-evidence.log. Zachowaj oryginalne logi.',
     pass:(s,e)=>investigationStatus('transfer',s,e).completed},
   {lessonId:'find',assignment:'Znajdź audit-67.txt w podkatalogach ~/practice za pomocą find.',
@@ -174,6 +177,14 @@ export function earnedMastery(completed:boolean,errors:number,usedHint:boolean):
 export function transferMistake(
   lessonId:string,result:CommandResult,completed:boolean
 ):boolean {
+  if(lessonId==='exit-status'){
+    const c=statusCase('transfer');
+    if(result.command==='grep'&&result.target===c.file&&
+       result.filterPattern===c.absent&&result.exitCode===1)return false;
+    if(result.command==='grep'&&result.target===c.file&&
+       result.filterPattern===c.present&&result.exitCode===0)return false;
+    return !result.ok||(result.command==='grep'&&result.target!==c.file);
+  }
   if(lessonId==='quoting'){
     const c=quotingCase('transfer');
     return !result.ok||(result.command==='mv'&&

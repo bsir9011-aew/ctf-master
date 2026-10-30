@@ -1,3 +1,4 @@
+import {assertWorldUnchanged} from './assertWorldUnchanged.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { executeLinux, initialLinux } from '../src/core/linux.ts';
@@ -44,7 +45,7 @@ test('DNS rejects unreachable routes and invalid resolver addresses',()=>{
     'resolvectl dns eth0 0.0.0.0','resolvectl dns eth0 255.255.255.255',
     'resolvectl dns eth0 198.51.100.53 extra']) {
     const r=executeLinux(initial,cmd);
-    assert.equal(r.ok,false,cmd);assert.equal(r.state,initial,cmd);
+    assert.equal(r.ok,false,cmd);assertWorldUnchanged(r.state,initial,cmd);
   }
   const set=executeLinux(initial,resolver);
   assert.equal(executeLinux(set.state,'nslookup lab.ctf.test').ok,false);
@@ -114,7 +115,7 @@ test('unsupported diagnostic syntax never mutates virtual lab state',()=>{
   for(const cmd of cmds){
     const result=executeLinux(seed,cmd);
     assert.equal(result.ok,false,cmd);
-    assert.equal(result.state,seed,cmd);
+    assertWorldUnchanged(result.state,seed,cmd);
   }
 });
 
