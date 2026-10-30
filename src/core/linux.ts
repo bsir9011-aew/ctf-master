@@ -94,7 +94,7 @@ const parent = (p: string) => p === '/' ? '/' : p.slice(0, p.lastIndexOf('/')) |
 const base = (p: string) => p === '/' ? '/' : p.slice(p.lastIndexOf('/') + 1);
 
 export function executeLinux(state: LinuxState, raw: string): CommandResult {
-  return finishCommand(state,runLinux(state,raw));
+  return finishCommand(runLinux(state,raw));
 }
 
 /** Internal execution does not update $? for stages within a pipeline/redirect. */
