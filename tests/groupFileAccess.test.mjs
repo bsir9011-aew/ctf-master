@@ -24,9 +24,9 @@ test('same 640 mode allows group member but denies unrelated group',()=>{
 test('all text inspection commands check group read rights',()=>{
   const s=createAcademyState();
   for(const cmd of groupCmds){
-    const allowed=use(s,cmd+' ~/practice/operator.log');
+    const allowed=use(s,(cmd==='grep'?'grep OPERATOR':' '+cmd).trim()+' ~/practice/operator.log');
     assert.equal(allowed.ok,true,cmd);
-    const denied=use(s,cmd+' ~/practice/audit-only.log');
+    const denied=use(s,(cmd==='grep'?'grep AUDIT':' '+cmd).trim()+' ~/practice/audit-only.log');
     assert.equal(denied.ok,false,cmd);
     assert.match(denied.output,/Permission denied/,cmd);
   }
