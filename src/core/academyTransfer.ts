@@ -2,6 +2,7 @@ import { executeLinux, type CommandResult, type LinuxState } from './linux.ts';
 import { createAcademyState } from './commandAcademy.ts';
 import { investigationFiles, investigationStatus } from './investigation.ts';
 import { usedManualBefore } from './manual.ts';
+import {recoveryFixture,recoveryCompleted} from './pathRecovery.ts';
 
 const LAB='/home/player/practice';
 const hasFile=(s:LinuxState,name:string)=>Object.hasOwn(s.files,LAB+'/'+name);
@@ -81,6 +82,8 @@ export const transferChallenges:readonly TransferChallenge[]=[
         r.command==='cat'&&r.target===LAB+'/logs/audit-share.log'&&
         r.output==='AUDIT: incident evidence review');
     }},
+  {lessonId:'namei',assignment:'Nowy katalog ~/practice/logs/locked blokuje dostęp do health.log, mimo że sam plik ma prawo odczytu. Znajdź brakujący bit przez namei -l, przywróć najmniejsze niezbędne uprawnienia właścicielowi katalogu i potwierdź odczyt pliku. Nie otwieraj uprawnień pozostałym.',
+    pass:(state,events)=>recoveryCompleted('transfer',state,events)},
   {lessonId:'chmod',assignment:'Zabezpiecz ~/practice/team.key, pozostawiając prawo czytania i zapisu wyłącznie właścicielowi.',
     pass:s=>hasFile(s,'team.key') && s.permissions?.[LAB+'/team.key']===0o600},
   {lessonId:'ps',assignment:'Sprawdź działające procesy. Odszukaj proces cpu-burn.',
@@ -104,6 +107,7 @@ export function createTransferState(lessonId:string):LinuxState {
   return {
     ...state,
     cwd:lessonId==='pwd'?LAB+'/logs':state.cwd,
+    dirs:lessonId==='namei'?[...state.dirs,recoveryFixture('transfer').directory]:state.dirs,
     identity:(lessonId==='id'||lessonId==='file-access')
       ?{uid:1001,user:'analyst',primary:{gid:1100,name:'security'},
         supplementary:[{gid:1200,name:'audit'}]}
@@ -112,6 +116,7 @@ export function createTransferState(lessonId:string):LinuxState {
       ...baseFiles,
       ...investigationFiles('transfer'),
       [LAB+'/logs/audit-67.txt']:'audit event 67',
+      ...(lessonId==='namei'?{[recoveryFixture('transfer').file]:recoveryFixture('transfer').content}:{}),
       [LAB+'/logs/audit-share.log']:'AUDIT: incident evidence review',
       [LAB+'/logs/player-share.log']:'PLAYER: private account log',
       [LAB+'/logs/manual-review.log']:'WARN service slow\nINFO restart scheduled\nERROR retry failed\nINFO operator notified\n',
@@ -123,7 +128,8 @@ export function createTransferState(lessonId:string):LinuxState {
       [LAB+'/review-levels.txt']:'OK\nOK\nWARN\nWARN\nOK\n'
     },
     permissions:{...state.permissions,[LAB+'/team.key']:0o644,
-      [LAB+'/logs/audit-share.log']:0o640,[LAB+'/logs/player-share.log']:0o640},
+      [LAB+'/logs/audit-share.log']:0o640,[LAB+'/logs/player-share.log']:0o640,
+      ...(lessonId==='namei'?{[recoveryFixture('transfer').directory]:0o600}:{})},
     ownership:{...state.ownership,
       [LAB+'/logs/audit-share.log']:{uid:2000,gid:1200},
       [LAB+'/logs/player-share.log']:{uid:2000,gid:1000}}
@@ -159,5 +165,7 @@ export function transferMistake(
     return !result.ok || (result.target==='group-names' && !completed);
   if(lessonId==='file-access')
     return !result.ok || (result.command==='cat' && !completed);
+  if(lessonId==='namei')
+    return !result.ok || (result.command==='chmod' && !completed && result.target!==recoveryFixture('transfer').directory);
   return !result.ok || (result.command===lessonId && !completed);
 }
