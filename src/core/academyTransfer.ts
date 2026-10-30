@@ -6,6 +6,7 @@ import {recoveryFixture,recoveryCompleted} from './pathRecovery.ts';
 import {umaskExerciseCompleted} from './umask.ts';
 import {shareCase,shareCompleted} from './chgrp.ts';
 import {redirectionCase,redirectionCompleted} from './redirection.ts';
+import {quotingCase,quotingCompleted} from './quoting.ts';
 
 const LAB='/home/player/practice';
 const hasFile=(s:LinuxState,name:string)=>Object.hasOwn(s.files,LAB+'/'+name);
@@ -66,6 +67,8 @@ export const transferChallenges:readonly TransferChallenge[]=[
       r.filterPattern==='ERROR' && r.output==='3')},
   {lessonId:'redirect',assignment:'Z nowego logu ~/practice/logs/incidents.log przygotuj raport ~/practice/incidents-summary.log. Najpierw zapisz wszystkie ERROR przez >, potem dopisz wszystkie INFO przez >>. Oryginał zostaw bez zmian. Na koniec odczytaj raport cat.',
     pass:(state,events)=>redirectionCompleted('transfer',state,events)},
+  {lessonId:'quoting',assignment:'W katalogu ~/practice/logs odnajdź plik audit notes.txt. Przenieś go do nowej nazwy incident notes.txt w tym samym katalogu, bez zmiany treści. Na końcu odczytaj przeniesiony plik poleceniem cat. Dobierz sposób ochrony spacji w ścieżkach.',
+    pass:(state,events)=>quotingCompleted('transfer',state,events)},
   {lessonId:'investigation',assignment:'SOC otrzymał alert o nietypowych próbach logowania około 04:12. Samodzielnie rozpoznaj właściwy dziennik w ~/practice/logs, odczytaj ślad związanego z tym zdarzenia i zabezpiecz cały plik jako ~/practice/incident-evidence.log. Zachowaj oryginalne logi.',
     pass:(s,e)=>investigationStatus('transfer',s,e).completed},
   {lessonId:'find',assignment:'Znajdź audit-67.txt w podkatalogach ~/practice za pomocą find.',
@@ -126,6 +129,7 @@ export function createTransferState(lessonId:string):LinuxState {
       ...baseFiles,
       ...investigationFiles('transfer'),
       [LAB+'/logs/audit-67.txt']:'audit event 67',
+      [quotingCase('transfer').source]:quotingCase('transfer').content,
       [shareCase('transfer').path]:shareCase('transfer').content,
       ...(lessonId==='namei'?{[recoveryFixture('transfer').file]:recoveryFixture('transfer').content}:{}),
       [LAB+'/logs/audit-share.log']:'AUDIT: incident evidence review',
@@ -170,6 +174,11 @@ export function earnedMastery(completed:boolean,errors:number,usedHint:boolean):
 export function transferMistake(
   lessonId:string,result:CommandResult,completed:boolean
 ):boolean {
+  if(lessonId==='quoting'){
+    const c=quotingCase('transfer');
+    return !result.ok||(result.command==='mv'&&
+      (result.target!==c.target||result.state.files[c.target]!==c.content));
+  }
   if(lessonId==='redirect'){
     const c=redirectionCase('transfer');
     const data=result.state.files[c.target];

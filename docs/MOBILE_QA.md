@@ -169,3 +169,13 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] `grep FATAL ~/practice/alerts.log > ~/practice/alerts-summary.log` nie może skasować raportu, bo źródłowe polecenie kończy się błędem.
 - [ ] Sprawdzian używa innego pliku wejściowego `incidents.log` i innej nazwy raportu. Zaliczenie wymaga dwóch przekierowań i późniejszego `cat`.
 - [ ] Licznik **29** i wersja RC.20, postępy starszych 28 ćwiczeń niezmienione. Fizyczne QA telefonu i offline PWA nadal PENDING.
+
+
+## RC.21 - nazwy ze spacjami i znaki specjalne
+
+- [ ] W lekcji Pliki ze spacją w nazwie przenieś report draft.txt do final report.txt z użyciem cudzysłowów albo backslasha, następnie wykonaj cat.
+- [ ] Spacja bez cytowania musi zgłosić błąd liczby argumentów, zamiast przypadkowo zmieniać plik.
+- [ ] W sprawdzianie przenieś audit notes.txt do incident notes.txt i odczytaj wynik; błędne udane mv nie przyznaje czystego opanowania.
+- [ ] Cytowany lub escapowany znak | albo > w nazwie pliku nie uruchamia potoku ani przekierowania.
+- [ ] man quoting działa offline; niedomknięty cytat lub końcowy backslash nie może zmienić stanu.
+- [ ] Licznik 30 lekcji i sprawdzianów oraz cache RC.21, zachowane starsze postępy. Fizyczne QA PWA offline nadal PENDING.

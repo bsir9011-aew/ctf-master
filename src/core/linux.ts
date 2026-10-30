@@ -8,6 +8,7 @@ import { executeManual } from './manual.ts';
 import { executeNamei } from './namei.ts';
 import { executeChgrp } from './chgrp.ts';
 import {parseRedirection,executeRedirection} from './redirection.ts';
+import {tokenizeShellWords} from './shellSyntax.ts';
 import { executeUmask, newFileMode, newDirectoryMode, DEFAULT_UMASK } from './umask.ts';
 import { defaultIdentity, executeIdentityCommand, identityOf, type SimIdentity } from './identity.ts';
 
@@ -83,25 +84,14 @@ export function resolvePath(cwd: string, requested: string): string {
   return '/' + stack.join('/');
 }
 
-function tokenize(raw: string): string[] | null {
-  const tokens: string[] = [];
-  const matcher = /(?:"([^"]*)"|'([^']*)'|([^\s'" ]+))/g;
-  let last = 0;
-  for (const match of raw.matchAll(matcher)) {
-    if (match.index !== undefined && raw.slice(last, match.index).trim()) return null;
-    tokens.push(match[1] ?? match[2] ?? match[3]);
-    last = (match.index ?? 0) + match[0].length;
-  }
-  if (raw.slice(last).trim()) return null;
-  return tokens;
-}
+const tokenize=tokenizeShellWords;
 
 const parent = (p: string) => p === '/' ? '/' : p.slice(0, p.lastIndexOf('/')) || '/';
 const base = (p: string) => p === '/' ? '/' : p.slice(p.lastIndexOf('/') + 1);
 
 export function executeLinux(state: LinuxState, raw: string): CommandResult {
   const command = raw.trim();
-  const redirect=parseRedirection(command,tokenize);
+  const redirect=parseRedirection(command);
   if(redirect===null)return {state,output:'przekierowanie: niepoprawna skladnia',ok:false,command:'redirect'};
   if(redirect)return executeRedirection(state,redirect,tokenize,
     path=>resolvePath(state.cwd,path),source=>executeLinux(state,source));
@@ -116,7 +106,8 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
   const done = (output: string, ok = true, nextState = state, target?: string, clear = false): CommandResult => ({
     output, ok, state: nextState, command: parts?.[0] ?? '', target, clear
   });
-  if (!parts || parts.length === 0) return done('Wpisz polecenie.', false);
+  if(!parts)return done('Niepoprawne cytowanie, escape lub nieobsługiwany operator powłoki.',false);
+  if(parts.length===0)return done('Wpisz polecenie.',false);
   const [cmd, ...args] = parts;
   const argPath = (v: string) => resolvePath(state.cwd, v);
   const exists = (path: string) => state.dirs.includes(path) || Object.hasOwn(state.files, path);
@@ -147,7 +138,7 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
 
   switch (cmd) {
     case 'help':
-      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE SCIEZKA, stat PLIK, namei -l SCIEZKA, umask [NNN], chgrp GRUPA PLIK, man POLECENIE, man -k HASLO, whoami, id [-u|-g|-G], groups, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Potoki: komenda_czytajaca PLIK | grep|sort|uniq|head|tail|wc (max 5 etapow). Przekierowania odczytu: POLECENIE > PLIK lub POLECENIE >> PLIK.');
+      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE SCIEZKA, stat PLIK, namei -l SCIEZKA, umask [NNN], chgrp GRUPA PLIK, man POLECENIE, man -k HASLO, whoami, id [-u|-g|-G], groups, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Potoki: komenda_czytajaca PLIK | grep|sort|uniq|head|tail|wc (max 5 etapow). Przekierowania odczytu: POLECENIE > PLIK lub POLECENIE >> PLIK. Sciezki ze spacjami: uzyj cudzyslowow lub backslasha (man quoting); brak podstawiania zmiennych i wykonywania host shell.');
     case 'whoami':
       return args.length ? done('whoami: nieoczekiwany argument', false) : done(identityOf(state).user);
     case 'pwd':

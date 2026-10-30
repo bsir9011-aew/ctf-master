@@ -14,7 +14,7 @@ W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefoni
 ## Co dziala w 1.0 RC (Akademia komend)
 
 - 16 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
-- Trzy tryby: **Komendy** (28 lekcji technicznych + 1 dochodzenie, 29 sprawdzianów), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
+- Trzy tryby: **Komendy** (29 lekcji technicznych + 1 dochodzenie, 30 sprawdzianów), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
 - Zwinięta domyślnie **Mapa nauki** z 5 rozdziałami: cele, komendy, licznik postępu, przejście do pierwszej dostępnej misji.
 - Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `man POLECENIE`, `man -k HASLO`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `umask`, `chgrp`, `>`, `>>`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `id`, `groups`, `namei -l`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
@@ -38,7 +38,7 @@ public/sw.js                tryb offline dla zbudowanej aplikacji
 
 ## Plan
 
-Zobacz [docs/ROADMAP.md](docs/ROADMAP.md). Dalszy kierunek: coraz lepszy symulator Linuksa, dokumentacja komend, uprawnienia, usługi, diagnostyka i praktyczne zadania. `grep` szuka dosłownego tekstu; `find` obsługuje `-name` z `*` i `?`, a `rm` usuwa tylko pliki. Dostępne są ograniczone potoki tekstowe, bez przekierowań. Ocena samodzielnosci dotyczy pierwszego zaliczenia misji (brak blednych komend, help i odkrytych podpowiedzi); powtorki sa prowadzone w osobnych sesjach. Nie wykonujemy prawdziwych polecen uzytkownika na backendzie.
+Zobacz [docs/ROADMAP.md](docs/ROADMAP.md). Dalszy kierunek: coraz lepszy symulator Linuksa, dokumentacja komend, uprawnienia, usługi, diagnostyka i praktyczne zadania. `grep` szuka dosłownego tekstu; `find` obsługuje `-name` z `*` i `?`, a `rm` usuwa tylko pliki. Dostępne są ograniczone potoki tekstowe i bezpieczne przekierowania stdout do plików wirtualnych. Ocena samodzielnosci dotyczy pierwszego zaliczenia misji (brak blednych komend, help i odkrytych podpowiedzi); powtorki sa prowadzone w osobnych sesjach. Nie wykonujemy prawdziwych polecen uzytkownika na backendzie.
 
 ## Status
 
@@ -245,3 +245,12 @@ Utrzymano **28 lekcji i 28 sprawdzianów, 16 misji, 20 wariantów powtórek**, d
 Polecenia odczytujące w wirtualnym terminalu można teraz zakończyć `> PLIK` (utworzenie/nadpisanie) lub `>> PLIK` (utworzenie/dopisanie). Obsługiwane są wyniki filtrowania logów i ograniczonych potoków, np. `grep WARN ~/practice/alerts.log > ~/practice/alerts-summary.log`. Błąd źródła albo brak praw zapisu nie zmienia pliku. Dla nowego pliku obowiązuje umask, dla istniejącego potrzebne jest prawo zapisu; odczyt źródła do tego samego pliku jest świadomie odrzucany, aby nie tracić danych ćwiczeń.
 
 Nowa **29. lekcja i niezależny sprawdzian** uczą kolejno nadpisania, dopisania i odczytu wyniku. Nie ma wykonywania powłoki hosta, stdin, stderr, rozwinięć Basha, wielu przekierowań ani separatorów poleceń. Stan sesji i klucze postępów nie zmieniły formatu. Fizyczne QA telefonu/PWA offline nadal PENDING.
+
+
+## RC.21 - cytowanie argumentów i spacje w nazwach plików
+
+Wspólny lexer obsługuje spacje wewnątrz apostrofów i cudzysłowów, znak backslash przed spacją lub operatorem poza cytowaniem oraz łączenie fragmentów cytowanych i zwykłych. Znaki |, > i >> mają znaczenie tylko poza cudzysłowami i kiedy nie są poprzedzone backslashem.
+
+**30. lekcja:** przenieś raport o nazwie zawierającej spację i potwierdź zawartość przez cat. Niezależny sprawdzian przenosi inny plik z podkatalogu logs, również o nazwie ze spacjami. Dokumentacja man quoting opisuje ten ograniczony podzbiór.
+
+To nadal **nie jest pełny Bash**. Nie ma podstawiania zmiennych, podpowłok, globbingu powłoki, skryptów, wykonywania hosta ani pełnej semantyki escape w cudzysłowach. Symulator zachowuje dotychczasowe rozwijanie ~/ do wirtualnego katalogu domowego także wewnątrz cudzysłowów. Fizyczne QA telefonu oraz offline PWA nadal **PENDING**.
