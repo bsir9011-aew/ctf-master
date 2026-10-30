@@ -50,9 +50,10 @@ export function conditionalCompleted(
     if(r.command!=='conditional'||!steps||steps.length!==2)return false;
     const [test,action]=steps;
     const parsed=intent(state,action);
+    const expectedOperator=rightCommand==='cp'||!rightExecuted?'&&':'||';
     return test.executed&&test.command==='test'&&test.testFlag===flag&&
       test.target===source&&test.exitCode===first&&
-      action.executed===rightExecuted&&
+      action.operator===expectedOperator&&action.executed===rightExecuted&&
       (!rightExecuted||action.command===rightCommand)&&
       parsed.command===rightCommand&&parsed.arity===(rightCommand==='cp'?3:2)&&
       parsed.target===rightTarget;
@@ -75,16 +76,24 @@ export function conditionalCompleted(
 /** No failed conditional is a learner error when the intended missing-file
  * gate correctly prevented an action. Wrong targets/branches still count.
  */
-export function conditionalMistake(
-  result:CommandResult,completed:boolean
-):boolean {
+export function conditionalMistake(result:CommandResult):boolean {
   if(result.command!=='conditional')return !result.ok;
-  const trace=result.conditionalTrace;
-  if(!trace||trace.length!==2)return true;
-  const [guard,action]=trace;
+  const steps=result.conditionalTrace;
+  if(!steps||steps.length!==2)return true;
+  const [guard,action]=steps;
+  const c=CASES.transfer;
   if(!guard.executed||guard.command!=='test'||guard.testFlag!=='-f')return true;
-  if(action.executed&&action.exitCode!==0)return true;
-  // A correctly skipped branch is an intentional non-zero status.
-  if(!result.ok&&!action.executed&&guard.exitCode===1)return false;
-  return !result.ok&& !completed;
+  const planned=intent(result.state,action);
+  const goodCopy=guard.target===c.source&&guard.exitCode===0&&
+    action.operator==='&&'&&action.executed&&action.command==='cp'&&
+    planned.command==='cp'&&planned.target===c.destination&&planned.arity===3&&
+    action.target===c.destination&&action.exitCode===0;
+  const goodSkip=guard.target===c.absent&&guard.exitCode===1&&
+    action.operator==='&&'&&!action.executed&&
+    planned.command==='touch'&&planned.target===c.forbidden&&planned.arity===2;
+  const goodFallback=guard.target===c.absent&&guard.exitCode===1&&
+    action.operator==='||'&&action.executed&&action.command==='touch'&&
+    planned.command==='touch'&&planned.target===c.fallback&&planned.arity===2&&
+    action.target===c.fallback&&action.exitCode===0;
+  return !(goodCopy||goodSkip||goodFallback);
 }
