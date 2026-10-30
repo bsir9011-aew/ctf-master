@@ -3,6 +3,7 @@ import { investigationFiles, investigationStatus } from './investigation.ts';
 import { usedManualBefore } from './manual.ts';
 import { recoveryFixture, recoveryCompleted } from './pathRecovery.ts';
 import { umaskExerciseCompleted } from './umask.ts';
+import {shareCase,shareCompleted} from './chgrp.ts';
 
 export type CommandLessonGroup = 'Podstawy' | 'Pliki i logi' | 'Administracja' | 'Sieć';
 export interface CommandLesson {
@@ -42,14 +43,17 @@ export function createAcademyState():LinuxState {
       [LAB+'/private.txt']:'SIMULATED_PRACTICE_DATA',
       [LAB+'/operator.log']:'OPERATOR: shared evidence readable by group',
       [LAB+'/audit-only.log']:'AUDIT: other group access denied',
+      [shareCase('intro').path]:shareCase('intro').content,
       [recoveryFixture('intro').file]:recoveryFixture('intro').content
     },
     permissions:{...initial.permissions,[LAB+'/private.txt']:0o644,
       [LAB+'/operator.log']:0o640,[LAB+'/audit-only.log']:0o640,
+      [shareCase('intro').path]:0o640,
       [recoveryFixture('intro').directory]:0o600},
     ownership:{...initial.ownership,
       [LAB+'/operator.log']:{uid:2000,gid:1100},
-      [LAB+'/audit-only.log']:{uid:2000,gid:1200}}
+      [LAB+'/audit-only.log']:{uid:2000,gid:1200},
+      [shareCase('intro').path]:{uid:1000,gid:1000}}
   };
 }
 const observed=(events:CommandResult[],command:string,predicate:(e:CommandResult)=>boolean):boolean=>
@@ -221,6 +225,13 @@ export const commandLessons:readonly CommandLesson[]=[
     hint:'Nowy plik startuje z 666, katalog z 777. Maska 077 odbiera prawa grupie i pozostałym. Zmień maskę PRZED tworzeniem obiektów.',
     pass:(state,events)=>umaskExerciseCompleted(state,events,0o077,
       LAB+'/private-created.txt',LAB+'/private-created')},
+  {id:'chgrp',title:'Udostępnij plik właściwej grupie',group:'Administracja',
+    purpose:'chgrp zmienia grupę właścicielską pliku. Razem z chmod pozwala udzielić dostępu konkretnemu zespołowi bez otwierania go wszystkim.',
+    syntax:'chgrp GRUPA PLIK',
+    example:'chgrp operators ~/practice/shared-report.log',
+    assignment:'Plik ~/practice/shared-report.log ma prawa 640 i należy do grupy player. Przydziel go grupie operators, do której należysz, zachowując obecne prawa i treść. Następnie sprawdź nową grupę przez stat lub ls -l.',
+    hint:'Przed zmianą sprawdź id albo groups. W man chgrp znajdziesz składnię. Po zmianie zweryfikuj właściciela, grupę i tryb przez stat.',
+    pass:(state,events)=>shareCompleted('intro',state,events)},
   {id:'chmod',title:'Minimalne uprawnienia',group:'Administracja',
     purpose:'chmod reguluje prawa rwx: właściciel, grupa i pozostali.',
     syntax:'chmod TRYB PLIK',example:'chmod 600 ~/documents/credentials.txt',
