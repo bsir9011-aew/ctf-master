@@ -184,7 +184,7 @@ export function explainAcademyAttempt(
     const existedBefore = !!target && Object.hasOwn(before.files,target);
     const copied = !!target && Object.hasOwn(result.state.files,target);
     const message = copied
-      ? 'cp ' + (existedBefore ? 'nadpisał istniejącą kopię.' : 'utworzył nowy plik.') +
+      ? 'cp ' + (existedBefore ? 'nadpisał istniejący plik.' : 'utworzył nowy plik.') +
         ' Zawartość została zapisana w ścieżce wybranej w poleceniu; plik źródłowy pozostał na miejscu.'
       : 'cp wykonał się, ale nie znaleziono docelowego pliku w nowym stanie symulatora.';
     return {
