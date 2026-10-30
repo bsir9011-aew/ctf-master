@@ -27,6 +27,7 @@ const answers={
   rm:'rm ~/practice/review.tmp',
   'file-access':'id -G',
   namei:'namei -l ~/practice/logs/locked/health.log',
+  umask:'umask 027',
   chmod:'chmod 600 ~/practice/team.key',
   ps:'ps',
   systemctl:'systemctl status sshd',
@@ -34,8 +35,8 @@ const answers={
 };
 const originalIds=commandLessons.map(x=>x.id);
 
-test('all twenty-six lessons have one different transfer task in the same order',()=>{
-  assert.equal(transferChallenges.length,26);
+test('all twenty-seven lessons have one different transfer task in the same order',()=>{
+  assert.equal(transferChallenges.length,27);
   assert.deepEqual(transferChallenges.map(x=>x.lessonId),originalIds);
   for(const ch of transferChallenges) {
     assert.ok(ch.assignment.length>25,ch.lessonId);
@@ -48,6 +49,14 @@ for(const challenge of transferChallenges) {
     assert.equal(challenge.pass(seed,[]),false,challenge.lessonId);
     let result=submitTransfer(seed,[],answers[challenge.lessonId],challenge.lessonId);
     assert.equal(result.result.ok,true,challenge.lessonId);
+    if(challenge.lessonId==='umask') {
+      assert.equal(result.completed,false);
+      result=submitTransfer(result.result.state,result.events,
+        'touch ~/practice/team-draft.txt',challenge.lessonId);
+      assert.equal(result.completed,false);
+      result=submitTransfer(result.result.state,result.events,
+        'mkdir ~/practice/team-work',challenge.lessonId);
+    }
     if(challenge.lessonId==='namei') {
       assert.equal(result.completed,false);
       result=submitTransfer(result.result.state,result.events,
