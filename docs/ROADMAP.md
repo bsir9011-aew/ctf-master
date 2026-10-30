@@ -12,7 +12,7 @@
 - [x] Trzy misje z walidacja efektu
 - [x] Trzy poziomy wskazowek
 - [x] Zapis postepu
-- [ ] Parser: status wyjscia i pelna semantyka powloki; [x] wspolny lexer cytowania, escapingu, potokow i przekierowan (edukacyjny podzbior Basha)
+- [ ] Parser: pełna semantyka powłoki nadal poza zakresem; [x] wspólny lexer cytowania, potoki, przekierowania, podstawowy status wyjścia echo $?
 - [ ] Drag and drop polecen oraz warianty scenariuszy
 - [x] Kontekstowy feedback i zapisane statystyki pomocy
 - [x] Pierwsza misja transferowa
@@ -41,7 +41,8 @@
 - [x] chgrp: zmiana grupy własnego pliku przy zachowaniu UID/rwx/treści, dwa ćwiczenia
 - [x] Redirection: bezpieczne stdout > i >>, zachowanie praw plików, lekcja i niezależny sprawdzian
 - [x] Quoting: spacje, apostrofy, cudzysłowy i backslash, spójne rozpoznawanie operatorów; lekcja i transfer
-- [ ] Manual QA na fizycznym telefonie (1.0 RC.21)
+- [x] Exit status: 0/1/2/127, echo $?, zapis w sesji i natychmiastowa obserwacja, 31. lekcja i transfer
+- [ ] Manual QA na fizycznym telefonie (1.0 RC.22)
 
 ## Etap 1 - Linux Administrator
 - [x] Podstawy chmod, stat, tryby rwx i testy Permission denied
