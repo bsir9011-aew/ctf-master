@@ -4,6 +4,7 @@ import { initialNetwork, executeNetworkCommand, type NetworkState } from './netw
 import { executeDiagnosticCommand } from './diagnostics.ts';
 import { executeTextCommand, isTextCommand } from './textCommands.ts';
 import { executePipeline, splitPipeline } from './pipelines.ts';
+import { executeManual } from './manual.ts';
 
 /** Deterministic in-browser simulator: NEVER executes input on the host OS. */
 export interface LinuxState {
@@ -23,6 +24,7 @@ export interface CommandResult {
   command: string;
   stages?: string[];
   filterPattern?: string;
+  grepCaseInsensitive?: boolean;
   target?: string;
   clear?: boolean;
 }
@@ -113,10 +115,11 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
   }
 
   if (isTextCommand(cmd)) return executeTextCommand(state,cmd,args,argPath);
+  if (cmd === 'man') return executeManual(state,args);
 
   switch (cmd) {
     case 'help':
-      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE PLIK, stat PLIK, whoami, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Potoki: komenda_czytajaca PLIK | grep|sort|uniq|head|tail|wc (max 5 etapow). Brak przekierowan.');
+      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE PLIK, stat PLIK, man POLECENIE, man -k HASLO, whoami, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Potoki: komenda_czytajaca PLIK | grep|sort|uniq|head|tail|wc (max 5 etapow). Brak przekierowan.');
     case 'whoami':
       return args.length ? done('whoami: nieoczekiwany argument', false) : done('player');
     case 'pwd':
@@ -213,7 +216,7 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
       const needle = insensitive ? rest[0].toLowerCase() : rest[0];
       const matches = state.files[path].split('\n').filter(line => (insensitive ? line.toLowerCase() : line).includes(needle));
       if (!matches.length) return done('(brak dopasowan)', false, state, path);
-      return done(matches.join('\n'), true, state, path);
+      return {...done(matches.join('\n'), true, state, path),grepCaseInsensitive:insensitive};
     }
     case 'stat': {
       if (args.length !== 1) return done('Uzycie: stat PLIK_LUB_KATALOG', false);
