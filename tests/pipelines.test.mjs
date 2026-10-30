@@ -27,6 +27,7 @@ test('real read-only pipeline filters, sorts, deduplicates and counts',()=>{
   assert.equal(r.command,'pipeline');
   assert.deepEqual(r.stages,['grep','sort','uniq','wc']);
   assert.equal(r.target,'/home/player/practice/alerts.log');
+  assert.equal(r.filterPattern,'WARN');
   assert.equal(r.output,'2');
   assert.deepEqual(original,before);
   assert.deepEqual(r.state,before);
@@ -63,6 +64,22 @@ test('wc counts stream lines, words and UTF8 bytes',()=>{
   assert.equal(words.output,'3');
   const bytes=run('cat ~/practice/names.txt | wc -c');
   assert.equal(bytes.output,String(new TextEncoder().encode('zoe\nanna\nmarta\n').length));
+});
+
+test('cat preserves missing final newline when wc counts incoming lines',()=>{
+  const r=run('cat ~/practice/intro.txt | wc -l');
+  assert.equal(r.ok,true);
+  assert.equal(r.output,'0');
+});
+
+test('a matching numeric result from the wrong log category cannot pass',()=>{
+  const seed=createAcademyState();
+  const wrong=academySubmit(seed,[],
+    'grep INFO ~/practice/alerts.log | sort | uniq | wc -l','pipeline');
+  assert.equal(wrong.result.ok,true);
+  assert.equal(wrong.result.output,'2');
+  assert.equal(wrong.completed,false);
+  assert.equal(transferMistake('pipeline',wrong.result,wrong.completed),true);
 });
 
 test('empty and malformed pipelines are rejected',()=>{
