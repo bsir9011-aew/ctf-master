@@ -31,7 +31,8 @@
 - [x] Efekty find/cp/chmod: liczba ścieżek, kopiowanie, porównanie rwx przed i po komendzie
 - [x] Ocena sprawdzianu uwzględniająca nietrafione poprawnie wykonane komendy; poprawione find . -name
 - [x] Pięć komend tekstowych head/tail/wc/sort/uniq, osobne ćwiczenia i warianty transferowe
-- [ ] Manual QA na fizycznym telefonie (1.0 RC.11)
+- [x] Ograniczone potoki do analizy logów: czytanie plików, grep/sort/uniq/wc, lekcja i transfer
+- [ ] Manual QA na fizycznym telefonie (1.0 RC.12)
 
 ## Etap 1 - Linux Administrator
 - [x] Podstawy chmod, stat, tryby rwx i testy Permission denied
