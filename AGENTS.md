@@ -14,4 +14,4 @@ Mobile-first PWA teaching Linux and CTF through interactive, causal labs. Progre
 - Do not bloat validation. Before a PR: `npm run build` and manual smoke test for the changed mission. Add focused automated tests when engine becomes more complex.
 
 ## Near-term priority
-Next PR: prioritize real-device mobile/PWA QA in docs/MOBILE_QA.md. Preserve assessment integrity: a successful wrong-target focused command in a transfer is a mistake, but successful exploratory commands are allowed. Never retroactively downgrade existing mastery. Keep find root semantics correct, previous progress keys unchanged, and no real shell execution. Do not add new network labs before device QA.
+Next PR: test the 20-lesson Academy (including head/tail/wc/sort/uniq) on a physical phone; verify PWA offline using docs/MOBILE_QA.md. Preserve 20 introductions, 20 independent transfers, 16 missions and 20 review variants. Do not run shell commands on the host. Explain that pipes and redirects are unsupported. Maintain clean-vs-wrong-target transfer grading and old localStorage keys. Avoid new network labs until real-device QA.

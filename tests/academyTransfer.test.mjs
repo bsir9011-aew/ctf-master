@@ -12,6 +12,11 @@ const answers={
   touch:'touch ~/practice/draft.txt',
   cat:'cat ~/practice/logs/audit-67.txt',
   grep:'grep "INFO sync" ~/practice/events.log',
+  head:'head -n 2 ~/practice/logs/review.log',
+  tail:'tail -n 3 ~/practice/logs/review.log',
+  wc:'wc -l ~/practice/logs/review.log',
+  sort:'sort ~/practice/review-names.txt',
+  uniq:'uniq ~/practice/review-levels.txt',
   find:'find ~/practice -name "audit-*.txt"',
   cp:'cp ~/practice/intro.txt ~/practice/intro-copy.txt',
   mv:'mv ~/practice/source.txt ~/practice/source-renamed.txt',
@@ -23,8 +28,8 @@ const answers={
 };
 const originalIds=commandLessons.map(x=>x.id);
 
-test('all fifteen lessons have one different transfer task in the same order',()=>{
-  assert.equal(transferChallenges.length,15);
+test('all twenty lessons have one different transfer task in the same order',()=>{
+  assert.equal(transferChallenges.length,20);
   assert.deepEqual(transferChallenges.map(x=>x.lessonId),originalIds);
   for(const ch of transferChallenges) {
     assert.ok(ch.assignment.length>25,ch.lessonId);

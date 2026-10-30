@@ -75,3 +75,13 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] W lekcji `find`: `find / -name "ticket-*.txt"` pokazuje wynik, ale nie zalicza wymaganego przeszukania `~/practice`. `find ~/practice -name "ticket-*.txt"` zalicza.
 - [ ] Po `cd ~/practice` sprawdź `find . -name "ticket-*.txt"` — polecenie ma działać bez błędu składni.
 - [ ] Odśwież. Wcześniejsze ukończone lekcje i misje zachowują swoje dotychczasowe zaliczenia; wersja powinna wskazywać RC.10.
+
+## RC.11 — nowe ćwiczenia z logów i plików
+
+- [ ] W Akademii odszukaj `head`, `tail`, `wc`, `sort`, `uniq`; licznik powinien wskazywać **20** lekcji, bez skasowania starych wyników.
+- [ ] Sprawdź `head -n 3 ~/practice/timeline.log`, `tail -n 2 ~/practice/timeline.log` oraz `wc -l ~/practice/timeline.log` (7 znaków nowej linii).
+- [ ] `sort ~/practice/names.txt` wyświetla alfabetyczną kolejność, a `uniq ~/practice/levels.txt` pozostawia dwa nieprzylegające `INFO`.
+- [ ] Spróbuj błędnej liczby przy `head -n`, brakującego pliku i pliku bez prawa odczytu. Komunikaty mają być czytelne.
+- [ ] Zaliczenie pierwszego ćwiczenia pozwala uruchomić sprawdzian tej samej komendy na **innym pliku**. Nowe dane są izolowane od poprzedniej misji.
+- [ ] Nie ma potoków — `sort plik | uniq` powinno zostać odrzucone, a nie działać w rzeczywistym shellu.
+- [ ] Zapisane misje i powtórki po odświeżeniu pozostają niezmienione; w nagłówku widać 1.0.0-rc.11.
