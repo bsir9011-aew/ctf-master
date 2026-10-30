@@ -6,6 +6,7 @@ import {
 } from '../core/commandAcademy';
 import {createTransferState,submitTransfer,earnedMastery,transferChallenges} from '../core/academyTransfer';
 import type { CommandResult, LinuxState } from '../core/linux';
+import { academyTerminalHeight, needsRecommendation } from '../core/academyPresentation';
 import {
   recommendAcademy, recordCoachSignal, restoreCoachMetrics, type AcademyCoachMetrics
 } from '../core/academyCoach';
@@ -50,14 +51,11 @@ export default function CommandAcademy() {
   const mastered=progress.mastered.includes(lesson.id);
   const suggestion=recommendAcademy(progress,metrics);
   const suggestedLesson=suggestion&&commandLessons.find(item=>item.id===suggestion.lessonId);
-  const showRecommendation=!!suggestion&&!!suggestedLesson&&
-    (suggestion.lessonId!==lesson.id||suggestion.phase!==phase);
+  const showRecommendation=!!suggestedLesson&&needsRecommendation(suggestion,lesson.id,phase);
   const last=events.at(-1);
   const coach=last?explainError(last):null;
 
-  const displayedRows=lines.reduce((total,line)=>total+
-    (line.input?1:0)+(line.output?Math.min(5,line.output.split('\n').length):0),0);
-  const outputHeight=Math.min(312,Math.max(154,72+displayedRows*22));
+  const outputHeight=academyTerminalHeight(lines);
 
   useEffect(()=>{
     try {localStorage.setItem(STORAGE,JSON.stringify(progress));}
