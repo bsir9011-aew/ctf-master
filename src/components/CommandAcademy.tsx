@@ -148,10 +148,10 @@ export default function CommandAcademy() {
           ? <button type="button" onClick={()=>chooseLesson(lesson.id)}>Wróć do nauki</button>
           : <button type="button" disabled={!complete} onClick={startTransfer}>Sprawdź samodzielnie →</button>}
         {doneNow&&<button type="button" onClick={()=>chooseLesson(commandLessons[index+1].id)}
-          disabled={index===commandLessons.length-1}>Następna komenda →</button>
+          disabled={index===commandLessons.length-1}>Następna komenda →</button>}
       </div>
       {hintOpen&&<p className="academy-hint">{inTransfer?'Pomyśl, które polecenie umożliwiło podobną operację w pierwszym ćwiczeniu. Zwróć uwagę na nowe ścieżki i argumenty.':lesson.hint}</p>}
-      {inTransfer&&<p className="academy-transfer-note">Sprawdzian: {errors} nieudanych poleceń · {usedHint?'pomoc wykorzystana':'bez podpowiedzi'}. Reset daje nową próbę od początku.</p>
+      {inTransfer&&<p className="academy-transfer-note">Sprawdzian: {errors} nieudanych poleceń · {usedHint?'pomoc wykorzystana':'bez podpowiedzi'}. Reset daje nową próbę od początku.</p>}
     </div>
     <section className="terminal" aria-label="Terminal akademii komend">
       <div className="terminal-bar"><div className="dots"><i/><i/><i/></div>
@@ -175,7 +175,7 @@ export default function CommandAcademy() {
     {last&&<p className="academy-result" role="status" aria-live="polite">
       {last.ok?'✓ Polecenie wykonane. '+(!doneNow?'Sprawdź, czy osiągnąłeś cel zadania.':''):
         'Polecenie nieudane. '+(coach?.guidance ?? 'Sprawdź argumenty i ścieżki.')}
-    </p>
+    </p>}
     <p className="academy-disclaimer">Postęp ćwiczeń zapisuje się osobno. Nie odblokowuje misji CTF ani nie zmienia ich wirtualnych plików.</p>
   </section>;
 }
