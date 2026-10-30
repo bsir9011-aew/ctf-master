@@ -126,7 +126,12 @@ export function explainAcademyAttempt(
         status:'error'
       };
     }
-    if(cmd==='pipeline') return {
+    if(lessonId==='quoting'&&['mv','cat'].includes(cmd))return {
+    title:completed?'Plik z nazwą zawierającą spacje odczytany':'Sprawdź liczbę argumentów i ścieżkę',
+    detail:result.ok?'Ścieżka z odstępami musi trafić do komendy jako jeden argument. Po zmianie nazwy sprawdź treść przez cat.':'Spacja bez ochrony dzieli ścieżkę na kilka argumentów. Użyj cudzysłowów lub backslasha.',
+    status:completed?'complete':result.ok?'partial':'error'
+  };
+  if(cmd==='pipeline') return {
       title:'Potok został przerwany',
       detail:result.output+' Sprawdź, w którym etapie wystąpił problem. Kolejne polecenie pobiera dane z poprzedniego, nie z pliku.',
       status:'error'
