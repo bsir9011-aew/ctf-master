@@ -275,3 +275,42 @@
  .academy-next-actions{flex-direction:column}
  .academy-next-actions button{width:100%}
 }
+
+
+/* RC.7 — one-line terminal command recall in the learning workbench. */
+.academy-terminal .academy-command{
+  display:grid;
+  grid-template-columns:16px minmax(0,1fr) 38px 38px auto;
+  gap:6px;
+  align-items:center;
+  padding:6px;
+}
+.academy-terminal .academy-command label{text-align:center}
+.academy-terminal .academy-command input{width:100%;min-width:0}
+.academy-terminal .academy-command button.academy-history-control{
+  padding:0!important;
+  min-width:38px;
+  width:38px;
+  min-height:42px;
+  font-size:19px;
+  font-weight:800;
+  border:1px solid #406453;
+  background:#1a3c32;
+  color:#ccf3df;
+}
+.academy-terminal .academy-command button.academy-history-control:disabled{opacity:.3}
+.academy-terminal .academy-command button:focus-visible{
+  outline:3px solid #9decc1;
+  outline-offset:2px;
+}
+@media(max-width:530px){
+  .academy-terminal .academy-command{
+    grid-template-columns:16px minmax(0,1fr) 38px 38px;
+    gap:6px;
+  }
+  .academy-terminal .academy-command button[type=submit]{
+    grid-column:1/-1;
+    width:100%;
+    min-height:44px;
+  }
+}
