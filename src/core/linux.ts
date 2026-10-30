@@ -7,6 +7,7 @@ import { executePipeline, splitPipeline } from './pipelines.ts';
 import { executeManual } from './manual.ts';
 import { executeNamei } from './namei.ts';
 import { executeChgrp } from './chgrp.ts';
+import {parseRedirection,executeRedirection} from './redirection.ts';
 import { executeUmask, newFileMode, newDirectoryMode, DEFAULT_UMASK } from './umask.ts';
 import { defaultIdentity, executeIdentityCommand, identityOf, type SimIdentity } from './identity.ts';
 
@@ -35,6 +36,8 @@ export interface CommandResult {
   blockedAt?: string;
   target?: string;
   clear?: boolean;
+  redirectMode?: 'overwrite'|'append';
+  sourceCommand?: string;
 }
 
 const HOME = '/home/player';
@@ -98,6 +101,10 @@ const base = (p: string) => p === '/' ? '/' : p.slice(p.lastIndexOf('/') + 1);
 
 export function executeLinux(state: LinuxState, raw: string): CommandResult {
   const command = raw.trim();
+  const redirect=parseRedirection(command,tokenize);
+  if(redirect===null)return {state,output:'przekierowanie: niepoprawna skladnia',ok:false,command:'redirect'};
+  if(redirect)return executeRedirection(state,redirect,tokenize,
+    path=>resolvePath(state.cwd,path),source=>executeLinux(state,source));
   if(command.includes('|')) {
     const segments=splitPipeline(command);
     if(!segments) return {state,output:'potok: niepoprawna skladnia lub cytowanie',
@@ -140,7 +147,7 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
 
   switch (cmd) {
     case 'help':
-      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE SCIEZKA, stat PLIK, namei -l SCIEZKA, umask [NNN], chgrp GRUPA PLIK, man POLECENIE, man -k HASLO, whoami, id [-u|-g|-G], groups, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Potoki: komenda_czytajaca PLIK | grep|sort|uniq|head|tail|wc (max 5 etapow). Brak przekierowan.');
+      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE SCIEZKA, stat PLIK, namei -l SCIEZKA, umask [NNN], chgrp GRUPA PLIK, man POLECENIE, man -k HASLO, whoami, id [-u|-g|-G], groups, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Potoki: komenda_czytajaca PLIK | grep|sort|uniq|head|tail|wc (max 5 etapow). Przekierowania odczytu: POLECENIE > PLIK lub POLECENIE >> PLIK.');
     case 'whoami':
       return args.length ? done('whoami: nieoczekiwany argument', false) : done(identityOf(state).user);
     case 'pwd':

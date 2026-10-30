@@ -5,6 +5,7 @@ import { usedManualBefore } from './manual.ts';
 import {recoveryFixture,recoveryCompleted} from './pathRecovery.ts';
 import {umaskExerciseCompleted} from './umask.ts';
 import {shareCase,shareCompleted} from './chgrp.ts';
+import {redirectionCase,redirectionCompleted} from './redirection.ts';
 
 const LAB='/home/player/practice';
 const hasFile=(s:LinuxState,name:string)=>Object.hasOwn(s.files,LAB+'/'+name);
@@ -63,6 +64,8 @@ export const transferChallenges:readonly TransferChallenge[]=[
     pass:(_s,e)=>saw(e,'pipeline',r=>r.target===LAB+'/logs/incidents.log' &&
       r.stages?.join('>')==='grep>sort>uniq>wc' &&
       r.filterPattern==='ERROR' && r.output==='3')},
+  {lessonId:'redirect',assignment:'Z nowego logu ~/practice/logs/incidents.log przygotuj raport ~/practice/incidents-summary.log. Najpierw zapisz wszystkie ERROR przez >, potem dopisz wszystkie INFO przez >>. Oryginał zostaw bez zmian. Na koniec odczytaj raport cat.',
+    pass:(state,events)=>redirectionCompleted('transfer',state,events)},
   {lessonId:'investigation',assignment:'SOC otrzymał alert o nietypowych próbach logowania około 04:12. Samodzielnie rozpoznaj właściwy dziennik w ~/practice/logs, odczytaj ślad związanego z tym zdarzenia i zabezpiecz cały plik jako ~/practice/incident-evidence.log. Zachowaj oryginalne logi.',
     pass:(s,e)=>investigationStatus('transfer',s,e).completed},
   {lessonId:'find',assignment:'Znajdź audit-67.txt w podkatalogach ~/practice za pomocą find.',
@@ -167,6 +170,13 @@ export function earnedMastery(completed:boolean,errors:number,usedHint:boolean):
 export function transferMistake(
   lessonId:string,result:CommandResult,completed:boolean
 ):boolean {
+  if(lessonId==='redirect'){
+    const c=redirectionCase('transfer');
+    const data=result.state.files[c.target];
+    return !result.ok||(result.command==='redirect'&&
+      (result.target!==c.target||result.sourceCommand!=='grep'||
+       ![c.warning,c.warning+c.rest].includes(data)));
+  }
   if(lessonId==='investigation')
     return !result.ok || (result.command==='cp' && !completed);
   if(lessonId==='man')

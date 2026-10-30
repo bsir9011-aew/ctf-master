@@ -114,7 +114,7 @@ test('unsafe stages, redirects, separators and invented commands are rejected wi
     'cat ~/practice/names.txt | rm ~/practice/source.txt',
     'cat ~/practice/names.txt | cp a b',
     'cat ~/practice/names.txt | not-real',
-    'cat ~/practice/names.txt | sort > ~/practice/out.txt',
+    'cat ~/practice/names.txt | sort >',
     'cat ~/practice/names.txt | wc -l; rm ~/practice/source.txt',
     'cat ~/practice/names.txt | head -n 1 ~/practice/events.log'
   ]) {
@@ -141,8 +141,8 @@ test('no matching grep stage stops the pipeline with a useful error',()=>{
 });
 
 test('lesson completion validates real output, source and allowed stage sequence',()=>{
-  assert.equal(commandLessons.length,28);
-  assert.equal(transferChallenges.length,28);
+  assert.equal(commandLessons.length,29);
+  assert.equal(transferChallenges.length,29);
   const id='pipeline',base=createAcademyState();
   const wrong=academySubmit(base,[],'grep WARN ~/practice/alerts.log | wc -l',id);
   assert.equal(wrong.result.ok,true);
