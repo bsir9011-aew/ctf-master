@@ -1,3 +1,4 @@
+import {assertWorldUnchanged} from './assertWorldUnchanged.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {executeLinux,initialLinux} from '../src/core/linux.ts';
@@ -120,7 +121,7 @@ test('unsafe stages, redirects, separators and invented commands are rejected wi
   ]) {
     const r=run(raw,seed);
     assert.equal(r.ok,false,raw);
-    assert.deepEqual(r.state,before,raw);
+    assertWorldUnchanged(r.state,before,raw);
   }
   assert.deepEqual(seed,before);
 });
