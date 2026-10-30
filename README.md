@@ -14,9 +14,9 @@ W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefoni
 ## Co dziala w 1.0 RC (Akademia komend)
 
 - 16 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
-- Trzy tryby: **Komendy** (15 ćwiczeń składni i działania), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
+- Trzy tryby: **Komendy** (20 ćwiczeń + 20 sprawdzianów), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
 - Zwinięta domyślnie **Mapa nauki** z 5 rozdziałami: cele, komendy, licznik postępu, przejście do pierwszej dostępnej misji.
-- Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `chmod`, `stat`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `help`, `clear`.
+- Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
 - Walidacja efektu zadania, nie porownywanie odpowiedzi 1:1.
 - Podpowiedzi 3 poziomow, kontekstowe komunikaty o bledach, licznik prob i punkt samodzielnego rozwiazania.
@@ -159,3 +159,11 @@ Status: automatyczne testy logiczne i CI sprawdzają kod, lecz rzeczywisty test 
 Sprawdzian transferowy uznaje teraz za nietrafioną próbę również **poprawnie wykonaną komendę będącą przedmiotem ćwiczenia, jeśli nie prowadzi do celu**. Przykładowo `chmod 640` może zakończyć się bez błędu Linuxa, ale nie spełnia warunku 600 — późniejsze poprawienie trybu w tej samej próbie nie daje statusu „opanowane”. Można zresetować sprawdzian i wykonać go ponownie bez pomyłki. Poprawnie działające **komendy pomocnicze** (np. `pwd` lub `ls` podczas rozpoznania zadania `grep`) nie są karane. Błędy wykonania wciąż liczą się jako nietrafione próby; `help` i przycisk podpowiedzi wciąż liczą pomoc.
 
 Dodatkowo `find . -name WZORZEC` poprawnie interpretuje jawną ścieżkę `.` jako punkt startowy. Lekcja i sprawdzian `find` wymagają przeszukania wskazanego katalogu `~/practice`, a nie całego wirtualnego systemu. Postępy, które użytkownik już zdobył, pozostają niezmienione — nie wykonujemy ponownej retroaktywnej oceny. Rzeczywisty test mobilny nadal do wykonania.
+
+## Nowe laboratoria przetwarzania tekstu (1.0 RC.11)
+
+Akademia ma teraz **20 lekcji i 20 samodzielnych sprawdzianów**. Dodano pięć poleceń: `head [-n N] PLIK`, `tail [-n N] PLIK`, `wc [-l|-w|-c] PLIK`, `sort PLIK` oraz `uniq PLIK`. Każde ma osobne pliki treningowe, drugi wariant z innymi danymi oraz wynik zweryfikowany przez wirtualny interpreter.
+
+Ważne różnice: `head` i `tail` pokazują początek i koniec logu, `wc -l` liczy znaki końca wiersza (nie zawsze liczbę wizualnych wierszy), `sort` porządkuje wiersze bez zmiany pliku, a `uniq` usuwa **tylko sąsiadujące** powtórzenia. `uniq` nie deduplikuje wszystkich wpisów w całym pliku. Symulator celowo **nie obsługuje potoków ani przekierowania**; nowe komendy pracują na pojedynczym pliku i nie modyfikują jego zawartości. `wc -c` liczy bajty UTF-8, a `head/tail -n` dopuszczają od 1 do 100 wierszy.
+
+Wszystkie wcześniejsze zaliczenia i zapisane metryki pozostają zachowane pod dotychczasowymi kluczami localStorage; nowe lekcje zaczynają jako nieukończone. Test na fizycznym telefonie i instalacja PWA offline nadal wymagają wykonania.
