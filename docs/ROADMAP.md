@@ -47,7 +47,8 @@
 - [x] Misja 17 - korelacja dwóch logów SOC, warunkowe kopie, raport > i >> oraz odczyt dowodów; szósty rozdział końcowy
 - [x] Misja 18 - konkurencyjne hipotezy, fałszywe tropy, poziom pewności, analiza pięciu źródeł, zabezpieczenie i weryfikacja raportu
 - [x] Misja 19 - bezpieczna reakcja: diagnoza HTTP 503, porównanie konfiguracji, rollback, restart zastosowujący zmianę i weryfikacja zdrowia innych usług
-- [ ] Manual QA na fizycznym telefonie (1.0 RC.27)
+- [x] Misja 20 - awaria kolejki, odwracalne skutki interwencji, trwała historia błędnych decyzji oraz ponowna weryfikacja SSH i dostępności
+- [ ] Manual QA na fizycznym telefonie (1.0 RC.28)
 
 ## Etap 1 - Linux Administrator
 - [x] Podstawy chmod, stat, tryby rwx i testy Permission denied
