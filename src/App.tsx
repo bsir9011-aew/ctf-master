@@ -3,6 +3,7 @@ import { version as appVersion } from '../package.json';
 import { executeLinux, initialLinux, type CommandResult, type LinuxState } from './core/linux';
 import { missions } from './core/missions';
 import {incidentCaseProgress} from './core/incidentCapstone';
+import {hypothesisProgress,seedHypothesisCase} from './core/hypothesisCase';
 import PacketPath from './components/PacketPath';
 import CurriculumMap from './components/CurriculumMap';
 import CommandAcademy from './components/CommandAcademy';
@@ -106,6 +107,8 @@ function restore(): SavedSession {
         remotePorts:[...(existing?.remotePorts ?? seeded.remotePorts ?? [443])]
       }};
     }
+    if(missions[missionIndex]?.id==='incident-hypotheses')
+      p.state=seedHypothesisCase(p.state);
     p.learning = restoreLearning(p.learning);
     p.reviewHistory = restoreReviewHistory(p.reviewHistory);
     p.reviewAttempt = restoreReviewAttempt(p.reviewAttempt);
@@ -129,6 +132,8 @@ export default function App() {
   const missionComplete = session.completed.includes(session.missionIndex) || mission.success(session.state,session.events);
   const caseProgress = mission.id==='incident-correlation'
     ? incidentCaseProgress(session.state,session.events) : null;
+  const hypothesisCaseProgress = mission.id==='incident-hypotheses'
+    ? hypothesisProgress(session.state,session.events) : null;
   const unlocked = Math.max(0,...session.completed.map(n => n + 1));
   const stats = session.learning[mission.id] ?? {commands:0,errors:0,hints:0,usedHelp:false,independent:false};
   const reviews = availableReviews(session.completed.map(n => missions[n]?.id).filter((id):id is string => !!id),
@@ -198,7 +203,9 @@ export default function App() {
 
   function selectMission(index:number) {
     if (index > unlocked || index >= missions.length) return;
-    setSession(old => ({...old,missionIndex:index,events:[],
+    setSession(old => ({...old,missionIndex:index,
+      state:missions[index].id==='incident-hypotheses'
+        ?seedHypothesisCase(old.state):old.state,events:[],
       lines:[{output:'Misja: ' + missions[index].title + '. Wpisz help, jesli potrzebujesz listy komend.',ok:true}]}));
     setMode('missions'); setCommand(''); setFeedback(''); setPacketExpanded(false); setHistoryCursor(null);
   }
@@ -303,6 +310,12 @@ export default function App() {
             <span>Kopie dowodowe: {caseProgress.preserved?'✓':'oczekuje'}</span>
             <span>Korelacja: {caseProgress.correlated?'✓':'oczekuje'}</span>
             <span>Weryfikacja: {caseProgress.verified?'✓':'oczekuje'}</span>
+          </div>}
+          {hypothesisCaseProgress && !missionComplete && <div className="learning-stats" aria-label="Etapy oceny hipotez">
+            <span>Źródła: {hypothesisCaseProgress.examined?'✓':'oczekuje'}</span>
+            <span>Ocena hipotezy: {hypothesisCaseProgress.assessed?'✓':'oczekuje'}</span>
+            <span>Dowody: {hypothesisCaseProgress.evidence?'✓':'oczekuje'}</span>
+            <span>Raport: {hypothesisCaseProgress.report?'✓':'oczekuje'}</span>
           </div>}
           {missionComplete && <div className="success" role="status">
             <span>✓ Cel misji osiągnięty! {stats.independent ? 'Samodzielnie, bez błędów i podpowiedzi.' : 'Powtórz umiejętność w nowym wariancie.'}</span>
