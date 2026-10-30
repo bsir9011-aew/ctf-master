@@ -14,7 +14,7 @@ W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefoni
 ## Co dziala w 1.0 RC (Akademia komend)
 
 - 16 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
-- Trzy tryby: **Komendy** (30 lekcji technicznych + 1 dochodzenie, 31 sprawdzianów), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
+- Trzy tryby: **Komendy** (31 lekcji technicznych + 1 dochodzenie, 32 sprawdziany), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
 - Zwinięta domyślnie **Mapa nauki** z 5 rozdziałami: cele, komendy, licznik postępu, przejście do pierwszej dostępnej misji.
 - Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `man POLECENIE`, `man -k HASLO`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `umask`, `chgrp`, `>`, `>>`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `id`, `groups`, `namei -l`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
@@ -261,3 +261,10 @@ To nadal **nie jest pełny Bash**. Nie ma podstawiania zmiennych, podpowłok, gl
 Każda zakończona komenda wirtualnego terminala zapisuje swój kod wyjścia w sesji. Wspierane `echo $?` pokazuje poprzedni status, a samo kończy się kodem `0`. Obsługiwany podzbiór: `0` sukces, `1` brak dopasowania `grep` albo inny błąd wykonania, `2` błąd składni lub argumentów `grep`, `127` nieznana komenda. Wywołanie `echo $?` jest ograniczone do dokładnie tej formy (bez cytowania); inne ekspansje, pełny `echo`, `pipefail` i skrypty nie są obsługiwane.
 
 **31. lekcja i sprawdzian**: porównanie nieudanego `grep` i udanego `grep`, z odczytaniem statusu po każdym poleceniu. W sprawdzianie celowy brak dopasowania nie obniża oceny samodzielności. Stare sesje bez `lastExitCode` są czytane z domyślnym kodem `0`; inne dane i klucze localStorage bez zmian. Realne QA PWA na telefonie nadal PENDING.
+
+
+## RC.23 - warunki plików przez test
+
+Komenda `test` oraz równoważna forma `[ ... ]` sprawdzają wirtualne pliki i katalogi bez wypisywania wyniku: `-e` istnienie, `-f` zwykły plik, `-d` katalog, `-r` odczyt, `-w` zapis, `-x` wykonanie/przejście. Każdy test uwzględnia brak prawa przejścia przez katalogi nadrzędne. `echo $?` pokazuje wynik: `0` dla spełnionego warunku, `1` dla niespełnionego, `2` dla niepoprawnej składni. Komendy są wyłącznie symulowane, bez wywołań systemu gospodarza.
+
+**32. lekcja** porównuje istnienie pliku `locked.log` z brakiem prawa odczytu. **32. niezależny sprawdzian** bada niedostępny log pod katalogiem bez `x`, wymaga diagnozy `test -x` i minimalnej poprawki praw przed powtórnym odczytem statusu. Automatyczne testy sprawdzają też, że fałszywy warunek nie jest pomyłką ucznia. Nie zmieniono kluczy postępów. Fizyczne QA telefonu i działania offline PWA nadal PENDING.
