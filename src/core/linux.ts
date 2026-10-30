@@ -5,6 +5,7 @@ import { executeDiagnosticCommand } from './diagnostics.ts';
 import { executeTextCommand, isTextCommand } from './textCommands.ts';
 import { executePipeline, splitPipeline } from './pipelines.ts';
 import { executeManual } from './manual.ts';
+import { executeNamei } from './namei.ts';
 import { defaultIdentity, executeIdentityCommand, identityOf, type SimIdentity } from './identity.ts';
 
 /** Deterministic in-browser simulator: NEVER executes input on the host OS. */
@@ -28,6 +29,7 @@ export interface CommandResult {
   stages?: string[];
   filterPattern?: string;
   grepCaseInsensitive?: boolean;
+  blockedAt?: string;
   target?: string;
   clear?: boolean;
 }
@@ -127,11 +129,12 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
 
   if (isTextCommand(cmd)) return executeTextCommand(state,cmd,args,argPath);
   if (cmd === 'man') return executeManual(state,args);
+  if (cmd === 'namei') return executeNamei(state,args,argPath);
   if (cmd === 'id' || cmd === 'groups') return executeIdentityCommand(state,cmd,args);
 
   switch (cmd) {
     case 'help':
-      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE SCIEZKA, stat PLIK, man POLECENIE, man -k HASLO, whoami, id [-u|-g|-G], groups, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Potoki: komenda_czytajaca PLIK | grep|sort|uniq|head|tail|wc (max 5 etapow). Brak przekierowan.');
+      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE SCIEZKA, stat PLIK, namei -l SCIEZKA, man POLECENIE, man -k HASLO, whoami, id [-u|-g|-G], groups, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Potoki: komenda_czytajaca PLIK | grep|sort|uniq|head|tail|wc (max 5 etapow). Brak przekierowan.');
     case 'whoami':
       return args.length ? done('whoami: nieoczekiwany argument', false) : done(identityOf(state).user);
     case 'pwd':
