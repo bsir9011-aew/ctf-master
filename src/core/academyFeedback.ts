@@ -136,20 +136,11 @@ export function explainAcademyAttempt(
       detail:'id pokazuje UID i GID: -u, -g, -G oraz warianty nazw -un, -gn, -Gn. groups nie przyjmuje argumentów w tym symulatorze. W razie wątpliwości sprawdź man id.',
       status:'error'
     };
-    if(cmd==='id'||cmd==='groups') {
-    const meaning=result.target==='group-ids'
-      ?'To numery GID wszystkich grup: pierwsza jest podstawowa, następne to grupy dodatkowe.'
-      :result.target==='group-names'
-        ?'To nazwy grup. Sama przynależność do grupy nie nadaje uprawnień root.'
-        :result.target==='primary-gid'||result.target==='primary-name'
-          ?'To tylko grupa podstawowa; użytkownik może należeć także do grup dodatkowych.'
-          :'UID identyfikuje użytkownika, GID identyfikuje grupę. To dwa różne rodzaje identyfikatorów.';
-    return {
-      title:completed?'Tożsamość odczytana — cel osiągnięty':'Tożsamość odczytana — sprawdź dalszy cel',
-      detail:meaning+' Polecenie jedynie odczytało dane wirtualnej sesji.',
-      status:completed?'complete':'partial'
+    if(cmd==='namei') return {
+      title:'Nie udało się przeanalizować ścieżki',
+      detail:'Użyj namei -l SCIEZKA na istniejącym pliku. Polecenie nie naprawia praw dostępu, tylko je pokazuje.',
+      status:'error'
     };
-  }
   if(cmd==='man') return {
       title:'Podręcznik nie został otwarty',
       detail:'Sprawdź nazwę polecenia albo wyszukaj temat przez man -k HASLO. man pokazuje tylko dokumentację obsługiwaną przez symulator.',
@@ -253,6 +244,27 @@ export function explainAcademyAttempt(
     status:completed?'complete':'partial'
   };
 
+  if(cmd==='id'||cmd==='groups') {
+    const meaning=result.target==='group-ids'
+      ?'To numery GID wszystkich grup: pierwsza jest podstawowa, następne to grupy dodatkowe.'
+      :result.target==='group-names'
+        ?'To nazwy grup. Sama przynależność do grupy nie nadaje uprawnień root.'
+        :result.target==='primary-gid'||result.target==='primary-name'
+          ?'To tylko grupa podstawowa; użytkownik może należeć także do grup dodatkowych.'
+          :'UID identyfikuje użytkownika, GID identyfikuje grupę. To dwa różne rodzaje identyfikatorów.';
+    return {
+      title:completed?'Tożsamość odczytana — cel osiągnięty':'Tożsamość odczytana — sprawdź dalszy cel',
+      detail:meaning+' Polecenie jedynie odczytało dane wirtualnej sesji.',
+      status:completed?'complete':'partial'
+    };
+  }
+  if(cmd==='namei') return {
+    title:result.blockedAt?'Znaleziono blokujący katalog':'Sprawdzono uprawnienia ścieżki',
+    detail:result.blockedAt
+      ?'W jednym z katalogów brakuje skutecznego prawa x dla bieżącego użytkownika. Nawet plik z prawem r będzie niedostępny bez przejścia przez katalogi nadrzędne.'
+      :'Katalogi na tej ścieżce pozwalają na przejście. Jeśli odczyt nadal nie działa, zbadaj prawo r pliku.',
+    status:completed?'complete':'partial'
+  };
   if(cmd==='man') return {
     title:completed?'Dokumentacja wykorzystana w zadaniu':'Podręcznik otwarty — pora wykorzystać wiedzę',
     detail:'man pokazuje składnię i opis obsługiwanych opcji. Samo przeczytanie strony nie zmienia systemu ani nie rozwiązuje ćwiczenia. Teraz zastosuj poznaną funkcję.',
