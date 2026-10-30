@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { version as appVersion } from '../package.json';
 import { executeLinux, initialLinux, type CommandResult, type LinuxState } from './core/linux';
 import { missions } from './core/missions';
+import {incidentCaseProgress} from './core/incidentCapstone';
 import PacketPath from './components/PacketPath';
 import CurriculumMap from './components/CurriculumMap';
 import CommandAcademy from './components/CommandAcademy';
@@ -126,6 +127,8 @@ export default function App() {
   const inputRef = useRef<HTMLInputElement>(null);
   const mission = missions[session.missionIndex];
   const missionComplete = session.completed.includes(session.missionIndex) || mission.success(session.state,session.events);
+  const caseProgress = mission.id==='incident-correlation'
+    ? incidentCaseProgress(session.state,session.events) : null;
   const unlocked = Math.max(0,...session.completed.map(n => n + 1));
   const stats = session.learning[mission.id] ?? {commands:0,errors:0,hints:0,usedHelp:false,independent:false};
   const reviews = availableReviews(session.completed.map(n => missions[n]?.id).filter((id):id is string => !!id),
@@ -295,6 +298,12 @@ export default function App() {
           <div className="learning-stats" aria-label="Statystyki misji">
             <span>Polecenia: {stats.commands}</span><span>Nieudane: {stats.errors}</span><span>Podpowiedzi: {stats.hints}/3</span>
           </div>
+          {caseProgress && !missionComplete && <div className="learning-stats" aria-label="Etapy śledztwa">
+            <span>Ślady: {caseProgress.observed?'✓':'oczekuje'}</span>
+            <span>Kopie dowodowe: {caseProgress.preserved?'✓':'oczekuje'}</span>
+            <span>Korelacja: {caseProgress.correlated?'✓':'oczekuje'}</span>
+            <span>Weryfikacja: {caseProgress.verified?'✓':'oczekuje'}</span>
+          </div>}
           {missionComplete && <div className="success" role="status">
             <span>✓ Cel misji osiągnięty! {stats.independent ? 'Samodzielnie, bez błędów i podpowiedzi.' : 'Powtórz umiejętność w nowym wariancie.'}</span>
             {session.missionIndex < missions.length-1
