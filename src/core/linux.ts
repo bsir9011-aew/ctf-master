@@ -137,6 +137,7 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
     case 'cd': {
       if (args.length > 1) return done('cd: zbyt wiele argumentow', false);
       const path = argPath(args[0] ?? '~');
+      if (Object.hasOwn(state.files, path)) return done(`cd: ${args[0] ?? '~'}: Not a directory`, false);
       if (!state.dirs.includes(path)) return done(`cd: ${args[0] ?? '~'}: No such directory`, false);
       return done('', true, {...state, cwd:path}, path);
     }

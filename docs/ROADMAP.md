@@ -27,7 +27,8 @@
 - [x] Trener komend z rekomendacją na podstawie słabości i opanowania
 - [x] Learning Workspace: lekcja obok terminala na desktopie, kompaktowa nawigacja i bezposredni feedback
 - [x] Historia komend w Akademii (klawiatura i dotyk), mniej dublowanych przycisków i kontekstowy feedback
-- [ ] Manual QA na fizycznym telefonie (1.0 RC.7)
+- [x] Kontekstowe wyjaśnienia ls/cd/grep: sukces, częściowy rezultat i błędy bez zdradzania odpowiedzi
+- [ ] Manual QA na fizycznym telefonie (1.0 RC.8)
 
 ## Etap 1 - Linux Administrator
 - [x] Podstawy chmod, stat, tryby rwx i testy Permission denied

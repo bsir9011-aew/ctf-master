@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { explainError } from '../core/learning';
+import { explainAcademyAttempt } from '../core/academyFeedback';
 import {
   academySubmit, commandLessons, createAcademyState,
   restoreAcademyProgress, type AcademyProgress, type CommandLessonGroup
@@ -57,7 +57,7 @@ export default function CommandAcademy() {
   const suggestedLesson=suggestion&&commandLessons.find(item=>item.id===suggestion.lessonId);
   const showRecommendation=!!suggestedLesson&&needsRecommendation(suggestion,lesson.id);
   const last=events.at(-1);
-  const coach=last?explainError(last):null;
+  const insight=last?explainAcademyAttempt(lesson.id,system,last,doneNow):null;
 
   const outputHeight=academyTerminalHeight(lines);
 
@@ -154,20 +154,18 @@ export default function CommandAcademy() {
   }
 
   const feedbackTitle=doneNow
-    ? (inTransfer?(independentNow?'Sprawdzian zaliczony samodzielnie':'Cel osiągnięty — potrzebna czysta próba')
-      :'Zadanie wykonane poprawnie')
-    : last?(last.ok?'Polecenie zadziałało':coach?.title??'Polecenie nie powiodło się'):null;
+    ? (inTransfer
+        ? independentNow?'Sprawdzian zaliczony samodzielnie':'Cel osiągnięty — potrzebna czysta próba'
+        : insight?.title ?? 'Zadanie wykonane poprawnie')
+    : insight?.title ?? null;
   const feedbackDetail=doneNow
     ? (inTransfer
-      ? independentNow
-        ? 'Potrafisz zastosować tę komendę na nowych danych, bez podpowiedzi i błędów.'
-        : 'W tej próbie wykorzystano pomoc lub pojawił się błąd. Zresetuj sprawdzian, aby potwierdzić samodzielność.'
-      : lesson.purpose)
-    : last
-      ? (last.ok
-        ? 'System wykonał polecenie, ale sprawdź cel zadania: zaliczenie wymaga odpowiedniego rezultatu.'
-        : coach?.guidance??'Sprawdź składnię, argumenty i ścieżki.')
-      : '';
+        ? (independentNow
+          ? 'Samodzielnie rozwiązałeś nowy wariant bez błędów i podpowiedzi.'
+          : 'W tej próbie pojawił się błąd lub pomoc. Zresetuj sprawdzian, aby potwierdzić samodzielność.') +
+          (insight?.detail ? ' ' + insight.detail : '')
+        : insight?.detail ?? lesson.purpose)
+    : insight?.detail ?? '';
 
   return <section className="academy academy-workbench" aria-label="Trening komend Linux">
     <div className="academy-topline">
