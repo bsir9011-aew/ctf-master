@@ -6,6 +6,7 @@ import { umaskExerciseCompleted } from './umask.ts';
 import {shareCase,shareCompleted} from './chgrp.ts';
 import {redirectionCompleted} from './redirection.ts';
 import {quotingCase,quotingCompleted} from './quoting.ts';
+import {statusCompleted} from './exitStatus.ts';
 
 export type CommandLessonGroup = 'Podstawy' | 'Pliki i logi' | 'Administracja' | 'Sieć';
 export interface CommandLesson {
@@ -181,6 +182,13 @@ export const commandLessons:readonly CommandLesson[]=[
     assignment:'Zmień nazwę ~/practice/report draft.txt na ~/practice/final report.txt. Obie nazwy mają spacje: przekaż je jako pojedyncze argumenty, zachowaj treść i odczytaj przeniesiony plik przez cat.',
     hint:'Użyj cudzysłowów wokół całych ścieżek albo poprzedź każdą spację znakiem \\. W razie wątpliwości zajrzyj do man quoting.',
     pass:(state,events)=>quotingCompleted('intro',state,events)},
+  {id:'exit-status',title:'Czy polecenie się powiodło?',group:'Pliki i logi',
+    purpose:'Kod zakończenia 0 oznacza powodzenie, a niezerowy informuje o błędzie lub braku dopasowania. echo $? pokazuje kod poprzedniej komendy, po czym samo ustawia nowy kod 0.',
+    syntax:'POLECENIE, następnie echo $?',
+    example:'grep FATAL ~/practice/events.log',
+    assignment:'Sprawdź, czy w ~/practice/events.log występuje FATAL. Zaraz po wyszukiwaniu odczytaj status przez echo $?. Następnie wyszukaj WARN w tym samym pliku i również natychmiast sprawdź status. Porównaj wyniki bez innych komend pomiędzy wyszukiwaniem a odczytem statusu.',
+    hint:'Nie oceniaj powodzenia tylko po tekście na ekranie. $? to status POPRZEDNIEGO polecenia. Pamiętaj, że samo echo też kończy się statusem 0.',
+    pass:(_state,events)=>statusCompleted('intro',events)},
   {id:'investigation',title:'Śledztwo: nieznany incydent',group:'Pliki i logi',
     purpose:'Otrzymujesz objaw incydentu i sam wybierasz strategię diagnostyki. Najpierw potwierdź ślad, potem zabezpiecz oryginalny dziennik.',
     syntax:'Dobierz narzędzia na podstawie obserwacji',
