@@ -187,7 +187,7 @@ export function earnedMastery(completed:boolean,errors:number,usedHint:boolean):
 export function transferMistake(
   lessonId:string,result:CommandResult,completed:boolean
 ):boolean {
-  if(lessonId==='conditionals')return conditionalMistake(result,completed);
+  if(lessonId==='conditionals')return conditionalMistake(result);
   if(lessonId==='test')return fileTestMistake(result);
   if(lessonId==='exit-status'){
     const c=statusCase('transfer');
