@@ -71,6 +71,16 @@ export const transferChallenges:readonly TransferChallenge[]=[
     pass:s=>!hasFile(s,'source.txt') && s.files[LAB+'/source-renamed.txt']==='COPY_ME'},
   {lessonId:'rm',assignment:'Usuń plik ~/practice/review.tmp, zachowując pozostałe dane.',
     pass:s=>!hasFile(s,'review.tmp') && hasFile(s,'intro.txt') && hasFile(s,'source.txt')},
+  {lessonId:'file-access',assignment:'Jako analyst należysz do grup security i audit. Pliki ~/practice/logs/audit-share.log i ~/practice/logs/player-share.log mają 640, ale inną grupę. Sprawdź swoje grupy, obejrzyj grupę pliku i odczytaj właściwy log audit-share.log.',
+    pass:(_s,e)=>{
+      const membership=e.findIndex(r=>r.ok&&r.command==='id'&&r.target==='group-ids'&&r.output==='1100 1200');
+      const inspect=e.findIndex((r,i)=>i>membership&&r.ok&&
+        (r.command==='stat'||r.command==='ls')&&r.target===LAB+'/logs/audit-share.log'&&
+        r.output.includes('audit'));
+      return membership>=0&&inspect>membership&&e.slice(inspect+1).some(r=>r.ok&&
+        r.command==='cat'&&r.target===LAB+'/logs/audit-share.log'&&
+        r.output==='AUDIT: incident evidence review');
+    }},
   {lessonId:'chmod',assignment:'Zabezpiecz ~/practice/team.key, pozostawiając prawo czytania i zapisu wyłącznie właścicielowi.',
     pass:s=>hasFile(s,'team.key') && s.permissions?.[LAB+'/team.key']===0o600},
   {lessonId:'ps',assignment:'Sprawdź działające procesy. Odszukaj proces cpu-burn.',
@@ -94,7 +104,7 @@ export function createTransferState(lessonId:string):LinuxState {
   return {
     ...state,
     cwd:lessonId==='pwd'?LAB+'/logs':state.cwd,
-    identity:lessonId==='id'
+    identity:(lessonId==='id'||lessonId==='file-access')
       ?{uid:1001,user:'analyst',primary:{gid:1100,name:'security'},
         supplementary:[{gid:1200,name:'audit'}]}
       :state.identity,
@@ -102,6 +112,8 @@ export function createTransferState(lessonId:string):LinuxState {
       ...baseFiles,
       ...investigationFiles('transfer'),
       [LAB+'/logs/audit-67.txt']:'audit event 67',
+      [LAB+'/logs/audit-share.log']:'AUDIT: incident evidence review',
+      [LAB+'/logs/player-share.log']:'PLAYER: private account log',
       [LAB+'/logs/manual-review.log']:'WARN service slow\nINFO restart scheduled\nERROR retry failed\nINFO operator notified\n',
       [LAB+'/review.tmp']:'temporary review data',
       [LAB+'/team.key']:'SIMULATED_TEAM_KEY',
@@ -110,7 +122,11 @@ export function createTransferState(lessonId:string):LinuxState {
       [LAB+'/review-names.txt']:'tomasz\nadam\nola\n',
       [LAB+'/review-levels.txt']:'OK\nOK\nWARN\nWARN\nOK\n'
     },
-    permissions:{...state.permissions,[LAB+'/team.key']:0o644}
+    permissions:{...state.permissions,[LAB+'/team.key']:0o644,
+      [LAB+'/logs/audit-share.log']:0o640,[LAB+'/logs/player-share.log']:0o640},
+    ownership:{...state.ownership,
+      [LAB+'/logs/audit-share.log']:{uid:2000,gid:1200},
+      [LAB+'/logs/player-share.log']:{uid:2000,gid:1000}}
   };
 }
 
@@ -141,5 +157,7 @@ export function transferMistake(
     return !result.ok || (result.command==='head' && !completed);
   if(lessonId==='id')
     return !result.ok || (result.target==='group-names' && !completed);
+  if(lessonId==='file-access')
+    return !result.ok || (result.command==='cat' && !completed);
   return !result.ok || (result.command===lessonId && !completed);
 }

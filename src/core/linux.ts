@@ -1,4 +1,4 @@
-import { modeOf, modeString, modeOctal, nextMode } from './permissions.ts';
+import { modeOf, modeString, modeOctal, nextMode, hasAccess, canReadFile, canListDir, canTraverse, canWriteDir, ownerOf, ownerNames, type SimOwner } from './permissions.ts';
 import { executeProcessCommand, initialProcesses, initialServices, type SimProcess, type SimService } from './processes.ts';
 import { initialNetwork, executeNetworkCommand, type NetworkState } from './network.ts';
 import { executeDiagnosticCommand } from './diagnostics.ts';
@@ -13,6 +13,7 @@ export interface LinuxState {
   dirs: string[];
   files: Record<string, string>;
   permissions?: Record<string, number>;
+  ownership?: Record<string, SimOwner>;
   processes?: SimProcess[];
   services?: Record<string, SimService>;
   network?: NetworkState;
@@ -50,6 +51,7 @@ export const initialLinux = (): LinuxState => ({
     [`${HOME}/documents/credentials.txt`]: 'SIMULATED_CREDENTIAL_DO_NOT_USE',
     [`${HOME}/documents/restricted.log`]: 'RECOVERY: log access restored'
   },
+  ownership: {},
   permissions: {
     [`${HOME}/documents/credentials.txt`]: 0o644,
     [`${HOME}/documents/restricted.log`]: 0o000
@@ -105,6 +107,12 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
   const [cmd, ...args] = parts;
   const argPath = (v: string) => resolvePath(state.cwd, v);
   const exists = (path: string) => state.dirs.includes(path) || Object.hasOwn(state.files, path);
+  const current=identityOf(state);
+  const newOwner=():SimOwner=>({uid:current.uid,gid:current.primary.gid});
+  const longEntry=(path:string)=> {
+    const names=ownerNames(state,path);
+    return modeString(state,path)+' '+names.user+' '+names.group+'  '+base(path);
+  };
 
   if (cmd === 'ps' || cmd === 'kill' || cmd === 'systemctl' || cmd === 'journalctl') {
     return executeProcessCommand(state, cmd, args);
@@ -123,7 +131,7 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
 
   switch (cmd) {
     case 'help':
-      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE PLIK, stat PLIK, man POLECENIE, man -k HASLO, whoami, id [-u|-g|-G], groups, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Potoki: komenda_czytajaca PLIK | grep|sort|uniq|head|tail|wc (max 5 etapow). Brak przekierowan.');
+      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE SCIEZKA, stat PLIK, man POLECENIE, man -k HASLO, whoami, id [-u|-g|-G], groups, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Potoki: komenda_czytajaca PLIK | grep|sort|uniq|head|tail|wc (max 5 etapow). Brak przekierowan.');
     case 'whoami':
       return args.length ? done('whoami: nieoczekiwany argument', false) : done(identityOf(state).user);
     case 'pwd':
@@ -146,12 +154,14 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
       }
       const path = argPath(pathArg ?? '.');
       if (!exists(path)) return done(`ls: ${pathArg ?? '.'}: No such file or directory`, false);
-      if (Object.hasOwn(state.files, path)) return done(long ? modeString(state, path) + ' player player  ' + base(path) : base(path), true, state, path);
+      if (!canTraverse(state,path)) return done('ls: Permission denied (katalog nadrzedny)',false);
+      if (Object.hasOwn(state.files, path)) return done(long ? longEntry(path) : base(path), true, state, path);
+      if (!canListDir(state,path)) return done('ls: Permission denied (brak r/x katalogu)',false);
       const items = [
         ...state.dirs.filter(v => v !== path && parent(v) === path).map(v => ({path:v, type:'d'})),
         ...Object.keys(state.files).filter(v => parent(v) === path).map(v => ({path:v, type:'-'}))
       ].filter(v => showAll || !base(v.path).startsWith('.')).sort((a,b) => a.path.localeCompare(b.path));
-      const lines = items.map(v => long ? `${modeString(state, v.path)} player player  ${base(v.path)}` : base(v.path));
+      const lines = items.map(v => long ? longEntry(v.path) : base(v.path));
       return done(lines.join('\n') || '(pusty katalog)', true, state, path);
     }
     case 'cd': {
@@ -159,13 +169,14 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
       const path = argPath(args[0] ?? '~');
       if (Object.hasOwn(state.files, path)) return done(`cd: ${args[0] ?? '~'}: Not a directory`, false);
       if (!state.dirs.includes(path)) return done(`cd: ${args[0] ?? '~'}: No such directory`, false);
+      if (!canTraverse(state,path)||!hasAccess(state,path,'x')) return done('cd: Permission denied (brak x katalogu)',false);
       return done('', true, {...state, cwd:path}, path);
     }
     case 'cat': {
       if (args.length !== 1) return done('Uzycie: cat PLIK', false);
       const path = argPath(args[0]);
       if (!Object.hasOwn(state.files, path)) return done(`cat: ${args[0]}: No such file`, false);
-      if (!(modeOf(state, path) & 0o400)) return done(`cat: ${args[0]}: Permission denied`, false);
+      if (!canReadFile(state,path)) return done(`cat: ${args[0]}: Permission denied`, false);
       return done(state.files[path], true, state, path);
     }
     case 'mkdir': {
@@ -173,14 +184,19 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
       const path = argPath(args[0]);
       if (exists(path)) return done(`mkdir: ${args[0]}: File exists`, false);
       if (!state.dirs.includes(parent(path))) return done(`mkdir: ${args[0]}: No such parent directory`, false);
-      return done('', true, {...state, dirs:[...state.dirs, path]}, path);
+      if (!canWriteDir(state,parent(path))) return done('mkdir: Permission denied',false);
+      return done('', true, {...state, dirs:[...state.dirs, path],ownership:{...state.ownership,[path]:newOwner()}}, path);
     }
     case 'touch': {
       if (args.length !== 1) return done('Uzycie: touch PLIK', false);
       const path = argPath(args[0]);
       if (state.dirs.includes(path)) return done(`touch: ${args[0]}: Is a directory`, false);
       if (!state.dirs.includes(parent(path))) return done(`touch: ${args[0]}: No such parent directory`, false);
-      return done('', true, {...state, files:{...state.files, [path]:state.files[path] ?? ''}}, path);
+      if (!canWriteDir(state,parent(path))) return done('touch: Permission denied',false);
+      return done('', true, {...state,
+        files:{...state.files, [path]:state.files[path] ?? ''},
+        ownership:Object.hasOwn(state.files,path)?state.ownership:
+          {...state.ownership,[path]:newOwner()}}, path);
     }
     case 'cp':
     case 'mv': {
@@ -192,22 +208,39 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
       if (!state.dirs.includes(parent(dst))) return done(`${cmd}: katalog docelowy nie istnieje`, false);
       if (state.dirs.includes(dst)) return done(`${cmd}: cel jest katalogiem`, false);
       if (src === dst) return done(`${cmd}: zrodlo i cel sa identyczne`, false);
-      if (cmd === 'cp' && !(modeOf(state, src) & 0o400)) return done('cp: Permission denied (source unreadable)', false);
+      if (cmd==='cp' && !canReadFile(state,src))
+        return done('cp: Permission denied (source unreadable)', false);
+      if (!canWriteDir(state,parent(dst)) ||
+          (cmd==='mv' && !canWriteDir(state,parent(src))))
+        return done(cmd+': Permission denied (directory)',false);
+      if (Object.hasOwn(state.files,dst) &&
+          cmd==='cp' && !hasAccess(state,dst,'w'))
+        return done('cp: Permission denied (destination unwritable)',false);
+      if (cmd==='mv' && !canTraverse(state,src)) return done('mv: Permission denied',false);
       const files = {...state.files, [dst]: state.files[src]};
       const permissions = {...state.permissions};
-      if (cmd === 'mv') { permissions[dst] = modeOf(state, src); delete files[src]; delete permissions[src]; }
-      else if (!Object.hasOwn(state.files, dst)) permissions[dst] = 0o644;
-      return done('', true, {...state, files, permissions}, dst);
+      const ownership={...state.ownership};
+      if (cmd === 'mv') {
+        permissions[dst]=modeOf(state,src);
+        ownership[dst]=ownerOf(state,src);
+        delete files[src];delete permissions[src];delete ownership[src];
+      } else if (!Object.hasOwn(state.files,dst)) {
+        permissions[dst]=0o644;
+        ownership[dst]=newOwner();
+      }
+      return done('', true, {...state, files, permissions,ownership}, dst);
     }
     case 'rm': {
       if (args.length !== 1 || args[0].startsWith('-')) return done('Uzycie: rm PLIK (bez opcji, bez katalogow)', false);
       const path = argPath(args[0]);
       if (!Object.hasOwn(state.files, path)) return done('rm: plik nie istnieje (katalogi nie sa obslugiwane)', false);
+      if (!canWriteDir(state,parent(path))) return done('rm: Permission denied',false);
       const files = {...state.files};
       delete files[path];
       const permissions = {...state.permissions};
-      delete permissions[path];
-      return done('', true, {...state, files, permissions}, path);
+      const ownership={...state.ownership};
+      delete permissions[path];delete ownership[path];
+      return done('', true, {...state, files, permissions,ownership}, path);
     }
     case 'grep': {
       const rest = [...args];
@@ -216,7 +249,7 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
       if (rest.length !== 2 || rest.some(a => !a || a.startsWith('-'))) return done('Uzycie: grep [-i] TEKST PLIK (szuka doslownego tekstu)', false);
       const path = argPath(rest[1]);
       if (!Object.hasOwn(state.files, path)) return done('grep: plik nie istnieje', false);
-      if (!(modeOf(state, path) & 0o400)) return done('grep: Permission denied', false);
+      if (!canReadFile(state,path)) return done('grep: Permission denied', false);
       const needle = insensitive ? rest[0].toLowerCase() : rest[0];
       const matches = state.files[path].split('\n').filter(line => (insensitive ? line.toLowerCase() : line).includes(needle));
       if (!matches.length) return done('(brak dopasowan)', false, state, path);
@@ -226,12 +259,16 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
       if (args.length !== 1) return done('Uzycie: stat PLIK_LUB_KATALOG', false);
       const path = argPath(args[0]);
       if (!exists(path)) return done('stat: No such file or directory', false);
-      return done(`${path}: mode ${modeOctal(state, path)} (${modeString(state, path)}), owner player`, true, state, path);
+      if (!canTraverse(state,path)) return done('stat: Permission denied',false);
+      const owner=ownerOf(state,path),names=ownerNames(state,path);
+      return done(`${path}: mode ${modeOctal(state,path)} (${modeString(state,path)}), owner ${names.user} (uid=${owner.uid}), group ${names.group} (gid=${owner.gid})`,true,state,path);
     }
     case 'chmod': {
       if (args.length !== 2) return done('Uzycie: chmod MODE PLIK', false);
       const path = argPath(args[1]);
-      if (!Object.hasOwn(state.files, path)) return done('chmod: No such file (only files supported)', false);
+      if (!exists(path)) return done('chmod: No such file or directory',false);
+      if (!canTraverse(state,path) || ownerOf(state,path).uid!==current.uid)
+        return done('chmod: Permission denied (not file owner or inaccessible path)',false);
       const updated = nextMode(modeOf(state, path), args[0]);
       if (updated === null) return done('chmod: nieobslugiwany MODE, uzyj 600 lub u+r / go-rwx', false);
       return done('', true, {...state, permissions:{...state.permissions, [path]:updated}}, path);
@@ -248,9 +285,12 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
       if (pattern !== null && pattern.length > 128) return done('find: wzorzec jest za dlugi', false);
       const root = argPath(from);
       if (!exists(root)) return done('find: sciezka nie istnieje', false);
+      if (!canTraverse(state,root) || (state.dirs.includes(root) && !canListDir(state,root))) return done('find: Permission denied',false);
       const glob = pattern === null ? null : new RegExp('^' + pattern.split('').map(ch => ch === '*' ? '.*' : ch === '?' ? '.' : ch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('') + '$');
       const paths = [...state.dirs, ...Object.keys(state.files)]
         .filter(path => path === root || path.startsWith(root === '/' ? '/' : root + '/'))
+        .filter(path=>canTraverse(state,path) &&
+          (path===root || !state.dirs.includes(parent(path)) || canListDir(state,parent(path))))
         .filter(path => !glob || glob.test(base(path))).sort();
       return done(paths.join('\n') || '(brak wynikow)', true, state, root);
     }
