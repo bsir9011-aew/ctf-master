@@ -4,6 +4,7 @@ import { usedManualBefore } from './manual.ts';
 import { recoveryFixture, recoveryCompleted } from './pathRecovery.ts';
 import { umaskExerciseCompleted } from './umask.ts';
 import {shareCase,shareCompleted} from './chgrp.ts';
+import {redirectionCompleted} from './redirection.ts';
 
 export type CommandLessonGroup = 'Podstawy' | 'Pliki i logi' | 'Administracja' | 'Sieć';
 export interface CommandLesson {
@@ -164,6 +165,13 @@ export const commandLessons:readonly CommandLesson[]=[
     pass:(_s,e)=>observed(e,'pipeline',r=>r.target===LAB+'/alerts.log' &&
       r.stages?.join('>')==='grep>sort>uniq>wc' &&
       r.filterPattern==='WARN' && r.output==='2')},
+  {id:'redirect',title:'Zapisz wynik analizy do pliku',group:'Pliki i logi',
+    purpose:'Operator > zapisuje wynik polecenia, zastępując poprzednią treść. Operator >> dopisuje wynik na końcu pliku. Działa to tylko w wirtualnym systemie plików.',
+    syntax:'POLECENIE > PLIK  lub  POLECENIE >> PLIK',
+    example:'grep WARN ~/practice/alerts.log > ~/practice/alerts-summary.log',
+    assignment:'Przygotuj ~/practice/alerts-summary.log z ~/practice/alerts.log. Najpierw zapisz wszystkie wpisy WARN przez >, a potem dopisz wpisy INFO przez >>. Zachowaj log źródłowy i na końcu odczytaj gotowy raport poleceniem cat.',
+    hint:'Wynik grep możesz skierować do pliku przez >. Drugi wynik skieruj do TEGO SAMEGO pliku przez >>, aby go nie nadpisać. Ostatecznie użyj cat na raporcie.',
+    pass:(state,events)=>redirectionCompleted('intro',state,events)},
   {id:'investigation',title:'Śledztwo: nieznany incydent',group:'Pliki i logi',
     purpose:'Otrzymujesz objaw incydentu i sam wybierasz strategię diagnostyki. Najpierw potwierdź ślad, potem zabezpiecz oryginalny dziennik.',
     syntax:'Dobierz narzędzia na podstawie obserwacji',
