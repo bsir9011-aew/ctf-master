@@ -42,7 +42,8 @@
 - [x] Redirection: bezpieczne stdout > i >>, zachowanie praw plików, lekcja i niezależny sprawdzian
 - [x] Quoting: spacje, apostrofy, cudzysłowy i backslash, spójne rozpoznawanie operatorów; lekcja i transfer
 - [x] Exit status: 0/1/2/127, echo $?, zapis w sesji i natychmiastowa obserwacja, 31. lekcja i transfer
-- [ ] Manual QA na fizycznym telefonie (1.0 RC.22)
+- [x] Test -e/-f/-d/-r/-w/-x oraz [ ... ]: warunki plików, odmowa przejścia przez katalog, status i niezależna diagnoza w transferze
+- [ ] Manual QA na fizycznym telefonie (1.0 RC.23)
 
 ## Etap 1 - Linux Administrator
 - [x] Podstawy chmod, stat, tryby rwx i testy Permission denied
