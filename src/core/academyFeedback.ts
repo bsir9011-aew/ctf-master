@@ -136,6 +136,11 @@ export function explainAcademyAttempt(
       detail:'id pokazuje UID i GID: -u, -g, -G oraz warianty nazw -un, -gn, -Gn. groups nie przyjmuje argumentów w tym symulatorze. W razie wątpliwości sprawdź man id.',
       status:'error'
     };
+    if(cmd==='umask') return {
+      title:'Maska musi być zapisana w systemie ósemkowym',
+      detail:'umask bez argumentów pokazuje aktualną maskę, a umask 077 ją ustawia. Użyj trzech cyfr od 0 do 7.',
+      status:'error'
+    };
     if(cmd==='namei') return {
       title:'Nie udało się przeanalizować ścieżki',
       detail:'Użyj namei -l SCIEZKA na istniejącym pliku. Polecenie nie naprawia praw dostępu, tylko je pokazuje.',
@@ -263,6 +268,11 @@ export function explainAcademyAttempt(
     detail:result.blockedAt
       ?'W jednym z katalogów brakuje skutecznego prawa x dla bieżącego użytkownika. Nawet plik z prawem r będzie niedostępny bez przejścia przez katalogi nadrzędne.'
       :'Katalogi na tej ścieżce pozwalają na przejście. Jeśli odczyt nadal nie działa, zbadaj prawo r pliku.',
+    status:completed?'complete':'partial'
+  };
+  if(cmd==='umask') return {
+    title:result.target==='read'?'Odczytano aktualną maskę':'Ustawiono maskę nowych obiektów',
+    detail:'Plik zaczyna od 666, katalog od 777. Umask odejmuje bity uprawnień przy TWORZENIU; nie zmienia istniejących obiektów. Sprawdź to przez touch, mkdir i stat.',
     status:completed?'complete':'partial'
   };
   if(cmd==='man') return {
