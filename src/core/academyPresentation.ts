@@ -11,7 +11,7 @@ export function academyTerminalHeight(lines:readonly TerminalLine[]):number {
 
 /** Avoid telling the learner to open the exercise they are already viewing. */
 export function needsRecommendation(
-  next:AcademyNextStep|null,lessonId:string,phase:'intro'|'transfer'
+  next:AcademyNextStep|null,lessonId:string
 ):boolean {
-  return next!==null&&(next.lessonId!==lessonId||next.phase!==phase);
+  return next!==null&&next.lessonId!==lessonId;
 }

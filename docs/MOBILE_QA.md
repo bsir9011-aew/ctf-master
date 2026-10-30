@@ -41,4 +41,13 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Po wpisaniu `pwd` informacja o zaliczeniu pojawia sie bezposrednio pod terminalem z przyciskiem do samodzielnego sprawdzianu.
 - [ ] Po ponownym otwarciu wczesniej zaliczonej komendy mozna uruchomic sprawdzian bez koniecznosci powtarzania wstepnego zadania.
 - [ ] Sekcja rekomendacji nie duplikuje otwartej lekcji, jesli sugeruje dokladnie to samo cwiczenie.
-- [ ] Naglowek pokazuje faktyczna wersje pakietu: 1.0.0-rc.6. Odwiedz Misje i Powtorki — ich interfejsy i postepy musza byc niezmienione.
+- [ ] Naglowek pokazuje faktyczna wersje pakietu: 1.0.0-rc.7. Odwiedz Misje i Powtorki — ich interfejsy i postepy musza byc niezmienione.
+
+## Learning Workspace 1.0 RC.7 — historia i usuwanie duplikatów
+
+- [ ] W Akademii wpisz np. `pwd`, wybierz inne ćwiczenie albo zresetuj obecne, wykonaj kilka komend. Przyciski **↑/↓** oraz klawiatura fizyczna odtwarzają historię tylko bieżącego ćwiczenia.
+- [ ] Zacznij wpisywać niedokończony tekst, naciśnij ↑, potem ↓. Tekst powinien zostać przywrócony bez wykonania komendy.
+- [ ] Po zaliczeniu ćwiczenia `pwd` na karcie pozostaje jeden dostępny przycisk „Sprawdź samodzielnie”; górna rekomendacja nie powiela go.
+- [ ] Gdy wpiszesz błędną ścieżkę, zobaczysz kontekstową informację zwrotną w panelu pod terminalem. Nie zdradza gotowej odpowiedzi do sprawdzianu.
+- [ ] Sprawdź wąski ekran 320–390 px — dwa przyciski historii nie zasłaniają pola wprowadzania i przycisku „Wykonaj”.
+- [ ] Header pokazuje 1.0.0-rc.7, a po ponownym uruchomieniu zachowane są wcześniejsze wyniki ćwiczeń, misji i powtórek.

@@ -15,12 +15,13 @@ test('terminal height expands with history but is capped for long outputs',()=>{
 
 test('recommendation is hidden when it merely repeats the current task',()=>{
   const next={lessonId:'pwd',phase:'intro',reason:'Start here',score:50};
-  assert.equal(needsRecommendation(next,'pwd','intro'),false);
-  assert.equal(needsRecommendation(next,'pwd','transfer'),true);
-  assert.equal(needsRecommendation(next,'ls','intro'),true);
-  assert.equal(needsRecommendation(null,'pwd','intro'),false);
+  assert.equal(needsRecommendation(next,'pwd'),false);
+  assert.equal(needsRecommendation(next,'pwd'),false);
+  assert.equal(needsRecommendation(next,'ls'),true);
+  assert.equal(needsRecommendation(null,'pwd'),false);
 });
 
-test('mastered command can still receive a transfer recommendation when phase differs',()=>{
-  assert.equal(needsRecommendation({lessonId:'cp',phase:'transfer',reason:'Verify',score:100},'cp','intro'),true);
+test('same-lesson transfer is available in the lesson card, not repeated above it',()=>{
+  assert.equal(needsRecommendation({lessonId:'cp',phase:'transfer',reason:'Verify',score:100},'cp'),false);
+  assert.equal(needsRecommendation({lessonId:'cp',phase:'transfer',reason:'Verify',score:100},'pwd'),true);
 });
