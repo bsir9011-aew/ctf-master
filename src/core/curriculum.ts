@@ -47,8 +47,8 @@ export const learningChapters: readonly LearningChapter[] = [
     id:'soc-capstone',title:'SOC: pełne śledztwo',
     purpose:'Połączysz rozpoznanie incydentu, ochronę oryginałów, kopiowanie warunkowe i raportowanie.',
     commands:'grep · test · && · cp · > · >> · cat',
-    outcome:'Korelujesz ślady, oceniasz hipotezy, usuwasz przyczyny i weryfikujesz bezpieczeństwo naprawy.',
-    missionIds:['incident-correlation','incident-hypotheses','incident-response']
+    outcome:'Korelujesz ślady, oceniasz hipotezy, usuwasz przyczyny i naprawiasz skutki błędnych decyzji.',
+    missionIds:['incident-correlation','incident-hypotheses','incident-response','operational-recovery']
   }
 ];
 
