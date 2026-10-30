@@ -13,9 +13,9 @@ W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefoni
 
 ## Co dziala w 1.0 RC (Akademia komend)
 
-- 16 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
-- Trzy tryby: **Komendy** (32 lekcje techniczne + 1 dochodzenie, 33 sprawdziany), **Misje** (16 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
-- Zwinięta domyślnie **Mapa nauki** z 5 rozdziałami: cele, komendy, licznik postępu, przejście do pierwszej dostępnej misji.
+- 17 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
+- Trzy tryby: **Komendy** (32 lekcje techniczne + 1 dochodzenie, 33 sprawdziany), **Misje** (17 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
+- Zwinięta domyślnie **Mapa nauki** z 6 rozdziałami: cele, komendy, licznik postępu, przejście do pierwszej dostępnej misji.
 - Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `man POLECENIE`, `man -k HASLO`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `umask`, `chgrp`, `>`, `>>`, `&&`, `||`, `test`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `id`, `groups`, `namei -l`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
 - Walidacja efektu zadania, nie porownywanie odpowiedzi 1:1.
@@ -277,3 +277,10 @@ Nowy, ograniczony interpreter łączy do pięciu komend w jednym łańcuchu. `A 
 **33. lekcja i niezależny sprawdzian** wymagają rzeczywistej kopii pod warunkiem istnienia źródła, pominięcia operacji na nieistniejącym pliku oraz wykonania działania awaryjnego po niepowodzeniu. Zaliczenie uwzględnia faktycznie wykonane/pominięte polecenia, kolejność oraz stan wirtualnych plików, a nie samo wpisanie tekstu.
 
 Nie ma wykonywania systemowej powłoki, `eval`, separatorów `;`, `&`, skryptów, podstawień, ani nieograniczonych łańcuchów. Wersja RC.24 nie zmienia kluczy localStorage. Fizyczne QA telefonu i PWA offline pozostaje **PENDING**.
+
+
+## RC.25 - misja 17: korelacja incydentu SOC
+
+Nowy, finałowy rozdział **SOC: pełne śledztwo** obejmuje scenariusz INC-017 na istniejących wirtualnych logach `/var/log/app.log` i `/var/log/auth.log`. Uczeń sam lokalizuje i potwierdza dwa niezależne ślady, wykonuje dwie kopie pełnych plików dopiero po `test -f` z `&&`, a następnie tworzy dwuwierszowy raport przez `grep` z `>` i `>>`, odczytując go na końcu. Zaliczenie wymaga oryginalnych logów i praw bez zmian, pełnych kopii, prawidłowych danych w raporcie i autentycznej sekwencji wykonanych kroków w wirtualnym terminalu.
+
+Karta misji pokazuje cztery etapy (śledztwo, kopie, korelacja, odczyt) bez zdradzania rozwiązań. Misja jest **dopisana jako 17.**, bez przesuwania poprzednich numerów, bez nowych pól lokalnej sesji i bez wymagania ponownego przejścia wcześniej zaliczonych misji. Wszystkie dane pozostają symulowane. Rozbudowa nie dowodzi rzeczywistej pracy PWA na telefonie: **manual mobile QA nadal PENDING**.
