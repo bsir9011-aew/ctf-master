@@ -13,6 +13,7 @@ const solutions={
   mkdir:'mkdir ~/practice/experiments',
   touch:'touch ~/practice/note.txt',
   cat:'cat ~/practice/intro.txt',
+  id:'id',
   man:'man grep',
   grep:'grep WARN ~/practice/events.log',
   head:'head -n 3 ~/practice/timeline.log',
@@ -33,9 +34,9 @@ const solutions={
 };
 const ids=commandLessons.map(lesson=>lesson.id);
 
-test('catalogue has 23 unique drills and all exercise texts',()=>{
-  assert.equal(ids.length,23);
-  assert.equal(new Set(ids).size,23);
+test('catalogue has 24 unique drills and all exercise texts',()=>{
+  assert.equal(ids.length,24);
+  assert.equal(new Set(ids).size,24);
   assert.deepEqual(ids,Object.keys(solutions));
   for (const lesson of commandLessons) {
     assert.ok(lesson.purpose && lesson.syntax && lesson.example && lesson.assignment && lesson.hint,lesson.id);
@@ -47,6 +48,10 @@ for(const lesson of commandLessons) {
     assert.equal(lesson.pass(original,[]),false,'must not start completed');
     let result=academySubmit(original,[],solutions[lesson.id],lesson.id);
     assert.equal(result.result.ok,true);
+    if(lesson.id==='id') {
+      assert.equal(result.completed,false);
+      result=academySubmit(result.result.state,result.events,'id -G',lesson.id);
+    }
     if(lesson.id==='man') {
       assert.equal(result.completed,false);
       result=academySubmit(result.result.state,result.events,
