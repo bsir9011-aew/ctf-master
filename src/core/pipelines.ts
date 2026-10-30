@@ -1,23 +1,22 @@
 import type { CommandResult, LinuxState } from './linux.ts';
+import {scanShell} from './shellSyntax.ts';
 
-/** Split only pipes outside single or double quotes. No shell execution or eval. */
+/** Split only on unquoted, unescaped pipes using the shared lexer. */
 export function splitPipeline(raw:string):string[]|null {
+  const tokens=scanShell(raw);
+  if(!tokens)return null;
+  let from=0;
   const sections:string[]=[];
-  let quote:"'"|'"'|null=null;
-  let part='';
-  for(const char of raw) {
-    if(char==="'"||char==='"') {
-      if(quote===null) quote=char;
-      else if(quote===char) quote=null;
-      part+=char;
-    } else if(char==='|'&&quote===null) {
-      if(!part.trim()) return null;
-      sections.push(part.trim());
-      part='';
-    } else part+=char;
+  for(const token of tokens){
+    if(token.kind!=='pipe')continue;
+    const part=raw.slice(from,token.start).trim();
+    if(!part)return null;
+    sections.push(part);
+    from=token.end;
   }
-  if(quote!==null||!part.trim()) return null;
-  sections.push(part.trim());
+  const last=raw.slice(from).trim();
+  if(!last)return null;
+  sections.push(last);
   return sections;
 }
 const FIRST=new Set(['cat','grep','head','tail','sort','uniq']);
@@ -47,7 +46,6 @@ export function executePipeline(
   if(!FIRST.has(commands[0][0])) return failed('poczatek musi czytac plik: cat, grep, head, tail, sort lub uniq');
   if(commands.slice(1).some(args=>!NEXT.has(args[0])))
     return failed('kolejne etapy: grep, sort, uniq, head, tail, wc');
-  if(parts.some(x=>/[;><]/.test(x))) return failed('brak przekierowan i separatorow polecen');
 
   const first=runReadOnly(parts[0]);
   if(!first.ok) return failed('etap 1: '+first.output);
