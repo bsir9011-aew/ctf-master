@@ -1,3 +1,4 @@
+import {assertWorldUnchanged} from './assertWorldUnchanged.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
@@ -130,7 +131,7 @@ test('failed command cannot pass the lesson and coach sees failure',()=>{
   const result=academySubmit(original,[],'something-not-supported','cat');
   assert.equal(result.result.ok,false);
   assert.equal(result.completed,false);
-  assert.equal(result.result.state,original);
+  assertWorldUnchanged(result.result.state,original);
 });
 
 test('drills cannot modify saved missions, their flags, or the base world',()=>{
