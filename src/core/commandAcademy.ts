@@ -28,6 +28,7 @@ export function createAcademyState():LinuxState {
       [LAB+'/timeline.log']:'INFO boot\nWARN latency\nINFO cache\nERROR timeout\nINFO retry\nWARN queue\nINFO stable\n',
       [LAB+'/names.txt']:'zoe\nanna\nmarta\n',
       [LAB+'/levels.txt']:'INFO\nINFO\nWARN\nWARN\nINFO\n',
+      [LAB+'/alerts.log']:'WARN storage\nINFO ready\nWARN auth\nWARN storage\nINFO heartbeat\nWARN auth\n',
       [LAB+'/logs/ticket-42.txt']:'Training ticket 42',
       [LAB+'/source.txt']:'COPY_ME',
       [LAB+'/move-me.txt']:'MOVE_ME',
@@ -116,6 +117,14 @@ export const commandLessons:readonly CommandLesson[]=[
     hint:'Zwróć uwagę, że ostatnie INFO nie sąsiaduje z pierwszymi dwoma.',
     pass:(_s,e)=>observed(e,'uniq',r=>r.target===LAB+'/levels.txt' &&
       r.output==='INFO\nWARN\nINFO')},
+  {id:'pipeline',title:'Połącz komendy potokiem',group:'Pliki i logi',
+    purpose:'Potok | przekazuje wynik jednej komendy do następnej. grep filtruje, sort porządkuje, uniq redukuje sąsiednie duplikaty, a wc -l liczy wiersze.',
+    syntax:'grep WZORZEC PLIK | sort | uniq | wc -l',
+    example:'grep INFO ~/practice/timeline.log | sort | uniq | wc -l',
+    assignment:'Policz liczbę różnych ostrzeżeń WARN w ~/practice/alerts.log. Użyj grep, sort, uniq oraz wc -l w jednym potoku.',
+    hint:'Najpierw wybierz wiersze WARN, potem je uporządkuj, usuń sąsiadujące duplikaty i policz wiersze.',
+    pass:(_s,e)=>observed(e,'pipeline',r=>r.target===LAB+'/alerts.log' &&
+      r.stages?.join('>')==='grep>sort>uniq>wc' && r.output==='2')},
   {id:'find',title:'Znajdź plik',group:'Pliki i logi',
     purpose:'find przeszukuje także podkatalogi; -name dopasowuje nazwę pliku.',
     syntax:'find KATALOG -name WZORZEC',example:'find ~/downloads -name "*.tmp"',
