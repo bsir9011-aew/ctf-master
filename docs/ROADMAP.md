@@ -22,6 +22,7 @@
 - [x] Kompaktowa mobilna nawigacja i historia polecen
 - [x] Wersjonowanie cache PWA i testy mechanizmu offline
 - [x] Mapa 5 rozdzialow z celami, komendami i postepem
+- [x] Akademia 15 komend z niezaleznym terminalem i postepem
 - [ ] Manual QA na fizycznym telefonie (1.0 RC.2)
 
 ## Etap 1 - Linux Administrator
