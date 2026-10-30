@@ -124,7 +124,8 @@ export const commandLessons:readonly CommandLesson[]=[
     assignment:'Policz liczbę różnych ostrzeżeń WARN w ~/practice/alerts.log. Użyj grep, sort, uniq oraz wc -l w jednym potoku.',
     hint:'Najpierw wybierz wiersze WARN, potem je uporządkuj, usuń sąsiadujące duplikaty i policz wiersze.',
     pass:(_s,e)=>observed(e,'pipeline',r=>r.target===LAB+'/alerts.log' &&
-      r.stages?.join('>')==='grep>sort>uniq>wc' && r.output==='2')},
+      r.stages?.join('>')==='grep>sort>uniq>wc' &&
+      r.filterPattern==='WARN' && r.output==='2')},
   {id:'find',title:'Znajdź plik',group:'Pliki i logi',
     purpose:'find przeszukuje także podkatalogi; -name dopasowuje nazwę pliku.',
     syntax:'find KATALOG -name WZORZEC',example:'find ~/downloads -name "*.tmp"',
