@@ -1,5 +1,6 @@
 import { executeLinux, type CommandResult, type LinuxState } from './linux.ts';
 import { createAcademyState } from './commandAcademy.ts';
+import { investigationFiles, investigationStatus } from './investigation.ts';
 
 const LAB='/home/player/practice';
 const hasFile=(s:LinuxState,name:string)=>Object.hasOwn(s.files,LAB+'/'+name);
@@ -46,6 +47,8 @@ export const transferChallenges:readonly TransferChallenge[]=[
     pass:(_s,e)=>saw(e,'pipeline',r=>r.target===LAB+'/logs/incidents.log' &&
       r.stages?.join('>')==='grep>sort>uniq>wc' &&
       r.filterPattern==='ERROR' && r.output==='3')},
+  {lessonId:'investigation',assignment:'SOC otrzymał alert o nietypowych próbach logowania około 04:12. Samodzielnie rozpoznaj właściwy dziennik w ~/practice/logs, odczytaj ślad związanego z tym zdarzenia i zabezpiecz cały plik jako ~/practice/incident-evidence.log. Zachowaj oryginalne logi.',
+    pass:(s,e)=>investigationStatus('transfer',s,e).completed},
   {lessonId:'find',assignment:'Znajdź audit-67.txt w podkatalogach ~/practice za pomocą find.',
     pass:(_s,e)=>saw(e,'find',r=>r.target===LAB && r.output.split('\n').includes(LAB+'/logs/audit-67.txt'))},
   {lessonId:'cp',assignment:'Zachowaj kopię ~/practice/intro.txt w ~/practice/intro-copy.txt, nie usuwając oryginału.',
@@ -69,11 +72,18 @@ export const transferChallenges:readonly TransferChallenge[]=[
 export function createTransferState(lessonId:string):LinuxState {
   if(!transferChallenges.some(item=>item.lessonId===lessonId)) throw Error('Unknown transfer lesson');
   const state=createAcademyState();
+  // The second investigation deliberately replaces rather than repeats
+  // the first case's candidate files.
+  const introCandidates=investigationFiles('intro');
+  const baseFiles=lessonId==='investigation'
+    ? Object.fromEntries(Object.entries(state.files).filter(([path])=>!Object.hasOwn(introCandidates,path)))
+    : state.files;
   return {
     ...state,
     cwd:lessonId==='pwd'?LAB+'/logs':state.cwd,
     files:{
-      ...state.files,
+      ...baseFiles,
+      ...investigationFiles('transfer'),
       [LAB+'/logs/audit-67.txt']:'audit event 67',
       [LAB+'/review.tmp']:'temporary review data',
       [LAB+'/team.key']:'SIMULATED_TEAM_KEY',
@@ -107,5 +117,7 @@ export function earnedMastery(completed:boolean,errors:number,usedHint:boolean):
 export function transferMistake(
   lessonId:string,result:CommandResult,completed:boolean
 ):boolean {
+  if(lessonId==='investigation')
+    return !result.ok || (result.command==='cp' && !completed);
   return !result.ok || (result.command===lessonId && !completed);
 }
