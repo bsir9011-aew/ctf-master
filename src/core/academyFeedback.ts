@@ -136,7 +136,17 @@ export function explainAcademyAttempt(
       detail:'id pokazuje UID i GID: -u, -g, -G oraz warianty nazw -un, -gn, -Gn. groups nie przyjmuje argumentów w tym symulatorze. W razie wątpliwości sprawdź man id.',
       status:'error'
     };
-    if(cmd==='chgrp') return {
+    if(cmd==='redirect')return {
+      title:'Nie udało się zapisać wyniku polecenia',
+      detail:result.output+' Sprawdź składnię > albo >>, istnienie katalogu oraz prawa zapisu do pliku. Źródło musi być poprawnym poleceniem odczytującym.',
+      status:'error'
+    };
+    if(cmd==='redirect')return {
+    title:completed?'Raport zapisany i zweryfikowany':'Dane zapisane w pliku',
+    detail:'Przekierowanie zmienia plik docelowy, a nie wejściowy. > zastępuje zawartość, >> ją dopisuje. Odczytaj wynik przez cat i sprawdź, czy oba zestawy wierszy są obecne.',
+    status:completed?'complete':'partial'
+  };
+  if(cmd==='chgrp') return {
       title:'Nie udało się zmienić grupy pliku',
       detail:'chgrp wymaga, abyś był właścicielem pliku i należał do wybranej grupy. Sprawdź id -Gn, stat i uprawnienia katalogów nadrzędnych.',
       status:'error'
