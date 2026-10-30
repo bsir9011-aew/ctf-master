@@ -105,3 +105,12 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Po zaliczeniu uruchom samodzielny sprawdzian: pojawi się inny rodzaj incydentu i inne pliki. Podpowiedzi nie mogą zdradzać nazwy źródła.
 - [ ] Wykonaj udaną, ale błędną operację kopiowania w sprawdzianie, a potem rozwiąż problem. Status opanowania wymaga ponownej, czystej próby.
 - [ ] Zweryfikuj mobilną szerokość i przyciski, zachowanie starszych zaliczeń i wersję aplikacji RC.13.
+
+## RC.14 — korzystanie z podręcznika Linuksa
+
+- [ ] W zwykłym terminalu wpisz `man ls` i `man -k log`; powinny pokazać lokalne opisy, bez przechodzenia do zewnętrznej strony.
+- [ ] Wybierz lekcję **Dokumentacja komend**. Samo `man grep` nie może jej zaliczyć. Wpisz `man grep`, przeczytaj opcje, następnie użyj odnalezionej flagi w zadaniu.
+- [ ] W sprawdzianie druga komenda jest inna: `man head` powinien wskazać opcję liczby wierszy. Prawidłowa kolejność dokumentacji i działania daje opanowanie bez podpowiedzi.
+- [ ] Jeśli najpierw wpiszesz `head -n 2` na właściwym pliku, a dopiero potem `man head`, status opanowania wymaga nowej czystej próby.
+- [ ] Sprawdź `man not-real` i `man -k nieznany-tekst`: czytelne błędy. Na telefonie dłuższa strona man mieści się w przewijanym terminalu.
+- [ ] Stare zaliczenia są nienaruszone, licznik Akademii wskazuje **23**, a nagłówek wersję RC.14. PWA offline osobno do sprawdzenia na fizycznym urządzeniu.
