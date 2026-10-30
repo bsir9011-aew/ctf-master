@@ -139,3 +139,9 @@ W trybie **Komendy** terminal obsluguje historie ostatnich 30 unikalnych wpisany
 Panel „Warto teraz” nie duplikuje juz przycisku sprawdzianu **dla aktualnie wybranej komendy** — ten znajduje sie przy lekcji lub informacji zwrotnej pod terminalem. W razie bledu feedback wyswietla kontekstowa kategorie problemu, np. brak sciezki, uprawnienia lub blad skladni. Program nie zdradza automatycznie gotowej komendy w sprawdzianie. Dotychczasowy postep 15 cwiczen, 15 sprawdzianow, 16 misji i 20 powtorek pozostaje niezmieniony.
 
 QA fizycznego telefonu i faktycznej instalacji PWA nadal wymaga testu recznego.
+
+## Feedback edukacyjny (1.0 RC.8)
+
+Rozszerzono wyjaśnienia dla trzech podstawowych poleceń: `ls`, `cd` i `grep`. Aplikacja rozróżnia nieistniejącą ścieżkę, próbę wejścia do pliku zamiast katalogu, błędną opcję `ls`, złą składnię `grep` i brak dopasowania (w tym znaczenie opcji `-i`). Poprawnie wykonane polecenie może nadal nie spełniać celu lekcji — panel pod terminalem wyjaśnia wtedy realny skutek operacji, a nie przyznaje automatycznie zaliczenia.
+
+Wskazówki opisują zasady, **nie ujawniają docelowej komendy ani niewidocznych plików w sprawdzianach transferowych**. Wirtualny `cd` wyświetla teraz komunikat „Not a directory” dla istniejącego pliku. Zachowano 15 ćwiczeń i 15 sprawdzianów, 16 misji, 20 powtórek i poprzednie zapisy. Test na rzeczywistym telefonie nadal jest do przeprowadzenia.
