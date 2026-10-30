@@ -141,11 +141,6 @@ export function explainAcademyAttempt(
       detail:result.output+' Sprawdź składnię > albo >>, istnienie katalogu oraz prawa zapisu do pliku. Źródło musi być poprawnym poleceniem odczytującym.',
       status:'error'
     };
-    if(cmd==='redirect')return {
-    title:completed?'Raport zapisany i zweryfikowany':'Dane zapisane w pliku',
-    detail:'Przekierowanie zmienia plik docelowy, a nie wejściowy. > zastępuje zawartość, >> ją dopisuje. Odczytaj wynik przez cat i sprawdź, czy oba zestawy wierszy są obecne.',
-    status:completed?'complete':'partial'
-  };
   if(cmd==='chgrp') return {
       title:'Nie udało się zmienić grupy pliku',
       detail:'chgrp wymaga, abyś był właścicielem pliku i należał do wybranej grupy. Sprawdź id -Gn, stat i uprawnienia katalogów nadrzędnych.',
@@ -283,6 +278,11 @@ export function explainAcademyAttempt(
     detail:result.blockedAt
       ?'W jednym z katalogów brakuje skutecznego prawa x dla bieżącego użytkownika. Nawet plik z prawem r będzie niedostępny bez przejścia przez katalogi nadrzędne.'
       :'Katalogi na tej ścieżce pozwalają na przejście. Jeśli odczyt nadal nie działa, zbadaj prawo r pliku.',
+    status:completed?'complete':'partial'
+  };
+  if(cmd==='redirect')return {
+    title:completed?'Raport zapisany i zweryfikowany':'Dane zapisane w pliku',
+    detail:'Przekierowanie zmienia plik docelowy, a nie wejściowy. > zastępuje zawartość, >> ją dopisuje. Odczytaj wynik przez cat i sprawdź, czy oba zestawy wierszy są obecne.',
     status:completed?'complete':'partial'
   };
   if(cmd==='chgrp') return {
