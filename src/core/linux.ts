@@ -22,6 +22,7 @@ export interface CommandResult {
   ok: boolean;
   command: string;
   stages?: string[];
+  filterPattern?: string;
   target?: string;
   clear?: boolean;
 }
