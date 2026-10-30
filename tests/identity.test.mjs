@@ -1,3 +1,4 @@
+import {assertWorldUnchanged} from './assertWorldUnchanged.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {executeLinux,initialLinux} from '../src/core/linux.ts';
@@ -55,7 +56,7 @@ test('identity commands reject unsupported arguments without altering session',(
   for(const cmd of ['id -a','id player','id -u -g','groups player','groups -G','whoami foo']){
     const r=executeLinux(s,cmd);
     assert.equal(r.ok,false,cmd);
-    assert.deepEqual(r.state,original,cmd);
+    assertWorldUnchanged(r.state,original,cmd);
   }
   assert.deepEqual(s,original);
 });
