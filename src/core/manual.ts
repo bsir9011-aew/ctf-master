@@ -12,6 +12,9 @@ interface ManualPage {
 
 const PAGES:Readonly<Record<string,ManualPage>>={
   pwd:{synopsis:'pwd',description:'Wypisuje sciezke biezacego katalogu.',search:'katalog sciezka nawigacja'},
+  id:{synopsis:'id [-u|-un|-g|-gn|-G|-Gn]',description:'Wyswietla UID, podstawowe GID oraz grupy uzytkownika. UID oznacza osobe, GID grupe.',options:'-u  Tylko UID. -un  Nazwa uzytkownika.\n-g  GID grupy podstawowej. -gn  Jej nazwa.\n-G  Wszystkie identyfikatory grup. -Gn  Nazwy wszystkich grup.',search:'identyfikator uid gid uzytkownik grupy'},
+  groups:{synopsis:'groups',description:'Wypisuje nazwy grup biezacego uzytkownika, zaczynajac od grupy podstawowej.',search:'grupy czlonkostwo uzytkownik gid'},
+
   ls:{synopsis:'ls [-a] [-l] [KATALOG]',description:'Wypisuje elementy katalogu; nie zmienia biezacego katalogu.',options:'-a  Pokaz takze ukryte nazwy.\n-l  Pokaz uprawnienia i szczegoly.',search:'pliki katalog lista ukryte'},
   cd:{synopsis:'cd [KATALOG]',description:'Zmienia biezacy katalog. Bez argumentu przechodzi do katalogu domowego.',search:'katalog nawigacja sciezka'},
   cat:{synopsis:'cat PLIK',description:'Wyswietla pelna zawartosc tekstowego pliku. Wymaga prawa odczytu.',search:'plik tekst odczyt log'},
