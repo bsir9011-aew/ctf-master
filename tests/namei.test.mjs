@@ -82,7 +82,7 @@ test('namei failure diagnosis gives causal feedback without the exact chmod answ
   const seed=createAcademyState(),r=executeLinux(seed,'namei -l '+intro);
   const feedback=explainAcademyAttempt('namei',seed,r,false);
   assert.equal(feedback.status,'partial');
-  assert.match(feedback.detail,/prawo x/);
+  assert.match(feedback.detail,/praw[ao] x/);
   assert.doesNotMatch(feedback.detail,/chmod u\+x/);
 });
 
