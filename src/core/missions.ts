@@ -1,5 +1,6 @@
 import type { CommandResult, LinuxState } from './linux';
 import { modeOf } from './permissions.ts';
+import {incidentCaseProgress} from './incidentCapstone.ts';
 
 export interface Mission {
   id: string;
@@ -186,5 +187,16 @@ export const missions: Mission[] = [
       events.some(e=>e.ok && e.command==='nc' && e.target==='lab.ctf.test:443') &&
       events.some(e=>e.ok && e.command==='ip' && e.target==='arp-cache' &&
         e.output.includes(state.network?.router ?? '__missing__'))
+  },
+  {
+    id:'incident-correlation',title:'INC-017: dwa ślady, jeden incydent',
+    category:'Linux Investigator',
+    briefing:'Po nocnym wdrożeniu SOC zauważył anomalię aplikacji oraz nieudaną próbę logowania. Zbadaj /var/log/app.log i /var/log/auth.log i potwierdź pasujące wpisy. Następnie zabezpiecz oba niezmienione logi w ~/documents jako case17-app-evidence.log i case17-auth-evidence.log - kopie wykonuj WYŁĄCZNIE po sprawdzeniu istnienia źródła w łańcuchu warunkowym. W case17-report.log zestaw kolejno linię ALERT z aplikacji i linię DENIED z uwierzytelniania, korzystając z nadpisania i dopisania. Odczytaj gotowy raport. Oryginały oraz ich uprawnienia muszą pozostać bez zmian.',
+    hints:[
+      'Analizuj dwa niezależne źródła: czy incydent aplikacyjny i próba logowania rzeczywiście wystąpiły? Najpierw potwierdź ślady w oryginalnych logach.',
+      'Kopie dowodowe wykonaj dopiero po potwierdzeniu śladów. Połącz test -f z cp operatorem &&. Raport utwórz z wybranych wierszy: > nadpisuje, >> dopisuje.',
+      'Potwierdź osobno grep ALERT /var/log/app.log i grep DENIED /var/log/auth.log. Potem test -f ZRÓDŁO && cp ZRÓDŁO CEL dla obu logów. Zapisz grep ALERT > ~/documents/case17-report.log, dopisz grep DENIED >> do tego samego raportu i przeczytaj cat.'
+    ],
+    success:(state,events)=>incidentCaseProgress(state,events).completed
   }
 ];
