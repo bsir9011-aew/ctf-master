@@ -19,6 +19,7 @@ export function explainAcademyAttempt(
   completed: boolean
 ): AcademyInsight {
   const cmd = result.command;
+  const isFocusCommand = cmd === lessonId;
 
   if (!result.ok) {
     const output = result.output.toLowerCase();
@@ -78,13 +79,13 @@ export function explainAcademyAttempt(
       ? 'ls wyświetlił elementy wskazanego katalogu; nie przeszedł do niego i nie zmienił zawartości plików.'
       : 'ls wyświetlił nazwę wskazanego pliku; nie otworzył jego treści i nie zmienił katalogu roboczego.';
     return {
-      title: completed ? 'Zadanie z ls zaliczone' : 'ls wykonał się, ale cel zadania nie jest jeszcze spełniony',
+      title: completed ? 'Zadanie z ls zaliczone' : isFocusCommand ? 'ls wykonał się, ale cel zadania nie jest jeszcze spełniony' : 'ls wykonał się — wróć do polecenia ćwiczonego w lekcji',
       detail: description + (completed ? '' : ' Sprawdź, czy oglądasz właściwą lokalizację.'),
       status: completed ? 'complete' : 'partial'
     };
   }
   if (cmd === 'cd') return {
-    title: completed ? 'Zadanie z cd zaliczone' : 'cd zmienił katalog, ale nie na docelowy',
+    title: completed ? 'Zadanie z cd zaliczone' : isFocusCommand ? 'cd zmienił katalog, ale nie na docelowy' : 'cd zmienił katalog — wróć do celu aktualnej lekcji',
     detail: 'Bieżący katalog: ' + result.state.cwd +
       '. cd zwykle nie drukuje wyniku — sprawdzisz pozycję poleceniem pwd.',
     status: completed ? 'complete' : 'partial'
@@ -92,7 +93,7 @@ export function explainAcademyAttempt(
   if (cmd === 'grep') {
     const count = result.output ? result.output.split('\n').length : 0;
     return {
-      title: completed ? 'Zadanie z grep zaliczone' : 'grep znalazł tekst, ale cel zadania nie jest jeszcze spełniony',
+      title: completed ? 'Zadanie z grep zaliczone' : isFocusCommand ? 'grep znalazł tekst, ale cel zadania nie jest jeszcze spełniony' : 'grep znalazł tekst — wróć do celu aktualnej lekcji',
       detail: 'grep wypisał ' + count + (count === 1 ? ' pasujący wiersz.' : ' pasujące wiersze.') +
         ' Przeszukuje treść i niczego w pliku nie zmienia.' +
         (completed ? '' : ' Zweryfikuj plik i wzorzec wyszukiwania.'),
