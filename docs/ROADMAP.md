@@ -34,11 +34,13 @@
 - [x] Ograniczone potoki do analizy logów: czytanie plików, grep/sort/uniq/wc, lekcja i transfer
 - [x] Pierwsze samodzielne śledztwo: nieznany log, hipoteza ze śladów, potwierdzenie i zachowanie dowodu, drugi wariant
 - [x] Podręcznik man i man -k w terminalu: dokumentacja przed zastosowaniem flagi, drugi wariant na nowej komendzie
-- [ ] Manual QA na fizycznym telefonie (1.0 RC.14)
+- [x] Tożsamość UID/GID: grupy podstawowe i dodatkowe, zmienione konto w transferze, dokumentacja i feedback
+- [ ] Manual QA na fizycznym telefonie (1.0 RC.15)
 
 ## Etap 1 - Linux Administrator
 - [x] Podstawy chmod, stat, tryby rwx i testy Permission denied
-- [ ] chown, uzytkownicy, grupy, ACL, katalogi z kontrola przechodzenia
+- [x] Podstawy UID/GID i grup dodatkowych: id, groups, whoami oraz odmienne tożsamości w sprawdzianie
+- [ ] chown, wymuszanie praw grupowych, ACL, katalogi z kontrola przechodzenia
 - [x] grep/find i pierwsze misje logow
 - [x] Podstawowe procesy i uslugi: ps, kill, systemctl, journalctl
 - [ ] Zaawansowana diagnostyka procesow i jednostek
