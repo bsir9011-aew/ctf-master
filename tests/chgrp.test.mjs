@@ -1,3 +1,4 @@
+import {assertWorldUnchanged} from './assertWorldUnchanged.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {executeLinux,initialLinux} from '../src/core/linux.ts';
@@ -29,7 +30,7 @@ test('chgrp refuses changing a file that belongs to a different UID',()=>{
   const r=run(seed,'chgrp operators ~/practice/operator.log');
   assert.equal(r.ok,false);
   assert.match(r.output,/not file owner/);
-  assert.deepEqual(r.state,before);
+  assertWorldUnchanged(r.state,before);
   assert.deepEqual(seed,before);
 });
 
@@ -38,7 +39,7 @@ test('owner can assign only groups of which they are a member',()=>{
   for(const name of ['audit','security','root','unknown','1100']){
     const result=run(seed,'chgrp '+name+' ~/practice/shared-report.log');
     assert.equal(result.ok,false,name);
-    assert.deepEqual(result.state,seed,name);
+    assertWorldUnchanged(result.state,seed,name);
   }
   assert.equal(run(seed,'chgrp player ~/practice/shared-report.log').ok,true);
 });
