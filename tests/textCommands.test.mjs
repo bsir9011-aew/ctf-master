@@ -9,8 +9,8 @@ function exec(raw,state=createAcademyState()) {return executeLinux(state,raw);}
 const textIds=['head','tail','wc','sort','uniq'];
 
 test('all five command names are present in the learning and transfer catalogues',()=>{
-  assert.equal(commandLessons.length,21);
-  assert.equal(transferChallenges.length,21);
+  assert.equal(commandLessons.length,22);
+  assert.equal(transferChallenges.length,22);
   for(const id of textIds) {
     assert.equal(commandLessons.filter(x=>x.id===id).length,1);
     assert.equal(transferChallenges.filter(x=>x.lessonId===id).length,1);
