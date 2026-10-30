@@ -1,5 +1,6 @@
 import type {CommandResult,LinuxState} from './linux.ts';
 import {modeOf} from './permissions.ts';
+import {opsCase,opsHttpProbe} from './opsRecovery.ts';
 
 const ROOT='/home/player/documents/cases';
 export const responseCase=Object.freeze({
@@ -54,6 +55,8 @@ export function applyResponseRestart(result:CommandResult,args:readonly string[]
  * like curl without --fail.
  */
 export function executeResponseCurl(state:LinuxState,args:readonly string[]):CommandResult{
+  if(args.length===2&&args[0]==='-i'&&args[1]===opsCase.endpoint&&
+    state.ops?.scenario==='queue-outage')return opsHttpProbe(state);
   if(args.length!==2||args[0]!=='-i'||args[1]!==responseCase.endpoint||!state.response)
     return {state,ok:false,command:'curl',
       output:'Uzycie: curl -i '+responseCase.endpoint+' (tylko symulowany endpoint)'};
