@@ -78,9 +78,11 @@ function operationalPenalty(events:readonly CommandResult[]):{count:number;notes
     if(!r.ok)continue;
     if(r.command==='systemctl'){
       // A failed attempt leaves no system impact and is not a penalty.
-      if(r.target==='sshd.service'&&r.state.services?.sshd?.status!=='active')
+      if(r.target==='sshd.service'&&r.output==='sshd.service inactive'&&
+        r.state.services?.sshd?.status!=='active')
         notes.push('Przerwano dostęp administracyjny SSH');
-      if(r.target==='api.service'&&r.state.services?.api?.status!=='active')
+      if(r.target==='api.service'&&r.output==='api.service inactive'&&
+        r.state.services?.api?.status!=='active')
         notes.push('Wyłączono API podczas incydentu kolejki');
       if(r.target==='api.service'&&r.state.services?.queue?.status!=='active'&&
          r.state.services?.api?.status==='active'&&
