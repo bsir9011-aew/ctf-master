@@ -31,7 +31,7 @@ test('CRLF, tabs and UTF-16 cursor indices are mapped to original textarea offse
   const line=sourceLineRange(code,2);
   assert.equal(code.slice(line.start,line.end),'echo "🐧"');
   assert.equal(line.start,code.indexOf('echo'));
-  assert.equal(line.end,code.indexOf('\r\nbad'));
+  assert.equal(line.end,code.indexOf('\r\nbad')-1); // trailing space deliberately excluded
 });
 
 test('invalid indices cannot point at a wrong or missing line',()=>{
