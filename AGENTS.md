@@ -79,3 +79,9 @@ Next priority: have the user run physical PWA QA per docs/MOBILE_QA.md and perfo
 - Diagnosis verifies an existing and a missing log with real `test -f` results chained by `&&`, followed by `echo $?`. Expected exit status 1 is evidence, not an app failure. Do not allow unrelated commands, copying, modification, host shell or network.
 - Each evaluation starts with fresh virtual `createAcademyState`. Never claim a task passes on string matching alone; require conditional traces, target paths, actual exit codes and observed echo status.
 - Keep old `runWorkshop(script)` default behavior; do not change Academy, missions, review or backup schemas. Repo-only: no APK distribution.
+
+## RC.43: File permissions diagnosis in one compact Bash task
+- Third scenario `permissions`: a real virtual fixture `~/practice/checks/locked.log` exists with permissions 000. Learner must observe `test -f` => 0, `test -r` => 1 chained by `&&`, then `echo $?` => 1. Permission denial is not missing file.
+- Only assignments, safe `test -f` / `test -r` and direct echo-status are allowed; reject chmod, copying, host shell, network or any file mutation before running. Never award mastery merely because the script prints '1'. Verify actual predicate traces, file target, order, statuses, and unchanged world.
+- Keep the same small mobile editor, dropdown, help, feedback, undo, and source-line navigation. Do not introduce another screen or a multi-step quest. Preserve all existing scenario IDs and draft keys; add a separate `permissions` key.
+- No persistent mastery schema changes or new Android build. Physical mobile QA is still pending.
