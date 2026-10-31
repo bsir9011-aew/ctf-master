@@ -407,3 +407,12 @@ W lekcji trzeba zachować i przeczytać obie kopie. W transferze działasz na in
 Ograniczenia: maksymalnie pięć wartości, jedno polecenie w ciele i jeden wiersz. Brak zagnieżdżeń, globów, eval, prawdziwego shell i wykonywania systemowych poleceń. Kod zakończenia całej pętli pochodzi z ostatniej iteracji, niezależnie od wcześniejszych błędów. Szczegóły: man for w symulatorze. Dotychczasowy zapis zaliczeń zostaje zachowany.
 
 Pracujemy w repozytorium. W tej iteracji nie przekazujemy APK.
+
+
+## RC.38 - Bash Workshop na telefonie
+
+Nowa zakładka Bash zawiera jeden krótki warsztat zamiast rozbudowanej, wieloetapowej misji. Na jednym ekranie masz zadanie, edytor do czterech niepustych linii, opcjonalne przewidywanie liczby kopii, przycisk uruchomienia i bezpośredni feedback. Ślad wykonania pozostaje domyślnie zwinięty.
+
+W pierwszym ćwiczeniu ustawiasz BASE, używasz jednej pętli for do wykonania kopii dwóch logów, a następnie sprawdzasz obie kopie przez test -f i &&. Walidator sprawdza stan źródeł, wykonane iteracje oraz warunki - nie opiera się tylko na porównaniu wpisanego tekstu. Nieprawidłowy skrypt pokazuje pierwszy konkretny problem.
+
+Przed startem cały skrypt jest sprawdzany. Dozwolone są tylko przypisania, ograniczona pętla for z pojedynczym cp oraz predykaty test -f. Nie ma wykonywania poleceń hosta, sieci, sudo ani eval. Każda próba startuje od świeżego wirtualnego systemu. Szkic zapisuje się lokalnie, ale RC.38 nie dodaje trwałego zaliczenia do 35 lekcji/22 misji i nie zmienia formatu kopii postępów. Pracujemy wyłącznie w repo, bez dystrybucji APK.

@@ -316,3 +316,10 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Upewnij się, że kod nie zawiera pełnych logów z wirtualnego terminala i nie jest automatycznie wysyłany do sieci.
 - [ ] Nieprawidłowy, niekompletny lub nieobsługiwany JSON powinien zostać odrzucony bez zmiany zaliczeń.
 - [ ] UI głównych zadań jest nadal krótki - panel backupu domyślnie zwinięty. Android WebView copy/paste QA: PENDING do fizycznego sprawdzenia.
+
+## RC.38 - kompaktowy Bash Workshop
+- [ ] Na telefonie otwórz zakładkę Bash. Nie powinna zawierać długiego powitania ani sekcji REAL-01; całe zadanie, krótki edytor, opcjonalna prognoza i wynik są w jednym miejscu.
+- [ ] Przy otwartej klawiaturze wpisz trzy linie i przetestuj przewijanie gestem po środku edytora, nie tylko obok niego.
+- [ ] Sprawdź poprawny skrypt, błędny warunek, zwijany przebieg iteracji i informację o pierwszym błędzie.
+- [ ] Wróć do innej zakładki, a potem do Bash: szkic zostaje bez zmiany ukończeń Akademii i misji.
+- [ ] Przetestuj działanie w PWA bez sieci; fizyczne QA nadal PENDING. W tym PR nie dystrybuujemy APK.

@@ -92,3 +92,7 @@
 
 - [x] RC.37 - ograniczona pętla for do wielu plików, ślad iteracji, 35. lekcja i niezależny sprawdzian z potwierdzeniem kopii
 - [ ] Kolejny etap - kontrolowane, wirtualne skrypty Bash; nadal bez host shell
+
+- [x] RC.38 - Bash Workshop mobilny: jedno zadanie, edytor do czterech linii, jeden przycisk, inline feedback oraz zwijany ślad wykonania
+- [x] Ograniczony interpreter z walidacją całego skryptu przed wykonaniem, świeży wirtualny stan na każdą próbę
+- [ ] Fizyczny test mobilnego edytora, klawiatury i przewijania warsztatu; bez budowania kolejnych wieloetapowych misji przed QA

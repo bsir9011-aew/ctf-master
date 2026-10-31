@@ -480,3 +480,60 @@
 .progress-backup .backup-preview{color:#b7edcb}
 .progress-backup .backup-status{padding:9px 11px;border-radius:8px;background:#1c3941;border:1px solid #527b78}
 @media(max-width:530px){.progress-backup details{padding:10px 11px}}
+
+
+/* RC.38 - one-screen Bash Workshop, designed for narrow touch displays. */
+.mode-switch{grid-template-columns:repeat(4,minmax(0,1fr))}
+.bash-workshop{background:#101d27;border:1px solid #304852;border-radius:15px;padding:15px;min-width:0}
+.workshop-heading{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.bash-workshop .eyebrow{margin:0!important}
+.workshop-badge{font-size:10px;color:#b8d8ce;border:1px solid #365c53;border-radius:20px;padding:4px 8px;white-space:nowrap}
+.bash-workshop h2{font-size:20px;margin:7px 0 9px;letter-spacing:-.02em}
+.bash-workshop .workshop-task{font-size:13px;line-height:1.6;margin:0 0 13px;color:#cfdae3}
+.bash-workshop code{font:inherit;color:#a7f0c3;overflow-wrap:anywhere}
+.workshop-editor-label{display:block;font-weight:750;font-size:12px;margin-bottom:6px}
+.bash-workshop textarea{
+  display:block;width:100%;max-width:100%;min-width:0;min-height:112px;
+  background:#091620;color:#e9f8ef;border:1px solid #527568;
+  border-radius:10px;padding:12px;font:16px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;
+  resize:vertical;touch-action:pan-y;white-space:pre-wrap;overflow-wrap:anywhere;
+}
+.bash-workshop textarea:focus-visible,.bash-workshop select:focus-visible,
+.bash-workshop button:focus-visible,.bash-workshop summary:focus-visible{
+  outline:3px solid #a7edcd;outline-offset:2px
+}
+.workshop-controls{display:flex;align-items:end;gap:9px;margin-top:10px}
+.workshop-controls label{flex:1;min-width:0;font-size:11px;color:#b5cfc2}
+.workshop-controls select{
+  display:block;width:100%;min-height:44px;margin-top:4px;padding:8px 9px;
+  border:1px solid #45645e;background:#182e34;color:#e3f4eb;border-radius:8px;
+  font-size:14px;
+}
+.workshop-controls button{
+  min-height:44px;min-width:112px;border:0;border-radius:8px;
+  background:#85e3ac;color:#0a2215;font-weight:800;font-size:13px;padding:10px 12px;
+}
+.workshop-limit{margin:7px 0 0;color:#94afb4;font-size:11px}
+.workshop-result{
+  margin-top:12px;padding:11px 12px;border:1px solid #805b45;
+  background:#32271f;border-radius:10px;color:#f6dcc4;
+}
+.workshop-result.completed{border-color:#387d59;background:#173528;color:#bbf1ca}
+.workshop-result strong{font-size:13px}
+.workshop-result p{font-size:12px;line-height:1.5;margin:5px 0}
+.workshop-result .workshop-prediction{color:inherit;opacity:.87}
+.workshop-trace{margin-top:9px;border-top:1px solid #47605a;padding-top:8px}
+.workshop-trace summary,.workshop-help summary{cursor:pointer;font-size:12px;font-weight:750;min-height:31px}
+.workshop-trace ol{padding-left:20px;margin:7px 0}
+.workshop-trace li{font-size:12px;margin-bottom:8px;line-height:1.4;overflow-wrap:anywhere}
+.workshop-trace li small{display:block;font-size:11px;opacity:.9;white-space:pre-wrap}
+.workshop-help{margin-top:10px;border:1px solid #304b4f;border-radius:10px;padding:9px 11px}
+.workshop-help p{font-size:12px;line-height:1.6;color:#b5cbd5}
+.workshop-reset{background:#254239;color:#e1f2e7;border:1px solid #527b62;border-radius:8px;padding:9px 13px;min-height:42px}
+@media(max-width:530px){
+  .mode-switch{grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;padding:4px}
+  .mode-switch button{font-size:11px;padding:10px 1px;min-height:42px}
+  .bash-workshop{padding:12px}
+  .bash-workshop h2{font-size:18px;margin:6px 0}
+  .bash-workshop .workshop-task{font-size:12px;line-height:1.48;margin-bottom:10px}
+}
