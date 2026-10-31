@@ -85,3 +85,8 @@ Next priority: have the user run physical PWA QA per docs/MOBILE_QA.md and perfo
 - Only assignments, safe `test -f` / `test -r` and direct echo-status are allowed; reject chmod, copying, host shell, network or any file mutation before running. Never award mastery merely because the script prints '1'. Verify actual predicate traces, file target, order, statuses, and unchanged world.
 - Keep the same small mobile editor, dropdown, help, feedback, undo, and source-line navigation. Do not introduce another screen or a multi-step quest. Preserve all existing scenario IDs and draft keys; add a separate `permissions` key.
 - No persistent mastery schema changes or new Android build. Physical mobile QA is still pending.
+
+## RC.44: Bash fallback on one mobile screen
+- Fourth scenario `fallback`: missing.log is absent (test -f => 1), then `||` actually executes existing manual.log (test -f => 0). A direct subsequent `echo $?` must observe 0.
+- Validate trace order, operator, real statuses and no filesystem mutation; reject forged output or skipped fallback. Preserve all RC.38-43 scenario keys and use new isolated fallback draft.
+- No extra screen, more than four code lines, host execution or automatic Android APK. Manual phone QA still pending.

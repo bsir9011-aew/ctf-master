@@ -455,3 +455,8 @@ W tym samym mobilnym warsztacie Bash jest teraz **trzecie krótkie ćwiczenie: U
 Nie wolno zmieniać uprawnień ani modyfikować plików w tym scenariuszu. Ocena wykorzystuje faktyczny wirtualny stan pliku, ślad dwóch testów, odpowiednie flagi i kody wyjścia oraz późniejszy odczyt statusu. Całość nadal mieści się w jednym edytorze do czterech niepustych linii, bez nowej zakładki i rozbudowanych misji.
 
 Scenariusze 01/02 zachowują poprzednie klucze szkiców i niezmienione zasady zaliczenia; 03 ma własny klucz. Automatyczny workflow Androida pozostaje wyłączony dla PR. QA klawiatury na rzeczywistym telefonie: PENDING; nie przekazujemy APK.
+
+
+## RC.44 - Plan awaryjny w Bash Workshop
+
+Czwarte zadanie na tym samym ekranie: brak `missing.log` uruchamia przez `||` test istniejącego `manual.log`. `echo $?` musi pokazać faktyczny status 0. Sprawdzamy wykonanie obu testów i operator, nie samo wypisanie zera. Własny szkic; starsze identyfikatory, postępy, misje i tryby bez zmian. Brak host shell i nowego APK. Fizyczne QA Androida pozostaje PENDING.

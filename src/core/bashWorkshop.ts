@@ -17,13 +17,21 @@ const LOCKED_LOG='/home/player/practice/checks/locked.log';
 const diagnostics={
   diagnosis:{
     checks:[{flag:'-f',target:EXPECTED_LOG,code:0},{flag:'-f',target:MISSING_LOG,code:1}],
+    operator:'&&',status:'1',
     incomplete:'Zdiagnozuj dwa logi jedną linią: test -f dla istniejącego manual.log, następnie && test -f dla brakującego missing.log. Użyj $BASE.',
     completed:'Zaliczone: manual.log istnieje, missing.log nie istnieje, a echo $? potwierdziło status 1. Kod 1 to wynik testu, nie awaria terminala.'
   },
   permissions:{
     checks:[{flag:'-f',target:LOCKED_LOG,code:0},{flag:'-r',target:LOCKED_LOG,code:1}],
+    operator:'&&',status:'1',
     incomplete:'Sprawdź ten sam plik checks/locked.log: najpierw test -f (istnieje), następnie && test -r (brak prawa odczytu). Użyj $BASE.',
     completed:'Zaliczone: locked.log istnieje (test -f → 0), ale nie masz prawa go czytać (test -r → 1). Echo $? potwierdziło wynik 1, bez modyfikowania uprawnień.'
+  },
+  fallback:{
+    checks:[{flag:'-f',target:MISSING_LOG,code:1},{flag:'-f',target:EXPECTED_LOG,code:0}],
+    operator:'||',status:'0',
+    incomplete:'Najpierw sprawdź missing.log (wynik 1). Następnie użyj ||, aby uruchomić test istniejącego manual.log (wynik 0). Obie ścieżki przez $BASE.',
+    completed:'Zaliczone: missing.log nie istnieje (1), więc operator || uruchomił sprawdzanie manual.log (0). echo $? pokazało 0: plan awaryjny zadziałał.'
   }
 } as const;
 
@@ -149,14 +157,16 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup'):Workshop
     const checked=position>=0?events[position].conditionalTrace:undefined;
     const valid=checked?.length===2&&checked.every((part,i)=>
       part.executed&&part.command==='test'&&
+      part.operator===(i===0?undefined:config.operator)&&
       part.testFlag===config.checks[i].flag&&part.target===config.checks[i].target&&
       part.exitCode===config.checks[i].code&&/\$\{?BASE\}?/.test(part.raw));
     if(!valid)return error(config.incomplete,state,steps,
       lines.find(x=>x.raw.startsWith('test '))?.line);
-    const status=events.findIndex((e,i)=>i>position&&e.command==='echo'&&
-      e.target==='previous-exit'&&e.output==='1');
-    if(status<0)return error('Brakuje odczytu kodu wyjścia. Po dwóch testach wpisz echo $? i zaobserwuj status 1.',state,steps,
-      lines.find(x=>x.raw.startsWith('echo '))?.line);
+    const status=events[position+1];
+    if(!status||status.command!=='echo'||status.target!=='previous-exit'||
+       status.output!==config.status||position!==1||events.length!==3)
+      return error('Po dwóch testach odczytaj ich ostatni kod przez echo $?. Oczekiwany wynik: '+config.status+'.',state,steps,
+        lines.find(x=>x.raw.startsWith('echo '))?.line);
     if(Object.keys(state.files).some(path=>state.files[path]!==initial.files[path])||
        Object.keys(initial.files).some(path=>state.files[path]!==initial.files[path]))
       return error('Diagnoza nie powinna modyfikować plików.',state,steps);

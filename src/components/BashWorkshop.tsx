@@ -23,7 +23,7 @@ const shortcuts=[
 function restoreScenario():WorkshopId{
   try{
     const saved=localStorage.getItem(SELECTION_KEY);
-    return saved==='diagnosis'||saved==='permissions'?saved:'backup';
+    return saved==='diagnosis'||saved==='permissions'||saved==='fallback'?saved:'backup';
   }
   catch{return 'backup';}
 }
@@ -151,10 +151,14 @@ export default function BashWorkshop(){
       Ustaw <code>BASE=~/practice</code>. Sprawdź po kolei <code>manual.log</code> i <code>missing.log</code> przez
       <code> test -f</code> połączone <code>&amp;&amp;</code>. Następnie użyj <code>echo $?</code>,
       żeby ustalić kod wyniku. Niczego nie kopiuj ani nie usuwaj.</p>
-    :<p className="workshop-task">Plik <code>checks/locked.log</code> istnieje, ale odczyt jest zabroniony.
+    :scenario==='permissions'?<p className="workshop-task">Plik <code>checks/locked.log</code> istnieje, ale odczyt jest zabroniony.
       Ustaw <code>BASE=~/practice</code> i sprawdź <strong>ten sam plik</strong> kolejno przez
       <code> test -f</code> oraz <code> test -r</code> połączone <code>&amp;&amp;</code>.
-      Następnie odczytaj wynik przez <code>echo $?</code>. Nie zmieniaj uprawnień ani pliku.</p>}
+      Następnie odczytaj wynik przez <code>echo $?</code>. Nie zmieniaj uprawnień ani pliku.</p>
+    :<p className="workshop-task">Nie ma <code>missing.log</code>, ale istnieje zapasowy <code>manual.log</code>.
+      Ustaw <code>BASE=~/practice</code>. Sprawdź najpierw brakujący log przez <code>test -f</code>,
+      a potem przez <code>||</code> przejdź do testu zapasowego pliku.
+      Użyj <code>echo $?</code>, aby potwierdzić końcowy kod. Nie zmieniaj plików.</p>}
     <label htmlFor="bash-workshop-editor" className="workshop-editor-label">Twój skrypt (maks. 4 linie)</label>
     <textarea id="bash-workshop-editor" ref={editor} value={draft} rows={4}
       spellCheck={false} autoCapitalize="none" autoCorrect="off"
@@ -230,10 +234,14 @@ export default function BashWorkshop(){
         <code> test -f "$BASE/manual.log" &amp;&amp; test -f "$BASE/missing.log"</code>.
         Kod zakończenia ostatniego testu sprawdzisz przez <code>echo $?</code>.
         Wynik 1 jest w tej diagnozie oczekiwanym sygnałem braku pliku.</p>
-       :<p>Użyj <code>BASE=~/practice</code> i sprawdź dwukrotnie
+       :scenario==='permissions'?<p>Użyj <code>BASE=~/practice</code> i sprawdź dwukrotnie
         <code> "$BASE/checks/locked.log"</code>, najpierw przez <code>test -f</code>,
         potem przez <code>&amp;&amp; test -r</code>. Odczytaj <code>echo $?</code>.
-        Istnienie pliku i prawo do jego odczytu to dwa różne pytania.</p>}
+        Istnienie pliku i prawo do jego odczytu to dwa różne pytania.</p>
+       :<p>Operator <code>||</code> uruchamia drugi test tylko wtedy, gdy pierwszy zakończy się
+        niepowodzeniem. Ustaw <code>BASE=~/practice</code>, sprawdź najpierw
+        <code> missing.log</code>, potem <code>manual.log</code>. Odczytaj kod przez <code>echo $?</code>.
+        W tej sytuacji prawidłowy końcowy status to 0.</p>}
       <button type="button" className="workshop-reset" onClick={()=>{
         const selected=cursor.current??{start:draft.length,end:draft.length};
         const template=workshopInitialScript(scenario);

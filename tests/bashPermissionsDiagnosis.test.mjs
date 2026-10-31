@@ -93,7 +93,7 @@ test('existing two scenarios retain working solutions and their original keys',(
   assert.equal(workshopInitialScript('backup'),WORKSHOP_DEFAULT);
   assert.equal(workshopInitialScript('diagnosis'),DIAGNOSIS_DEFAULT);
   assert.equal(workshopInitialScript('permissions'),PERMISSIONS_DEFAULT);
-  assert.deepEqual(workshopScenarios.map(s=>s.id),['backup','diagnosis','permissions']);
+  assert.deepEqual(workshopScenarios.map(s=>s.id),['backup','diagnosis','permissions','fallback']);
 });
 
 test('physical line mapping and fresh virtual state remain independent for permissions',()=>{
