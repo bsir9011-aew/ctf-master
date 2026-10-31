@@ -392,3 +392,18 @@ Akademia zawiera **34 lekcje i 34 niezależne sprawdziany**. Nowa lekcja `variab
 Obsługiwany jest jedynie **wąski, bezpieczny podzbiór Basha**: do 16 zmiennych sesji, każda do 256 znaków; bez dzielenia rozwiniętej wartości na nowe słowa, globów, wykonywania poleceń, `eval`, host shell, pełnych skryptów i pętli. Syntaktyczne operatory znajdujące się wewnątrz wartości zmiennej nie stają się komendami. Więcej przez `man variables` w terminalu symulatora. Wcześniejsze postępy i klucze localStorage pozostają bez zmian, a eksport/import z RC.35 działa nadal.
 
 Zmiana jest realizowana w repozytorium; nie wymaga instalowania kolejnego APK, by sprawdzić ją w Codespaces przez `npm run dev`.
+
+
+## RC.37 - pętle for w wirtualnym Bashu
+
+Akademia ma teraz **35 lekcji i 35 niezależnych sprawdzianów**. Pętla for wykonuje to samo polecenie dla kolejnych logów. Przykładowa obsługiwana składnia:
+
+```bash
+for FILE in ~/practice/events.log ~/practice/alerts.log; do cp "$FILE" "$FILE.copy"; done
+```
+
+W lekcji trzeba zachować i przeczytać obie kopie. W transferze działasz na innych danych - zaliczenie wymaga śladu rzeczywistych iteracji i sprawdzonych wyników.
+
+Ograniczenia: maksymalnie pięć wartości, jedno polecenie w ciele i jeden wiersz. Brak zagnieżdżeń, globów, eval, prawdziwego shell i wykonywania systemowych poleceń. Kod zakończenia całej pętli pochodzi z ostatniej iteracji, niezależnie od wcześniejszych błędów. Szczegóły: man for w symulatorze. Dotychczasowy zapis zaliczeń zostaje zachowany.
+
+Pracujemy w repozytorium. W tej iteracji nie przekazujemy APK.
