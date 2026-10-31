@@ -147,7 +147,7 @@ export default function BashWorkshop(){
     {scenario==='backup'?<p className="workshop-task">Ustaw <code>BASE=~/practice</code>. Jedną pętlą <code>for</code> skopiuj
       <code> events.log</code> i <code> alerts.log</code> do plików z końcówką <code>.copy</code>.
       Na końcu sprawdź istnienie <strong>obu kopii</strong> przez <code>test -f</code> i <code>&amp;&amp;</code>.
-      Nie zmieniaj oryginałów.</p>:<p className="workshop-task">
+      Nie zmieniaj oryginałów.</p>:scenario==='diagnosis'?<p className="workshop-task">
       Ustaw <code>BASE=~/practice</code>. Sprawdź po kolei <code>manual.log</code> i <code>missing.log</code> przez
       <code> test -f</code> połączone <code>&amp;&amp;</code>. Następnie użyj <code>echo $?</code>,
       żeby ustalić kod wyniku. Niczego nie kopiuj ani nie usuwaj.</p>
@@ -226,7 +226,7 @@ export default function BashWorkshop(){
       {scenario==='backup'?<p>W pierwszej linii przypisz katalog do zmiennej <code>BASE</code>.
         W drugiej użyj <code>for FILE in ...; do cp ...; done</code>.
         W trzeciej sprawdź dwie kopie, używając <code>test -f</code> i <code>&amp;&amp;</code>.</p>
-       :<p>Wpisz <code>BASE=~/practice</code>, potem dwa testy
+       :scenario==='diagnosis'?<p>Wpisz <code>BASE=~/practice</code>, potem dwa testy
         <code> test -f "$BASE/manual.log" &amp;&amp; test -f "$BASE/missing.log"</code>.
         Kod zakończenia ostatniego testu sprawdzisz przez <code>echo $?</code>.
         Wynik 1 jest w tej diagnozie oczekiwanym sygnałem braku pliku.</p>
