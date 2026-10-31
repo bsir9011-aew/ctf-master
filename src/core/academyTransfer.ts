@@ -10,6 +10,7 @@ import {quotingCase,quotingCompleted} from './quoting.ts';
 import {statusCase,statusCompleted} from './exitStatus.ts';
 import {transferTestFixture,fileTestCompleted,fileTestMistake} from './fileTest.ts';
 import {conditionalCompleted,conditionalMistake} from './conditionalLesson.ts';
+import {variableCompleted,variableMistake} from './variableLesson.ts';
 
 const LAB='/home/player/practice';
 const hasFile=(s:LinuxState,name:string)=>Object.hasOwn(s.files,LAB+'/'+name);
@@ -24,6 +25,8 @@ export interface TransferChallenge {
 
 /** A second, changed problem for each command. No answer strings are exposed in UI. */
 export const transferChallenges:readonly TransferChallenge[]=[
+  {lessonId:'variables',assignment:'Zachowaj w SOURCE ścieżkę ~/practice/logs/review.log, a w DEST nową ścieżkę ~/practice/logs/variable-evidence.log. Za pomocą obu zmiennych wykonaj kopię, a następnie odczytaj ją przez DEST. Oryginał musi zostać nienaruszony; nie używaj dosłownych ścieżek w cp/cat.',
+    pass:(state,events)=>variableCompleted('transfer',state,events)},
   {lessonId:'pwd',assignment:'Pracujesz teraz w katalogu logs. Wyświetl jego pełną ścieżkę.',
     pass:(_s,e)=>saw(e,'pwd',r=>r.output===LAB+'/logs')},
   {lessonId:'ls',assignment:'Sprawdź zawartość katalogu ~/practice/logs i znajdź plik audit-67.txt.',
@@ -188,6 +191,7 @@ export function transferMistake(
   lessonId:string,result:CommandResult,completed:boolean
 ):boolean {
   if(lessonId==='conditionals')return conditionalMistake(result);
+  if(lessonId==='variables')return variableMistake('transfer',result);
   if(lessonId==='test')return fileTestMistake(result);
   if(lessonId==='exit-status'){
     const c=statusCase('transfer');
