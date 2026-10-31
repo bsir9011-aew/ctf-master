@@ -13,8 +13,8 @@ W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefoni
 
 ## Co dziala w 1.0 RC (Akademia komend)
 
-- 20 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
-- Trzy tryby: **Komendy** (32 lekcje techniczne + 1 dochodzenie, 33 sprawdziany), **Misje** (20 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
+- 21 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
+- Trzy tryby: **Komendy** (32 lekcje techniczne + 1 dochodzenie, 33 sprawdziany), **Misje** (21 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
 - Zwinięta domyślnie **Mapa nauki** z 6 rozdziałami: cele, komendy, licznik postępu, przejście do pierwszej dostępnej misji.
 - Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `man POLECENIE`, `man -k HASLO`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `umask`, `chgrp`, `>`, `>>`, `&&`, `||`, `test`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `id`, `groups`, `namei -l`, `help`, `clear`.
 - Wirtualny system plikow, prawdziwe zmiany stanu w pamieci symulatora.
@@ -311,3 +311,10 @@ Przed uruchomieniem: to **zamknięty wirtualny endpoint**, nie realne żądanie 
 Błędne działania, np. zatrzymanie SSH czy niepotrzebny restart API, powodują widoczne konsekwencje. Możesz je odwrócić, lecz licznik **dodatkowych skutków interwencji** pozostaje w karcie misji (historia zdarzeń), żeby odróżnić naprawę bez zakłóceń od naprawy po dodatkowych błędach. Samo doprowadzenie do zdrowego stanu bez diagnostyki nie zalicza zadania. Symulowane `curl` może zakończyć się kodem wyjścia `0` przy HTTP 503 - sprawdzaj osobno kod HTTP i status usług.
 
 To **nie jest prawdziwe HTTP ani systemd**. Żadne żądanie sieciowe nie jest wysyłane, a komendy nie wykonują się na systemie gospodarza. Nowy stan scenariusza jest opcjonalny, dodawany tylko po wejściu lub odtworzeniu misji 20; pierwszych 19 misji, ich indeksów i kluczy localStorage nie zmieniono. Fizyczne QA telefonu i PWA offline nadal **PENDING**.
+
+
+## RC.29 - misja 21: samodzielna diagnostyka zgłoszenia
+
+**INC-021** zaczyna się od krótkiego zgłoszenia o niedostępnym materiale audytowym. Użytkownik musi sam odnaleźć wskazówki w wirtualnym systemie, potwierdzić problem, rozpoznać granicę dostępu, zastosować zasadę najmniejszych uprawnień i zabezpieczyć zweryfikowaną kopię dowodową. W interfejsie tej misji celowo nie ma trzech podpowiedzi, coachingu po błędnych poleceniach ani wskazującego kolejne kroki panelu. Normalne polecenia terminala, takie jak help i man, pozostają dostępne.
+
+Rozwiązanie oceniane jest na podstawie kolejnych działań i skutków, nie na podstawie wpisania jednej gotowej komendy. Nowe dane scenariusza są tworzone raz po wejściu do misji 21, bez nadpisywania plików użytkownika; późniejsze usunięcie nie powoduje automatycznego odtworzenia pliku. Poprzednie 20 misji zachowuje indeksy, dane postępów i klucze localStorage. **Fizyczne QA PWA na telefonie i offline nadal PENDING.**
