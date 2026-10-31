@@ -89,8 +89,8 @@ test('independent variables transfer uses different sources and values',()=>{
 });
 
 test('both catalogs stay synchronized and the local man page exists',()=>{
-  assert.equal(commandLessons.length,34);
-  assert.equal(transferChallenges.length,34);
+  assert.equal(commandLessons.length,35);
+  assert.equal(transferChallenges.length,35);
   assert.deepEqual(commandLessons.map(x=>x.id),transferChallenges.map(x=>x.lessonId));
   assert.equal(executeLinux(initialLinux(),'man variables').ok,true);
   const c=variableCase('intro');
