@@ -437,3 +437,12 @@ Diagnostyka uwzględnia błędną składnię, błędy wykonania i wybrane niespe
 Do istniejącego jednowierszowego paska znaków dodano klawisz **↶ Cofnij**. Przywraca ostatnią zmianę tekstu i pozycję zaznaczenia, również po przypadkowym zastąpieniu całej linii lub wybraniu „Wstaw pusty szablon”. Szybkie, sąsiadujące naciśnięcia w edytorze są grupowane w jeden krok cofnęcia. Historię ograniczono do 20 punktów w pamięci bieżącej sesji. Nie przenosimy historii edycji do localStorage - dotychczasowy zapis szkicu, lekcje i postępy działają bez zmian.
 
 W trosce o rozwój wyłącznie w repozytorium workflow Android APK ustawiono na **ręczne uruchamianie** (`workflow_dispatch`). Nie produkujemy kolejnego APK podczas każdego PR; kompilacja webowa i testy nadal wykonują się automatycznie. Zachowanie fokusu, cofania i klawiatury na fizycznym Androidzie wymaga osobnego testu.
+
+
+## RC.42 - druga diagnoza Bash na tym samym ekranie
+
+Zakładka Bash zawiera teraz **dwa krótkie zadania wybierane z jednego małego menu**. Pierwsze, „Kopie logów”, zachowuje dokładnie to samo zachowanie i stary zapis szkicu z RC.38-41. Drugie, „Brakujący log”, ćwiczy ważny mechanizm: `test -f` i `&&` mogą dać kod `1` jako poprawny rezultat sprawdzania, a `echo $?` pozwala ten status odczytać.
+
+Scenariusz 02: ustaw `BASE=~/practice`, sprawdź obecność `manual.log` i `missing.log` za pomocą dwóch testów `test -f` połączonych `&&`, następnie wpisz `echo $?`. Walidacja wymaga rzeczywistych wyników testów (pierwszy plik istnieje, drugi nie), odczytu kodu `1` po testach i niezmienionego systemu plików. **Nie symulujemy błędu aplikacji** tylko dlatego, że przewidywany test zwraca `1`.
+
+Każdy scenariusz ma osobny szkic w localStorage. Przełączanie nie usuwa pracy, ale czyści wynik poprzedniego zadania i historię Cofnij, aby nie dało się przypadkiem wkleić starej linii do drugiego scenariusza. Nie dodaliśmy ekranów, etapów ani skomplikowanego edytora. Interpreter nadal pozwala tylko na ściśle kontrolowane konstrukcje wirtualnego Linuksa; nie uruchamia poleceń na systemie użytkownika. Zaliczenia Akademii i misji oraz format kopii postępów pozostają bez zmian. Physical Android QA: pending. Pracujemy wyłącznie w repo, bez APK.
