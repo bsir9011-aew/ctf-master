@@ -296,3 +296,13 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] PWA nadal wykonuje tylko symulowane komendy. Przycisk/sekcja REAL-01 nie uruchamia niczego na serwerze ani na telefonie.
 - [ ] Osobno w Codespaces: node labs/real-linux/setup.mjs, a po wykonaniu ćwiczenia node labs/real-linux/verify.mjs - wynik 6/6 potwierdza stan plików, nie ocenę rozumowania.
 - [ ] Bez sudo, z zachowanym stanem po ponownym setup, i bez dodania .ctf-master-labs do repozytorium. Fizyczny test offline PWA nadal PENDING.
+
+
+## RC.34 - test przewijania terminala i zwartego ekranu
+
+- [ ] Otwórz Akademia → pierwsze zaliczone ćwiczenie → Sprawdzian. Karta powinna być krótsza; przycisk Reset i Powrót do nauki dostępne przez „Opcje sprawdzianu”.
+- [ ] Przesuwaj stronę w górę i w dół **dotykając środka terminala, także pustej przestrzeni**. Strona powinna płynnie się przewijać, bez konieczności chwytania krawędzi poza terminalem.
+- [ ] Wykonaj więcej niż sześć poleceń. Terminal pokazuje ostatnie sześć wpisów; „Pokaż wcześniejsze wyniki” ujawnia starsze, „Zwiń historię” ponownie skraca widok.
+- [ ] Wpisz polecenie przy otwartej klawiaturze, użyj przycisków historii poleceń i uruchom sprawdzian; nie może zniknąć zdolność wpisywania komend ani zapisu postępów.
+- [ ] Zamknij APK, uruchom ponownie oraz sprawdź dostępność zadań offline.
+- [ ] RC.34 ma debugowy podpis CI mogący różnić się od RC.33; przy wymaganym odinstalowaniu starej wersji dane zostaną utracone. Najpierw przetestuj i zdecyduj, czy chcesz zachować bieżące zaliczenia.
