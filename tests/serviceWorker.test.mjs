@@ -55,7 +55,7 @@ test('worker precaches the hashed JS/CSS and standalone shell',async()=>{
   const sw=mockWorker();
   await sw.dispatch('install');
   const names=await sw.caches.keys();
-  assert.deepEqual(names,['ctf-master-v1.0.0-rc35']);
+  assert.deepEqual(names,['ctf-master-v1.0.0-rc36']);
   const cache=await sw.caches.open(names[0]);
   for(const path of ['/','/assets/index-a.js','/assets/index-a.css','/manifest.webmanifest','/icon-192.png']) {
     assert.ok(await cache.match(path),path);
