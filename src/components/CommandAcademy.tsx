@@ -41,6 +41,7 @@ export default function CommandAcademy() {
   const [historyCursor,setHistoryCursor]=useState<number|null>(null);
   const draftBeforeRecall=useRef('');
   const [hintOpen,setHintOpen]=useState(false);
+  const [showFullOutput,setShowFullOutput]=useState(false);
   const [doneNow,setDoneNow]=useState(false);
   const [phase,setPhase]=useState<'intro'|'transfer'>('intro');
   const [errors,setErrors]=useState(0);
@@ -62,7 +63,10 @@ export default function CommandAcademy() {
   const last=events.at(-1);
   const insight=last?explainAcademyAttempt(lesson.id,previousSystem??system,last,doneNow):null;
 
-  const outputHeight=academyTerminalHeight(lines);
+  // Show the newest output first; older entries remain available on demand.
+  // This keeps the phone screen short while preserving the full 40-line history.
+  const visibleLines=showFullOutput?lines:lines.slice(-6);
+  const outputHeight=academyTerminalHeight(visibleLines);
 
   useEffect(()=>{
     try {localStorage.setItem(STORAGE,JSON.stringify(progress));}
@@ -91,6 +95,7 @@ export default function CommandAcademy() {
     setHistoryCursor(null);
     draftBeforeRecall.current='';
     setHintOpen(false);
+    setShowFullOutput(false);
     setDoneNow(false);
     setPhase(nextPhase);
     setErrors(0);
@@ -238,7 +243,7 @@ export default function CommandAcademy() {
             <span>{investigation.evidencePreserved?'✓':'○'} 2. Zabezpiecz pełny log bez zmiany oryginału</span>
           </div>}
 
-          {!doneNow&&mastered&&<p className="academy-previous">✓ Ta komenda ma już status „opanowane”.</p>}
+          {!doneNow&&!inTransfer&&mastered&&<p className="academy-previous">✓ Ta komenda ma już status „opanowane”.</p>}
           {!doneNow&&!inTransfer&&complete&&!mastered&&
             <p className="academy-previous">• Poznane. Wykonaj sprawdzian, aby potwierdzić samodzielność.</p>}
 
@@ -252,14 +257,19 @@ export default function CommandAcademy() {
             }} aria-expanded={hintOpen} disabled={doneNow}>
               {hintOpen?'Ukryj podpowiedź':'Podpowiedź'}
             </button>
-            <button type="button" onClick={restartCurrent}>
-              Reset {inTransfer?'sprawdzianu':'ćwiczenia'}
-            </button>
-            {inTransfer&&<button type="button" onClick={()=>openLesson(lesson.id)}>
-              Wróć do nauki
-            </button>}
             {!inTransfer&&complete&&!doneNow&&
               <button type="button" onClick={startTransfer}>Sprawdź samodzielnie →</button>}
+            <details className="academy-more-actions">
+              <summary>Opcje {inTransfer?'sprawdzianu':'ćwiczenia'}</summary>
+              <div className="academy-more-controls">
+                <button type="button" onClick={restartCurrent}>
+                  Reset {inTransfer?'sprawdzianu':'ćwiczenia'}
+                </button>
+                {inTransfer&&<button type="button" onClick={()=>openLesson(lesson.id)}>
+                  Wróć do nauki
+                </button>}
+              </div>
+            </details>
           </div>
           {hintOpen&&<p className="academy-hint">{inTransfer
             ? 'Przypomnij sobie działanie komendy i dostosuj argumenty do nowych danych.'
@@ -279,11 +289,15 @@ export default function CommandAcademy() {
           </div>
           <div className="terminal-output" role="log" aria-label="Wyniki ćwiczenia"
             aria-live="off" ref={output} style={{height:outputHeight}}>
-            {lines.map((line,i)=><div className="terminal-line" key={i}>
+            {visibleLines.map((line,i)=><div className="terminal-line" key={showFullOutput?i:lines.length-visibleLines.length+i}>
               {line.input&&<div className="prompt">{line.input}</div>}
               {line.output&&<pre className={line.ok?'':'error'}>{line.output}</pre>}
             </div>)}
           </div>
+          {lines.length>6&&<button className="academy-history-toggle" type="button"
+            aria-expanded={showFullOutput} onClick={()=>setShowFullOutput(value=>!value)}>
+            {showFullOutput?'Zwiń historię terminala':'Pokaż wcześniejsze wyniki ('+(lines.length-6)+')'}
+          </button>}
           <form className="command-row academy-command" onSubmit={e=>{e.preventDefault();submit(draft)}}>
             <label htmlFor="academy-command">$</label>
             <input id="academy-command" ref={input} value={draft}
