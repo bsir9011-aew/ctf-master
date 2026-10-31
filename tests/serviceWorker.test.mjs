@@ -82,6 +82,6 @@ test('activation deletes only stale CTF Master caches, not other apps caches',as
   await sw.dispatch('activate');
   const names=await sw.caches.keys();
   assert.equal(names.includes('ctf-master-v0.1.0'),false);
-  assert.equal(names.includes('ctf-master-v1.0.0-rc35'),true);
+  assert.equal(names.includes('ctf-master-v1.0.0-rc36'),true);
   assert.equal(names.includes('another-pwa'),true);
 });
