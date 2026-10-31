@@ -10,6 +10,7 @@ import {statusCompleted} from './exitStatus.ts';
 import {introTestFixture,fileTestCompleted} from './fileTest.ts';
 import {conditionalCompleted} from './conditionalLesson.ts';
 import {variableCompleted} from './variableLesson.ts';
+import {loopCompleted} from './forLesson.ts';
 
 export type CommandLessonGroup = 'Podstawy' | 'Pliki i logi' | 'Administracja' | 'Sieć';
 export interface CommandLesson {
@@ -215,6 +216,13 @@ export const commandLessons:readonly CommandLesson[]=[
     assignment:'Zapisz ścieżkę ~/practice/source.txt w zmiennej SOURCE oraz ~/practice/variable-copy.txt w DEST. Następnie skopiuj plik, odwołując się do OBU zmiennych zamiast wpisywać ścieżki ponownie. Odczytaj wynik cat, także przez zmienną DEST. Użyj osobnych poleceń, bez średnika.',
     hint:'Wpisz SOURCE=~/practice/source.txt i DEST=~/practice/variable-copy.txt w oddzielnych krokach. W cudzysłowach $SOURCE i $DEST są rozwijane; w apostrofach pozostają dosłowne. Sprawdź man variables.',
     pass:(state,events)=>variableCompleted('intro',state,events)},
+  {id:'for',title:'Pętla for: działaj na wielu logach',group:'Pliki i logi',
+    purpose:'Pętla for powtarza tę samą operację dla kolejnych elementów listy. Zmienna iteracyjna przyjmuje po kolei każdą ścieżkę; źródła pozostają nienaruszone.',
+    syntax:'for FILE in PLIK1 PLIK2; do cp "$FILE" "$FILE.copy"; done',
+    example:'for FILE in ~/practice/events.log ~/practice/alerts.log; do cp "$FILE" "$FILE.copy"; done',
+    assignment:'Jedną pętlą for z FILE przygotuj kopie dwóch dzienników: ~/practice/events.log i ~/practice/alerts.log. Dla każdego pliku wynik ma mieć tę samą nazwę z dopisanym .copy. Użyj zmiennej FILE dwukrotnie w cp, zamiast powtarzać polecenie ręcznie. Następnie odczytaj obie kopie przez cat i potwierdź zawartość. Bez zmian plików źródłowych.',
+    hint:'W nagłówku podaj obie ścieżki po in. Ciało wykonuje tylko jedną komendę: cp "$FILE" "$FILE.copy". Średniki rozdzielają nagłówek, ciało i done; wpisz całość w jednej linii. Każdą kopię sprawdź osobnym cat.',
+    pass:(state,events)=>loopCompleted('intro',state,events)},
   {id:'investigation',title:'Śledztwo: nieznany incydent',group:'Pliki i logi',
     purpose:'Otrzymujesz objaw incydentu i sam wybierasz strategię diagnostyki. Najpierw potwierdź ślad, potem zabezpiecz oryginalny dziennik.',
     syntax:'Dobierz narzędzia na podstawie obserwacji',
