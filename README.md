@@ -423,3 +423,10 @@ Przed startem cały skrypt jest sprawdzany. Dozwolone są tylko przypisania, ogr
 Warsztat Bash zachowuje ten sam jeden ekran i jeden scenariusz. Pod edytorem znajduje się zwarty pasek siedmiu klawiszy: `$`, `"`, `'`, `~`, `&&`, `;` i `↵` (nowa linia). Dotknięcie wstawia znak w miejscu kursora, ewentualnie zamienia aktualnie zaznaczony fragment tekstu. Po wstawieniu kursor pozostaje za nowym znakiem, a edytor odzyskuje fokus. Pasek jest niewysoki i można przesunąć go poziomo na małych telefonach.
 
 Wstawianie respektuje dotychczasowy limit 700 znaków i zapisuje szkic do tego samego lokalnego klucza. Nie zmienia działania interpretera Basha, kryteriów zaliczenia, lekcji ani misji; niczego nie uruchamia na hoście. Pasek znaków i zachowanie klawiatury Android wymagają jeszcze testu na fizycznym urządzeniu. Bez udostępniania APK.
+
+
+## RC.40 - popraw błąd bez szukania po edytorze
+
+Mobilny warsztat Bash pokazuje teraz, **która linia skryptu wymaga poprawki**, jeśli można ją jednoznacznie ustalić. Pod krótkim komunikatem błędu pojawia się przycisk **Popraw linię N**. Jedno dotknięcie zaznacza właściwą linię w istniejącym edytorze, bez dodawania konsoli, kroków misji i dodatkowych paneli. Obsługiwane są także puste wiersze, CRLF i dłuższe zaznaczenia z klawiatury telefonu.
+
+Diagnostyka uwzględnia błędną składnię, błędy wykonania i wybrane niespełnione warunki zaliczenia. Jeśli brakuje całej linii, przycisk nie wskazuje arbitralnego miejsca - komunikat pozostaje opisowy. Ślad wykonania nadal jest zwinięty. Warsztat i pliki nadal są wyłącznie wirtualne. Szkic, klucze localStorage, postępy i liczba misji/lekcji pozostają bez zmian. Weryfikacja działania przy otwartej klawiaturze Androida wymaga jeszcze QA na prawdziwym telefonie. Bez dystrybucji APK.
