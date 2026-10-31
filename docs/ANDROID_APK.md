@@ -1,4 +1,4 @@
-# CTF Master - Android APK (RC.34)
+# CTF Master - Android APK (RC.35)
 
 ## Co budujemy
 
@@ -12,7 +12,7 @@ Instalowalny **Android Debug APK** na własny telefon (Android 7+), opakowany pr
 2. Otwórz **Actions → Android APK (debug)**.
 3. Otwórz najnowszy przebieg z gałęzi **main**, który ma zielony znacznik sukcesu.
 4. Na dole w **Artifacts** wybierz `CTF-Master-Android-debug-<numer>` i pobierz ZIP.
-5. Rozpakuj ZIP. W środku będzie **`CTF-Master-RC34-debug.apk`** i `SHA256SUMS.txt`.
+5. Rozpakuj ZIP. W środku będzie **`CTF-Master-RC35-debug.apk`** i `SHA256SUMS.txt`.
 6. Skopiuj APK do telefonu lub pobierz ZIP bezpośrednio na nim, rozpakuj i otwórz APK. Potwierdź instalację z tej konkretnej aplikacji pobierającej plik; po instalacji możesz wyłączyć zgodę **Instaluj nieznane aplikacje**.
 
 Nie korzystaj z APK otrzymanego z przypadkowej strony. Wybieraj tylko plik wynikowy z własnego repozytorium i udanego builda. SHA-256 w ZIP pozwala zweryfikować, czy plik nie zmienił się podczas kopiowania.
