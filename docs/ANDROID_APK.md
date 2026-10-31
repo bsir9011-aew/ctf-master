@@ -1,4 +1,4 @@
-# CTF Master - Android APK (RC.34)
+# CTF Master - Android APK (RC.35)
 
 ## Co budujemy
 
@@ -12,7 +12,7 @@ Instalowalny **Android Debug APK** na własny telefon (Android 7+), opakowany pr
 2. Otwórz **Actions → Android APK (debug)**.
 3. Otwórz najnowszy przebieg z gałęzi **main**, który ma zielony znacznik sukcesu.
 4. Na dole w **Artifacts** wybierz `CTF-Master-Android-debug-<numer>` i pobierz ZIP.
-5. Rozpakuj ZIP. W środku będzie **`CTF-Master-RC34-debug.apk`** i `SHA256SUMS.txt`.
+5. Rozpakuj ZIP. W środku będzie **`CTF-Master-RC35-debug.apk`** i `SHA256SUMS.txt`.
 6. Skopiuj APK do telefonu lub pobierz ZIP bezpośrednio na nim, rozpakuj i otwórz APK. Potwierdź instalację z tej konkretnej aplikacji pobierającej plik; po instalacji możesz wyłączyć zgodę **Instaluj nieznane aplikacje**.
 
 Nie korzystaj z APK otrzymanego z przypadkowej strony. Wybieraj tylko plik wynikowy z własnego repozytorium i udanego builda. SHA-256 w ZIP pozwala zweryfikować, czy plik nie zmienił się podczas kopiowania.
@@ -53,3 +53,12 @@ bash ./gradlew assembleDebug
 ```
 
 Wynik: `android/app/build/outputs/apk/debug/app-debug.apk`. Domyślnie rekomendowany jest build GitHub Actions, by nie konfigurować lokalnego SDK.
+
+
+## Kopia zapasowa zaliczeń przed aktualizacją
+
+Od RC.35 można przenosić postępy bez konta i serwera: na końcu ekranu rozwiń „Postępy · Kopia zapasowa i przywracanie”, wygeneruj kod, skopiuj cały JSON i zachowaj go w prywatnej notatce poza APK. Po reinstalacji wklej go, sprawdź i wybierz „Połącz postępy”. Import nie kasuje osiągnięć już zapisanych w nowej wersji.
+
+**Co wraca:** poznane/opanowane lekcje, zaliczone misje, historia powtórek, liczniki, raporty i refleksje. **Czego nie przywraca:** stanu plików wirtualnego Linuksa, surowych wyników terminala i niedokończonych sesji. Kopia może zawierać prywatne notatki, więc nie wysyłaj jej do publicznych serwisów. Skopiowanie na schowek bez zapisania poza APK nie chroni przed odinstalowaniem.
+
+Test funkcji na fizycznym telefonie pozostaje wymagany. Podpis debugowego APK nadal nie gwarantuje aktualizacji bez reinstalacji.

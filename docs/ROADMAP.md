@@ -83,3 +83,7 @@
 - [ ] Oddzielone, resetowalne prawdziwe srodowiska laboratoryjne (nie na serwerze aplikacji)
 - [ ] Reverse engineering, binary exploitation, pwn, zlozone zadania
 - [ ] Integracja z zewnetrznymi platformami i samodzielne write-ups
+
+- [x] RC.35 - lokalny eksport/import zaliczeń, Akademii, powtórek i raportów przez bezpieczny, wersjonowany JSON z niekasującym importem
+- [ ] QA Android WebView: kopiuj/wklej pełny kod na fizycznym telefonie oraz przywróć przed odinstalowaniem APK
+- [ ] Stałe podpisywanie Android release i osobny test aktualizacji bez utraty danych

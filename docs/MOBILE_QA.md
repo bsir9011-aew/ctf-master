@@ -306,3 +306,13 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Wpisz polecenie przy otwartej klawiaturze, użyj przycisków historii poleceń i uruchom sprawdzian; nie może zniknąć zdolność wpisywania komend ani zapisu postępów.
 - [ ] Zamknij APK, uruchom ponownie oraz sprawdź dostępność zadań offline.
 - [ ] RC.34 ma debugowy podpis CI mogący różnić się od RC.33; przy wymaganym odinstalowaniu starej wersji dane zostaną utracone. Najpierw przetestuj i zdecyduj, czy chcesz zachować bieżące zaliczenia.
+
+
+## RC.35 - kopiowanie postępu przed reinstalacją
+
+- [ ] Na telefonie rozwiń dolny panel postępów, wygeneruj kopię, użyj „Kopiuj kod” i upewnij się, że można wkleić pełny JSON do prywatnej notatki.
+- [ ] Sprawdź import prawidłowej kopii z Akademią i misjami. Najpierw „Sprawdź kopię”, potem „Połącz postępy”; zaliczenia mają pozostać po zamknięciu APK.
+- [ ] Import nie powinien usuwać obecnych zaliczeń, raportów ani refleksji. Niedokończona sesja i stan wirtualnego filesystemu pozostają lokalne i nie są przenoszone.
+- [ ] Upewnij się, że kod nie zawiera pełnych logów z wirtualnego terminala i nie jest automatycznie wysyłany do sieci.
+- [ ] Nieprawidłowy, niekompletny lub nieobsługiwany JSON powinien zostać odrzucony bez zmiany zaliczeń.
+- [ ] UI głównych zadań jest nadal krótki - panel backupu domyślnie zwinięty. Android WebView copy/paste QA: PENDING do fizycznego sprawdzenia.

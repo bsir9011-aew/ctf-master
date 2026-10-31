@@ -374,3 +374,12 @@ Widok sprawdzianu zajmuje mniej miejsca: na małych ekranach ograniczamy rozmiar
 **Poprawka dotyku:** w mobilnym WebView obszar wyników terminala nie ma własnego przewijania ani blokady `overscroll-behavior: contain`. Przesunięcie palcem po terminalu powinno przewijać całą stronę (z wyjątkiem interaktywnych kontrolek). Mechanizm komend, zaliczenia oraz klucze localStorage nie zostały zmienione.
 
 Nowa wersja APK: **RC.34**. Wskutek zmiennego podpisu debugowego Android może wymagać odinstalowania starego RC.33 - to usuwa dane zapisane wewnątrz APK. Fizyczna weryfikacja gestu i klawiatury nadal wymaga testu na telefonie.
+
+
+## RC.35 - eksport i przywracanie postępów (Android/PWA)
+
+Na **samym dole aplikacji** rozwiń „Postępy · Kopia zapasowa i przywracanie”. Przed odinstalowaniem testowego APK użyj **Wygeneruj kopię → Kopiuj kod** i zapisz pełny tekst JSON poza aplikacją (np. w prywatnym notatniku). Po zainstalowaniu kolejnej wersji wklej kod w polu **Przywróć postępy**, wybierz **Sprawdź kopię**, a następnie **Połącz postępy**. Można też przenosić zaliczenia z PWA na Androida, jeśli skopiujesz kod między instalacjami.
+
+Kopia obejmuje **ukończone misje, poznane i opanowane lekcje Akademii, powtórki, liczniki pomocy, raporty po misjach i własne refleksje**. Nie przenosi bieżącego stanu wirtualnego systemu plików ani przerwanego w połowie zadania; kolejne próby rozpoczynają się w aktualnym środowisku. Import rozpoznaje wersję formatu i ID zadań, scala zaliczenia bez usuwania obecnych i nie wykonuje żadnych poleceń z wklejonego kodu. Dane nie trafiają na serwer.
+
+**Uwaga:** sam schowek nie jest kopią zapasową. Zapisz kod w trwałym, prywatnym miejscu. Kopia może zawierać Twoje notatki i statystyki nauki, dlatego nie publikuj jej w publicznym repozytorium. Fizyczny test kopiowania/wklejania w Android WebView nadal pozostaje do wykonania.

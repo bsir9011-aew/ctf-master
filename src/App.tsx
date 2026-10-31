@@ -13,6 +13,9 @@ import {seedIndependentCase} from './core/independentInvestigation';
 import PacketPath from './components/PacketPath';
 import CurriculumMap from './components/CurriculumMap';
 import CommandAcademy from './components/CommandAcademy';
+import ProgressBackupPanel from './components/ProgressBackupPanel';
+import {mergeMissionProgress,mergeAcademyProgress,mergeCoachProgress,
+  type ProgressBackup} from './core/progressBackup';
 import { moveHistoryCursor, rememberCommand } from './core/commandHistory';
 import { explainError, markHelp, revealHint, restoreLearning, trackCommand, type LearningMap } from './core/learning';
 import {
@@ -137,6 +140,7 @@ function restore(): SavedSession {
 export default function App() {
   const [session,setSession] = useState<SavedSession>(restore);
   const [mode,setMode] = useState<'commands'|'missions'|'review'>('commands');
+  const [academyRevision,setAcademyRevision] = useState(0);
   const [command,setCommand] = useState('');
   const [feedback,setFeedback] = useState('');
   const [packetExpanded,setPacketExpanded] = useState(false);
@@ -283,6 +287,30 @@ export default function App() {
     setPacketExpanded(!packetExpanded);
   }
 
+  function importBackup(backup:ProgressBackup):string {
+    const nextProgress=mergeMissionProgress(session,backup);
+    const nextSession={...session,...nextProgress};
+    const academyKey='ctf-master:command-academy-v1';
+    const coachKey='ctf-master:academy-coach-v1';
+    const read=(key:string):unknown=>{
+      try{return JSON.parse(localStorage.getItem(key)??'null');}catch{return null;}
+    };
+    const academy=mergeAcademyProgress(read(academyKey),backup);
+    const coach=mergeCoachProgress(read(coachKey),backup);
+    try {
+      localStorage.setItem(academyKey,JSON.stringify(academy));
+      localStorage.setItem(coachKey,JSON.stringify(coach));
+      localStorage.setItem(STORAGE,JSON.stringify(nextSession));
+    }catch{
+      return 'Nie udało się zapisać postępów w pamięci urządzenia. Nie potwierdzono przywrócenia.';
+    }
+    setSession(nextSession);
+    // Academy keeps its own React state. Remount to load the newly imported
+    // progress instead of letting its previous useEffect overwrite storage.
+    setAcademyRevision(x=>x+1);
+    return 'Przywrócono postępy. Zachowano obecne zaliczenia i stan aktywnego laboratorium.';
+  }
+
   function reset() {
     if (!window.confirm('Zresetować wszystkie misje, powtórki i zapisany postęp?')) return;
     setSession(blankSession()); setMode('missions'); setCommand(''); setFeedback(''); setPacketExpanded(false);
@@ -323,7 +351,7 @@ export default function App() {
         </details>
       </section>
 
-      {mode === 'commands' && <CommandAcademy/>}
+      {mode === 'commands' && <CommandAcademy key={academyRevision}/>}
       {mode === 'missions' ? <>
         <CurriculumMap completed={session.completed} highestUnlocked={unlocked}
           activeIndex={session.missionIndex} onSelectMission={selectMission}/>
@@ -521,6 +549,7 @@ export default function App() {
           {feedback && <p className="hint-feedback">{feedback}</p>}
         </section>}
       </>}
+      <ProgressBackupPanel session={session} onImport={importBackup}/>
       <p className="safety-note">To bezpieczny symulator w przeglądarce. Polecenia nie wykonują się w prawdziwym systemie ani na serwerze.</p>
     </main>
   </div>;
