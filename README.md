@@ -460,3 +460,8 @@ Scenariusze 01/02 zachowują poprzednie klucze szkiców i niezmienione zasady za
 ## RC.44 - Plan awaryjny w Bash Workshop
 
 Czwarte zadanie na tym samym ekranie: brak `missing.log` uruchamia przez `||` test istniejącego `manual.log`. `echo $?` musi pokazać faktyczny status 0. Sprawdzamy wykonanie obu testów i operator, nie samo wypisanie zera. Własny szkic; starsze identyfikatory, postępy, misje i tryby bez zmian. Brak host shell i nowego APK. Fizyczne QA Androida pozostaje PENDING.
+
+
+## RC.45 - czytelny przebieg warunków Bash
+
+W zwijanej sekcji Przebieg widać teraz kolejno testy wykonane i pominięte przez `&&` oraz `||`, wraz z kodem zakończenia lub przyczyną pominięcia. Widok wynika z rzeczywistego śladu interpretera, nie z samego tekstu skryptu. Brak nowych ekranów, misji, schematów zapisu i APK. Fizyczne QA telefonu pozostaje PENDING.
