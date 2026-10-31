@@ -21,7 +21,7 @@ const preserve=['cp '+c.evidence+' '+c.copy,'cat '+c.copy];
 const solve=()=>run([...ticket,...investigate,...repair,...preserve]);
 
 test('the blind mission is appended without moving earlier 20 missions and has no hints',()=>{
-  assert.equal(missions.length,21);
+  assert.equal(missions.length,22);
   assert.equal(missions[18].id,'incident-response');
   assert.equal(missions[19].id,'operational-recovery');
   assert.equal(missions[20].id,'blind-investigation');
