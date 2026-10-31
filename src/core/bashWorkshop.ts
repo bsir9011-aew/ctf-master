@@ -13,6 +13,19 @@ const SOURCES=['/home/player/practice/events.log','/home/player/practice/alerts.
 const COPIES=SOURCES.map(path=>path+'.copy');
 const EXPECTED_LOG='/home/player/practice/manual.log';
 const MISSING_LOG='/home/player/practice/missing.log';
+const LOCKED_LOG='/home/player/practice/checks/locked.log';
+const diagnostics={
+  diagnosis:{
+    checks:[{flag:'-f',target:EXPECTED_LOG,code:0},{flag:'-f',target:MISSING_LOG,code:1}],
+    incomplete:'Zdiagnozuj dwa logi jedną linią: test -f dla istniejącego manual.log, następnie && test -f dla brakującego missing.log. Użyj $BASE.',
+    completed:'Zaliczone: manual.log istnieje, missing.log nie istnieje, a echo $? potwierdziło status 1. Kod 1 to wynik testu, nie awaria terminala.'
+  },
+  permissions:{
+    checks:[{flag:'-f',target:LOCKED_LOG,code:0},{flag:'-r',target:LOCKED_LOG,code:1}],
+    incomplete:'Sprawdź ten sam plik checks/locked.log: najpierw test -f (istnieje), następnie && test -r (brak prawa odczytu). Użyj $BASE.',
+    completed:'Zaliczone: locked.log istnieje (test -f → 0), ale nie masz prawa go czytać (test -r → 1). Echo $? potwierdziło wynik 1, bez modyfikowania uprawnień.'
+  }
+} as const;
 
 export interface WorkshopStep {
   line:number;
@@ -52,7 +65,7 @@ function preflight(lines:readonly SourceLine[],seed:LinuxState,scenario:Workshop
     const fail=(feedback:string)=>({feedback:'Linia '+number+': '+feedback,line:number});
     if(line.length>240)return fail('za długa (limit 240 znaków).');
     if(/^for(?:\s|$)/u.test(line)){
-      if(scenario==='diagnosis')return fail('w tej diagnozie użyj test -f oraz echo $?, nie pętli.');
+      if(scenario!=='backup')return fail('w diagnozie użyj test -f / test -r i echo $?, nie pętli.');
       const loop=parseForLoop(simulated,line);
       if(!loop)return fail('sprawdź składnię for ...; do cp ...; done.');
       const body=wordsOnly(loop.body);
@@ -65,8 +78,9 @@ function preflight(lines:readonly SourceLine[],seed:LinuxState,scenario:Workshop
     if(segments){
       if(segments.some(part=>{
         const w=wordsOnly(part.raw);
-        return !w||w.length!==3||w[0]!=='test'||w[1]!=='-f';
-      }))return fail('użyj warunków test -f połączonych && lub ||.');
+        return !w||w.length!==3||w[0]!=='test'||
+          (scenario==='permissions'?!['-f','-r'].includes(w[1]):w[1]!=='-f');
+      }))return fail(scenario==='permissions'?'użyj warunków test -f i test -r połączonych && lub ||.':'użyj warunków test -f połączonych && lub ||.');
       continue;
     }
     const words=wordsOnly(line);
@@ -77,9 +91,10 @@ function preflight(lines:readonly SourceLine[],seed:LinuxState,scenario:Workshop
       simulated=result.state;
       continue;
     }
-    if(words.length===3&&words[0]==='test'&&words[1]==='-f')continue;
-    if(scenario==='diagnosis'&&/^echo\s+\$\?$/u.test(line))continue;
-    return fail('dozwolone są przypisania, for z cp i test -f.');
+    if(words.length===3&&words[0]==='test'&&
+      (scenario==='permissions'?['-f','-r'].includes(words[1]):words[1]==='-f'))continue;
+    if(scenario!=='backup'&&/^echo\s+\$\?$/u.test(line))continue;
+    return fail(scenario==='permissions'?'dozwolone są przypisania, test -f, test -r i echo $?.':'dozwolone są przypisania, for z cp i test -f.');
   }
   return null;
 }
@@ -119,22 +134,24 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup'):Workshop
     });
     // A non-zero test is the evidence to observe in scenario 02, not
     // automatically a script failure. Still reject any other failed command.
-    const diagnosticTest=scenario==='diagnosis'&&result.command==='conditional'&&
-      result.conditionalTrace?.every(part=>part.command==='test'&&part.testFlag==='-f');
+    const diagnosticTest=scenario!=='backup'&&result.command==='conditional'&&
+      result.conditionalTrace?.every(part=>part.command==='test'&&
+        (scenario==='permissions'?['-f','-r'].includes(part.testFlag??''):part.testFlag==='-f'));
     if(!result.ok&&!diagnosticTest)return error('Linia '+lines[index].line+': '+(result.output||'polecenie zakończyło się błędem.'),state,steps,lines[index].line);
   }
 
   if(state.variables?.BASE!=='~/practice')
     return error('Ustaw BASE=~/practice. Ta zmienna określa katalog logów.',state,steps,
       lines.find(x=>/^BASE=/.test(x.raw))?.line);
-  if(scenario==='diagnosis'){
+  if(scenario!=='backup'){
+    const config=diagnostics[scenario];
     const position=events.findIndex(e=>e.command==='conditional');
     const checked=position>=0?events[position].conditionalTrace:undefined;
     const valid=checked?.length===2&&checked.every((part,i)=>
-      part.executed&&part.command==='test'&&part.testFlag==='-f'&&
-      part.target===(i===0?EXPECTED_LOG:MISSING_LOG)&&
-      part.exitCode===(i===0?0:1)&&/\$\{?BASE\}?/.test(part.raw));
-    if(!valid)return error('Zdiagnozuj dwa logi jedną linią: test -f dla istniejącego manual.log, następnie && test -f dla brakującego missing.log. Użyj $BASE.',state,steps,
+      part.executed&&part.command==='test'&&
+      part.testFlag===config.checks[i].flag&&part.target===config.checks[i].target&&
+      part.exitCode===config.checks[i].code&&/\$\{?BASE\}?/.test(part.raw));
+    if(!valid)return error(config.incomplete,state,steps,
       lines.find(x=>x.raw.startsWith('test '))?.line);
     const status=events.findIndex((e,i)=>i>position&&e.command==='echo'&&
       e.target==='previous-exit'&&e.output==='1');
@@ -144,7 +161,7 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup'):Workshop
        Object.keys(initial.files).some(path=>state.files[path]!==initial.files[path]))
       return error('Diagnoza nie powinna modyfikować plików.',state,steps);
     return {completed:true,
-      feedback:'Zaliczone: manual.log istnieje, missing.log nie istnieje, a echo $? potwierdziło status 1. Kod 1 to wynik testu, nie awaria terminala.',
+      feedback:config.completed,
       steps,state};
   }
   if(!lines.some(item=>item.raw.startsWith('for ')&&/\$\{?BASE\}?/.test(item.raw)))

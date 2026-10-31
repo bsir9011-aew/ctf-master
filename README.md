@@ -446,3 +446,12 @@ Zakładka Bash zawiera teraz **dwa krótkie zadania wybierane z jednego małego 
 Scenariusz 02: ustaw `BASE=~/practice`, sprawdź obecność `manual.log` i `missing.log` za pomocą dwóch testów `test -f` połączonych `&&`, następnie wpisz `echo $?`. Walidacja wymaga rzeczywistych wyników testów (pierwszy plik istnieje, drugi nie), odczytu kodu `1` po testach i niezmienionego systemu plików. **Nie symulujemy błędu aplikacji** tylko dlatego, że przewidywany test zwraca `1`.
 
 Każdy scenariusz ma osobny szkic w localStorage. Przełączanie nie usuwa pracy, ale czyści wynik poprzedniego zadania i historię Cofnij, aby nie dało się przypadkiem wkleić starej linii do drugiego scenariusza. Nie dodaliśmy ekranów, etapów ani skomplikowanego edytora. Interpreter nadal pozwala tylko na ściśle kontrolowane konstrukcje wirtualnego Linuksa; nie uruchamia poleceń na systemie użytkownika. Zaliczenia Akademii i misji oraz format kopii postępów pozostają bez zmian. Physical Android QA: pending. Pracujemy wyłącznie w repo, bez APK.
+
+
+## RC.43 - diagnoza uprawnień (Bash na telefonie)
+
+W tym samym mobilnym warsztacie Bash jest teraz **trzecie krótkie ćwiczenie: Uprawnienia**. Plik `~/practice/checks/locked.log` rzeczywiście istnieje w symulatorze, ale nie ma prawa odczytu (`000`). Użytkownik sprawdza kolejno `test -f` i `test -r` dla tego samego pliku, łączy je `&&` i obserwuje kod zakończenia przez `echo $?`. Poprawne wyniki to odpowiednio `0`, `1` i wyświetlony `1`. Tak odróżniamy brak pliku od braku uprawnień.
+
+Nie wolno zmieniać uprawnień ani modyfikować plików w tym scenariuszu. Ocena wykorzystuje faktyczny wirtualny stan pliku, ślad dwóch testów, odpowiednie flagi i kody wyjścia oraz późniejszy odczyt statusu. Całość nadal mieści się w jednym edytorze do czterech niepustych linii, bez nowej zakładki i rozbudowanych misji.
+
+Scenariusze 01/02 zachowują poprzednie klucze szkiców i niezmienione zasady zaliczenia; 03 ma własny klucz. Automatyczny workflow Androida pozostaje wyłączony dla PR. QA klawiatury na rzeczywistym telefonie: PENDING; nie przekazujemy APK.
