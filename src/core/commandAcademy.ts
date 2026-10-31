@@ -9,6 +9,7 @@ import {quotingCase,quotingCompleted} from './quoting.ts';
 import {statusCompleted} from './exitStatus.ts';
 import {introTestFixture,fileTestCompleted} from './fileTest.ts';
 import {conditionalCompleted} from './conditionalLesson.ts';
+import {variableCompleted} from './variableLesson.ts';
 
 export type CommandLessonGroup = 'Podstawy' | 'Pliki i logi' | 'Administracja' | 'Sieć';
 export interface CommandLesson {
@@ -207,6 +208,13 @@ export const commandLessons:readonly CommandLesson[]=[
     assignment:'Przygotuj kopię źródła ~/practice/source.txt jako guarded-copy.txt, wykonując cp tylko gdy test -f potwierdzi obecność pliku (&&). Następnie zabezpiecz system: sprawdź nieistniejący not-present.log i przez && pomiń próbę utworzenia should-not-exist.tmp. Na koniec użyj ||, aby utworzyć follow-up.flag tylko po braku not-present.log. Odczytaj skopiowany plik przez cat. Wszystkie komendy w tym zadaniu mają działać na wirtualnych plikach ~/practice.',
     hint:'Każde działanie po && lub || jest warunkowe. Prawdziwy test pozwala wykonać cp, fałszywy test blokuje touch po && i uruchamia touch po ||. Sprawdź skutek i kod zakończenia.',
     pass:(state,events)=>conditionalCompleted('intro',state,events)},
+  {id:'variables',title:'Zmienne i bezpieczne użycie ścieżek',group:'Pliki i logi',
+    purpose:'Zmienna pozwala zachować wartość i ponownie używać jej w poleceniach. Apostrofy chronią dosłowny tekst, cudzysłowy pozwalają na rozwinięcie $NAZWA bez rozdzielenia argumentu.',
+    syntax:'NAZWA=wartosc; cp "$SOURCE" "$DEST" (osobne polecenia)',
+    example:'SOURCE=~/practice/source.txt',
+    assignment:'Zapisz ścieżkę ~/practice/source.txt w zmiennej SOURCE oraz ~/practice/variable-copy.txt w DEST. Następnie skopiuj plik, odwołując się do OBU zmiennych zamiast wpisywać ścieżki ponownie. Odczytaj wynik cat, także przez zmienną DEST. Użyj osobnych poleceń, bez średnika.',
+    hint:'Wpisz SOURCE=~/practice/source.txt i DEST=~/practice/variable-copy.txt w oddzielnych krokach. W cudzysłowach $SOURCE i $DEST są rozwijane; w apostrofach pozostają dosłowne. Sprawdź man variables.',
+    pass:(state,events)=>variableCompleted('intro',state,events)},
   {id:'investigation',title:'Śledztwo: nieznany incydent',group:'Pliki i logi',
     purpose:'Otrzymujesz objaw incydentu i sam wybierasz strategię diagnostyki. Najpierw potwierdź ślad, potem zabezpiecz oryginalny dziennik.',
     syntax:'Dobierz narzędzia na podstawie obserwacji',
