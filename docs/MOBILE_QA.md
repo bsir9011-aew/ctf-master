@@ -257,3 +257,13 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Zgłoszenie znajdź w ~/documents/cases. Odmowa odczytu pliku dowodowego występuje przed naprawą. namei -l, stat katalogu albo test -x umożliwiają diagnozę braku przejścia.
 - [ ] Minimalne u+x w katalogu daje tryb 700; chmod 777 nie zalicza. Odczytaj oryginał, utwórz kopię i odczytaj kopię - źródło i zgłoszenie muszą pozostać nienaruszone.
 - [ ] Sprawdź na telefonie układ bez pomocy, klawiaturę, zapis sesji i produkcyjne PWA offline RC.29. Fizyczne QA nadal PENDING.
+
+
+## RC.30 - raport po pierwszym zaliczeniu
+
+- [ ] Ukończ niezaliczoną misję, sprawdź sekcję „Raport po misji” i zwinięty przegląd dowodów. Raport ma odpowiadać wykonanym komendom, bez fikcyjnych hipotez i bez kopiowania całej treści logów.
+- [ ] Przejdź do innej misji i wróć: raport zachowuje się, choć historia terminala może zostać wyczyszczona. Powtórzenie komend nie nadpisuje pierwotnego raportu.
+- [ ] W historycznie ukończonej misji bez raportu aplikacja pokazuje wyjaśnienie, zamiast wymyślać przebieg pierwszej próby.
+- [ ] W przypadku INC-020 niepotrzebny restart API ma pojawić się jako konsekwencja nawet po usunięciu awarii. W INC-018 tylko jawnie zapisane hipotezy są widoczne jako hipotezy.
+- [ ] Odpowiedz na pytanie transferowe, przełącz misję i odśwież stronę. Tekst do 600 znaków pozostaje, nie zwiększa licznika ukończeń i nie jest oceniany.
+- [ ] Na telefonie sprawdź czytelność zwijanego raportu, przewijanie długich ścieżek, wygodę pola tekstowego i zachowanie po pracy offline. Fizyczne PWA QA pozostaje PENDING.
