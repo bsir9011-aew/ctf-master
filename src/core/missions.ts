@@ -5,6 +5,7 @@ import {hypothesisProgress} from './hypothesisCase.ts';
 import {responseProgress} from './responseCase.ts';
 import {opsProgress} from './opsRecovery.ts';
 import {blindProgress} from './blindInvestigation.ts';
+import {independentProgress} from './independentInvestigation.ts';
 
 export interface Mission {
   id: string;
@@ -238,5 +239,11 @@ export const missions: Mission[] = [
     briefing:'Zgłoszenie INC-021: Po nocnej konserwacji zespół audytu nie może otworzyć materiału dowodowego. Przywróć dostęp w sposób minimalny, zabezpiecz zweryfikowaną kopię i nie naruszaj danych źródłowych. Masz tylko terminal i dostępne pliki zgłoszeń. Sam ustal punkt awarii i wybierz działania. Tryb samodzielny: bez podpowiedzi i listy wymaganych komend.',
     hints:[],
     success:(state,events)=>blindProgress(state,events).completed
+  },
+  {
+    id:'independent-investigation',title:'INC-022: inny punkt awarii',category:'Linux Investigator',
+    briefing:'INC-022. Po nocnej rotacji logów zespół audytu nie może odczytać eksportu. Poprzedni incydent dotyczył uprawnień do przechodzenia przez katalog. Ten przypadek rozwiąż od nowa: zbierz dowody, wskaż rzeczywistą przyczynę, przywróć wyłącznie niezbędny dostęp, zabezpiecz kopię i potwierdź jej odczyt. Zgłoszenie i ślady znajdują się w wirtualnym środowisku. Tryb transferu - bez podpowiedzi, coachingu i gotowej listy poleceń.',
+    hints:[],
+    success:(state,events)=>independentProgress(state,events).completed
   }
 ];
