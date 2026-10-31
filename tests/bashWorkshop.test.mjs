@@ -55,7 +55,7 @@ test('no verification, wrong base or wrong loop yields first meaningful feedback
 test('wrong copy target and missing verification cannot pass by filenames alone',()=>{
   const wrongCopy=runWorkshop(success.replace('"$FILE.copy"','"$FILE.other"'));
   assert.equal(wrongCopy.completed,false);
-  assert.match(wrongCopy.feedback,/pętlę|kopi/);
+  assert.match(wrongCopy.feedback,/Linia 3/);
   const partialCheck=runWorkshop(success.replace(
     'test -f "$BASE/events.log.copy" && test -f "$BASE/alerts.log.copy"',
     'test -f "$BASE/events.log.copy"'
