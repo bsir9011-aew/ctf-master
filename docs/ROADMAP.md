@@ -114,3 +114,6 @@
 
 - [x] RC.43 - trzeci krótki scenariusz Bash: odróżnienie istnienia pliku (`test -f`) od prawa odczytu (`test -r`), poprawny kod zakończenia 1 i niezależny szkic
 - [ ] Fizyczny test mobilnego menu trzech zadań i działania edytora przy otwartej klawiaturze Androida
+
+- [x] RC.44 - czwarty kompaktowy scenariusz Bash: rzeczywisty fallback przez `||` po brakującym logu, końcowy kod 0 i własny szkic.
+- [ ] RC.44 fizyczne QA telefonu, wyboru zadania i edytora podczas otwartej klawiatury.
