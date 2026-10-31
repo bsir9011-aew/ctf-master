@@ -47,12 +47,15 @@ jobs:
           distribution: temurin
           java-version: "21"
 
-      # Ubuntu runners already have Android command line tools and SDK licenses.
-      # Avoid setup-android's deprecated "sdkmanager tools" installation.
+      # Ubuntu runners have Android command line tools, but sdkmanager is not
+      # necessarily on PATH. Avoid obsolete SDK package "tools" entirely.
       - name: Verify SDK and install Android API 36
         run: |
-          sdkmanager --version
-          sdkmanager "platforms;android-36" "build-tools;36.0.0"
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | head -n 1)"
+          test -n "$SDKMANAGER"
+          "$SDKMANAGER" --version
+          "$SDKMANAGER" --sdk_root="$SDK_ROOT" "platforms;android-36" "build-tools;36.0.0"
 
       - name: Install web dependencies
         run: npm install --no-audit --no-fund
