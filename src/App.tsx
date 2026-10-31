@@ -6,6 +6,7 @@ import {incidentCaseProgress} from './core/incidentCapstone';
 import {hypothesisProgress,seedHypothesisCase} from './core/hypothesisCase';
 import {responseProgress,seedResponseCase} from './core/responseCase';
 import {opsProgress,seedOpsCase} from './core/opsRecovery';
+import {seedBlindCase} from './core/blindInvestigation';
 import PacketPath from './components/PacketPath';
 import CurriculumMap from './components/CurriculumMap';
 import CommandAcademy from './components/CommandAcademy';
@@ -115,6 +116,8 @@ function restore(): SavedSession {
       p.state=seedResponseCase(p.state);
     if(missions[missionIndex]?.id==='operational-recovery')
       p.state=seedOpsCase(p.state);
+    if(missions[missionIndex]?.id==='blind-investigation')
+      p.state=seedBlindCase(p.state);
     p.learning = restoreLearning(p.learning);
     p.reviewHistory = restoreReviewHistory(p.reviewHistory);
     p.reviewAttempt = restoreReviewAttempt(p.reviewAttempt);
@@ -155,6 +158,7 @@ export default function App() {
   const lastResult = (review ? review.events : session.events).at(-1);
   const coach = lastResult ? explainError(lastResult) : null;
   const shownHints = review ? review.hints : stats.hints;
+  const blindMode = mode==='missions' && mission.id==='blind-investigation';
   const hints = reviewCase ? reviewCase.hints : mission.hints;
   const networkingMission = ['gateway-repair','dns-repair','packet-layers'].includes(mission.id);
   const networkingReview = !!review && ['routes','dns','tcp-path'].includes(review.skill);
@@ -219,7 +223,9 @@ export default function App() {
         :missions[index].id==='incident-response'
           ?seedResponseCase(old.state)
           :missions[index].id==='operational-recovery'
-            ?seedOpsCase(old.state):old.state,events:[],
+            ?seedOpsCase(old.state)
+            :missions[index].id==='blind-investigation'
+              ?seedBlindCase(old.state):old.state,events:[],
       lines:[{output:'Misja: ' + missions[index].title + '. Wpisz help, jesli potrzebujesz listy komend.',ok:true}]}));
     setMode('missions'); setCommand(''); setFeedback(''); setPacketExpanded(false); setHistoryCursor(null);
   }
@@ -317,7 +323,8 @@ export default function App() {
           </div>
           <h2>{mission.title}</h2><p>{mission.briefing}</p>
           <div className="learning-stats" aria-label="Statystyki misji">
-            <span>Polecenia: {stats.commands}</span><span>Nieudane: {stats.errors}</span><span>Podpowiedzi: {stats.hints}/3</span>
+            <span>Polecenia: {stats.commands}</span><span>Nieudane: {stats.errors}</span>
+            {blindMode ? <span>Samodzielne śledztwo</span> : <span>Podpowiedzi: {stats.hints}/3</span>}
           </div>
           {caseProgress && !missionComplete && <div className="learning-stats" aria-label="Etapy śledztwa">
             <span>Ślady: {caseProgress.observed?'✓':'oczekuje'}</span>
@@ -424,10 +431,10 @@ export default function App() {
         <div className="sr-only" role="status" aria-live="polite">
           {lastResult ? (lastResult.ok ? 'Polecenie wykonane.' : 'Polecenie nie powiodło się.') + ' ' + lastResult.output : ''}
         </div>
-        {coach && <section className="coach-panel" role="status" aria-live="polite">
+        {coach && !blindMode && <section className="coach-panel" role="status" aria-live="polite">
           <strong>{coach.title}</strong><p>{coach.guidance}</p>
         </section>}
-        <section className="help-panel">
+        {!blindMode && <section className="help-panel">
           <div className="help-top"><div><p className="eyebrow">GDY UTKNIESZ</p>
             <h3>Podpowiedzi krok po kroku</h3></div>
             <button className="secondary" onClick={reveal} disabled={shownHints===3 || !!review?.completed}>
@@ -442,7 +449,7 @@ export default function App() {
             <button className="text-button danger" onClick={reset}>Reset całego postępu</button>
           </div>
           {feedback && <p className="hint-feedback">{feedback}</p>}
-        </section>
+        </section>}
       </>}
       <p className="safety-note">To bezpieczny symulator w przeglądarce. Polecenia nie wykonują się w prawdziwym systemie ani na serwerze.</p>
     </main>
