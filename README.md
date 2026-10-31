@@ -334,3 +334,28 @@ Pod raportem znajduje się krótkie, **nieoceniane pytanie transferowe** oraz po
 **INC-022: inny punkt awarii** jest nową, 22. misją CTF, odblokowywaną po ukończeniu poprzedniego śledztwa. Zostaje tryb **bez podpowiedzi i automatycznego coacha**, ale zmieniają się wirtualne pliki, lokalizacja materiału oraz mechanizm odmowy dostępu. Przeniesienie zapamiętanej komendy z INC-021 nie wystarczy do naprawy. Gracz musi zebrać dowody z nowego zgłoszenia, potwierdzić rzeczywistą przyczynę, zastosować minimalne uprawnienia i sprawdzić zachowaną kopię.
 
 Silnik uznaje kilka odmiennych sposobów diagnostyki, lecz wymaga dowodu odmowy odczytu przed korektą oraz prawidłowej kolejności działań. Zbyt szerokie uprawnienia, niezmieniony problem, sfałszowana kopia lub sam końcowy stan plików bez wykonanej analizy nie zaliczają misji. Po jej pierwszym ukończeniu działa znany raport after-action i pytanie transferowe. Nowe dane powstają tylko raz przy wejściu do zadania; po jego rozpoczęciu system nie odtwarza usuniętych ani zmienionych plików automatycznie. Zachowano wcześniejsze indeksy 21 misji, historię, raporty, refleksje i klucz localStorage. Wszystko działa w wirtualnym systemie. **Fizyczne QA telefonu i PWA offline nadal PENDING**.
+
+## RC.32 - REAL-01: prawdziwy Linux jako sprawdzian transferu
+
+**Nowy etap poza symulatorem:** [REAL-01 - samodzielny lab uprawnień](labs/real-linux/README.md).
+Uruchamiasz go w **prawdziwym terminalu GitHub Codespaces**, a nie w terminalu w przeglądarce CTF Master.
+Nie uruchamia usług ani poleceń systemowych na serwerze PWA; laboratorium używa rzeczywistych plików i uprawnień POSIX wyłącznie wewnątrz ignorowanego przez Git katalogu `.ctf-master-labs/permissions-01`.
+
+Start w głównym katalogu repozytorium:
+
+```bash
+node labs/real-linux/setup.mjs
+cd .ctf-master-labs/permissions-01
+cat issue.txt
+```
+
+Po samodzielnej diagnozie, naprawie i wykonaniu kopii:
+
+```bash
+cd ../..
+node labs/real-linux/verify.mjs
+```
+
+Weryfikator czyta prawdziwe atrybuty plików i porównuje treść przez SHA-256. `RESULT: 6/6` potwierdza poprawny **stan końcowy**, ale nie dowodzi, że analiza i dobór komend były samodzielne. Nie wymaga `sudo`, nie modyfikuje `/etc` ani plików użytkownika poza katalogiem ćwiczenia. Nie resetuje istniejącego labu. Wynik nie odblokowuje automatycznie misji PWA. W menu aplikacji jest link do laboratorium.
+
+Pozostaje osobne zadanie do wykonania przez użytkownika: **QA fizycznego telefonu i offline PWA (PENDING)**.
