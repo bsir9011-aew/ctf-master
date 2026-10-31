@@ -13,6 +13,7 @@ import {seedIndependentCase} from './core/independentInvestigation';
 import PacketPath from './components/PacketPath';
 import CurriculumMap from './components/CurriculumMap';
 import CommandAcademy from './components/CommandAcademy';
+import BashWorkshop from './components/BashWorkshop';
 import ProgressBackupPanel from './components/ProgressBackupPanel';
 import {mergeMissionProgress,mergeAcademyProgress,mergeCoachProgress,
   type ProgressBackup} from './core/progressBackup';
@@ -139,7 +140,7 @@ function restore(): SavedSession {
 
 export default function App() {
   const [session,setSession] = useState<SavedSession>(restore);
-  const [mode,setMode] = useState<'commands'|'missions'|'review'>('commands');
+  const [mode,setMode] = useState<'commands'|'missions'|'review'|'workshop'>('commands');
   const [academyRevision,setAcademyRevision] = useState(0);
   const [command,setCommand] = useState('');
   const [feedback,setFeedback] = useState('');
@@ -324,7 +325,7 @@ export default function App() {
       <span className="offline-tag">LOCAL SIM</span>
     </header>
     <main>
-      {mode!=='commands'&&<section className="welcome">
+      {(mode==='missions'||mode==='review')&&<section className="welcome">
         <p className="eyebrow">TWOJA DROGA DO CTF</p>
         <h1>Ucz się. Eksperymentuj.<br/><em>Zdobywaj flagi.</em></h1>
         <p>To nie quiz z odpowiedziami. Twoje polecenia zmieniają wirtualny system.</p>
@@ -336,9 +337,11 @@ export default function App() {
           onClick={() => {setMode('missions');setCommand('');setFeedback('');setPacketExpanded(false);setHistoryCursor(null);}}>Misje</button>
         <button className={mode === 'review' ? 'active' : ''} aria-pressed={mode === 'review'}
           onClick={() => {setMode('review');setCommand('');setFeedback('');setPacketExpanded(false);setHistoryCursor(null);}}>Powtórki</button>
+        <button className={mode === 'workshop' ? 'active' : ''} aria-pressed={mode === 'workshop'}
+          onClick={() => {setMode('workshop');setCommand('');setFeedback('');}}>Bash</button>
       </nav>
 
-      <section className="real-lab-bridge" aria-label="Laboratorium na prawdziwym Linuksie">
+      {mode!=='workshop'&&<section className="real-lab-bridge" aria-label="Laboratorium na prawdziwym Linuksie">
         <details>
           <summary>REAL-01 · Przenieś umiejętności na prawdziwy Linux</summary>
           <p>To osobne ćwiczenie w terminalu <strong>GitHub Codespaces</strong>, nie w symulowanym terminalu aplikacji. Tworzy izolowane pliki w repozytorium. Nie wymaga sudo.</p>
@@ -349,8 +352,9 @@ export default function App() {
             target="_blank" rel="noopener noreferrer">Zasady i pełna instrukcja REAL-01</a>
           <p className="real-lab-disclaimer">Wynik labu nie zmienia automatycznie postępu misji PWA. Weryfikator sprawdza uprawnienia i integralność kopii, nie Twoje rozumowanie.</p>
         </details>
-      </section>
+      </section>}
 
+      {mode==='workshop'&&<BashWorkshop/>}
       {mode === 'commands' && <CommandAcademy key={academyRevision}/>}
       {mode === 'missions' ? <>
         <CurriculumMap completed={session.completed} highestUnlocked={unlocked}
