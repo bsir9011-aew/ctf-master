@@ -100,3 +100,7 @@
 - [x] RC.39 - zwarty pasek znaków Bash w mobilnym edytorze, wstawianie pod kursorem, zastępowanie zaznaczenia i wstawianie nowej linii
 - [ ] RC.39 QA: telefon Android, otwarta klawiatura, fokus, zaznaczenie, gest przewijania i przepełnienie 700 znaków
 - [ ] Dalsze scenariusze Bash dopiero po ocenie ergonomii pierwszego ekranu
+
+- [x] RC.40 - wskazanie pierwszej błędnej linii w mobilnym Bash Workshop i szybki powrót do jej edycji, bez dodatkowych ekranów
+- [x] Mapowanie numerów linii z uwzględnieniem pustych wierszy i CRLF, testy błędów składni, wykonania oraz walidacji
+- [ ] QA na fizycznym Androidzie: czy przycisk Popraw linię N poprawnie ustawia zaznaczenie i widoczność przy otwartej klawiaturze
