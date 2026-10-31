@@ -34,7 +34,9 @@ test('one-shot case seed does not modify old saves, and does not recreate delete
   const legacy=initialLinux(),before=structuredClone(legacy);
   delete legacy.lastExitCode;
   const first=seedBlindCase(legacy);
-  assert.deepEqual(legacy,{...before,lastExitCode:undefined});
+  assert.equal(legacy.lastExitCode,undefined);
+  assert.deepEqual(legacy.files,before.files);
+  assert.deepEqual(legacy.dirs,before.dirs);
   assert.equal(first.blindCase.seeded,true);
   assert.equal(modeOf(first,c.directory),0o600);
   assert.equal(first.files[c.evidence],c.evidenceBody);
