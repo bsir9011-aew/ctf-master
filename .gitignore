@@ -9,3 +9,7 @@ dist/
 
 # Real terminal training artifacts - never commit synthetic evidence
 .ctf-master-labs/
+
+# Generated Capacitor Android project and signed debug packages
+android/
+android-output/

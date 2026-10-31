@@ -53,7 +53,10 @@
 - [x] RC.31 - samodzielna misja 22, inny mechanizm odmowy odczytu (plik, nie katalog), weryfikacja dowodów i minimalnej naprawy
 - [x] RC.32 - osobny, izolowany realny lab Linux w Codespaces: błędne uprawnienia, diagnoza, integralność SHA-256 i bezpieczny weryfikator wyniku
 - [ ] Użytkownik uruchomi REAL-01 samodzielnie i wyjaśni mechanizm naprawy (nie potwierdzają tego testy CI)
-- [ ] Manual QA na fizycznym telefonie (1.0 RC.32)
+- [x] RC.33 - wygenerowanie testowego Android APK z lokalnie osadzonymi zasobami i artefaktem GitHub Actions
+- [ ] Test APK na fizycznym telefonie: instalacja, klawiatura, lokalne dane, tryb samolotowy
+- [ ] Stałe podpisywanie wydania i eksport/import postępów między PWA i APK
+- [ ] Manual QA na fizycznym telefonie (1.0 RC.33)
 
 ## Etap 1 - Linux Administrator
 - [x] Podstawy chmod, stat, tryby rwx i testy Permission denied

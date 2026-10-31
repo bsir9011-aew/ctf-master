@@ -1,0 +1,91 @@
+name: Android APK (debug)
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "src/**"
+      - "public/**"
+      - "index.html"
+      - "capacitor.config.json"
+      - "scripts/prepare-android.mjs"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/android-apk.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "index.html"
+      - "capacitor.config.json"
+      - "scripts/prepare-android.mjs"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/android-apk.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-debug-apk:
+    name: Build offline CTF Master APK
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      # Ubuntu runners have Android command line tools, but sdkmanager is not
+      # necessarily on PATH. Avoid obsolete SDK package "tools" entirely.
+      - name: Verify SDK and install Android API 36
+        run: |
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | head -n 1)"
+          test -n "$SDKMANAGER"
+          "$SDKMANAGER" --version
+          "$SDKMANAGER" --sdk_root="$SDK_ROOT" "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Install web dependencies
+        run: npm install --no-audit --no-fund
+
+      # Keep the existing web project's lockfile and dependencies untouched.
+      # All three Capacitor packages are pinned to the same tested major/minor.
+      - name: Install Android build tooling
+        run: npm install --no-save --package-lock=false --no-audit --no-fund @capacitor/core@8.0.0 @capacitor/cli@8.0.0 @capacitor/android@8.0.0
+
+      - name: Build static web assets
+        run: npm run build
+
+      - name: Create Android project and embed web assets
+        run: npm run android:prepare
+
+      - name: Build signed debug APK
+        run: bash ./gradlew --no-daemon assembleDebug
+        working-directory: android
+
+      - name: Prepare downloadable APK and checksum
+        run: |
+          mkdir -p android-output
+          cp android/app/build/outputs/apk/debug/app-debug.apk android-output/CTF-Master-RC33-debug.apk
+          cd android-output
+          sha256sum CTF-Master-RC33-debug.apk > SHA256SUMS.txt
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: CTF-Master-Android-debug-${{ github.run_number }}
+          path: android-output/
+          retention-days: 14
+          if-no-files-found: error
