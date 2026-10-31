@@ -247,3 +247,13 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Niepotrzebny `systemctl restart api` w trakcie awarii zwiększa licznik skutków. `systemctl stop sshd` degraduje dostęp; po naprawie przez `systemctl start sshd` i kontroli HTTP misję można zaliczyć, ale historia działań pozostaje.
 - [ ] Odczyty `systemctl status` nie zwiększają licznika błędnych interwencji, a samo pozorowanie wyniku bez diagnozy nie zalicza misji.
 - [ ] Sprawdź powrót na misję, zachowanie postępów i historii, klawiaturę mobilną oraz PWA RC.28 offline. Fizyczne QA telefonu **PENDING**.
+
+
+## RC.29 - INC-021, misja bez podpowiedzi
+
+- [ ] Po ukończeniu INC-020 pojawia się misja 21; indeksy i wcześniejsze ukończenia bez zmian.
+- [ ] W misji nie ma panelu podpowiedzi, auto-coacha ani listy wymaganych komend. help i man pozostają dostępne w terminalu.
+- [ ] Po wejściu powstają raz pliki zgłoszenia, fałszywego tropu i dowodu. Po powrocie/odświeżeniu zachowują się edycje i usunięcia, bez nadpisania przez seed.
+- [ ] Zgłoszenie znajdź w ~/documents/cases. Odmowa odczytu pliku dowodowego występuje przed naprawą. namei -l, stat katalogu albo test -x umożliwiają diagnozę braku przejścia.
+- [ ] Minimalne u+x w katalogu daje tryb 700; chmod 777 nie zalicza. Odczytaj oryginał, utwórz kopię i odczytaj kopię - źródło i zgłoszenie muszą pozostać nienaruszone.
+- [ ] Sprawdź na telefonie układ bez pomocy, klawiaturę, zapis sesji i produkcyjne PWA offline RC.29. Fizyczne QA nadal PENDING.

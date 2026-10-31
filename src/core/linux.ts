@@ -14,6 +14,7 @@ import {executeFileTest,type TestFlag} from './fileTest.ts';
 import {executeHypothesis,type Confidence} from './hypothesisCase.ts';
 import {executeResponseCurl,applyResponseRestart,type ResponseRuntime} from './responseCase.ts';
 import {type OpsRecovery} from './opsRecovery.ts';
+import {type BlindCaseState} from './blindInvestigation.ts';
 import {parseConditionals,executeConditionals,type ConditionalStep} from './conditionals.ts';
 import { executeUmask, newFileMode, newDirectoryMode, DEFAULT_UMASK } from './umask.ts';
 import { defaultIdentity, executeIdentityCommand, identityOf, type SimIdentity } from './identity.ts';
@@ -33,6 +34,7 @@ export interface LinuxState {
   lastExitCode?: number;
   response?: ResponseRuntime;
   ops?: OpsRecovery;
+  blindCase?: BlindCaseState;
 }
 
 export interface CommandResult {
@@ -212,7 +214,7 @@ function runLinux(state: LinuxState, raw: string): CommandResult {
       if (args.length !== 1) return done('Uzycie: cat PLIK', false);
       const path = argPath(args[0]);
       if (!Object.hasOwn(state.files, path)) return done(`cat: ${args[0]}: No such file`, false);
-      if (!canReadFile(state,path)) return done(`cat: ${args[0]}: Permission denied`, false);
+      if (!canReadFile(state,path)) return done(`cat: ${args[0]}: Permission denied`, false,state,path);
       return done(state.files[path], true, state, path);
     }
     case 'mkdir': {

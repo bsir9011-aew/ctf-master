@@ -162,7 +162,7 @@ test('drills cannot modify saved missions, their flags, or the base world',()=>{
   assert.equal(result.completed,true);
   assert.deepEqual(session,initial);
   assert.equal(session.files['/home/player/practice/delete-me.tmp'],undefined);
-  assert.equal(missions.length,20);
+  assert.equal(missions.length,21);
 });
 
 test('practice worlds reset to the same fixtures after changes',()=>{

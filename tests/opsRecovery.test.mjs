@@ -18,7 +18,7 @@ function run(commands,initial=seedOpsCase(initialLinux())){
 }
 
 test('the new mission is appended with unchanged earlier ordering and six chapters',()=>{
-  assert.equal(missions.length,20);
+  assert.equal(missions.length,21);
   assert.equal(missions[16].id,'incident-correlation');
   assert.equal(missions[17].id,'incident-hypotheses');
   assert.equal(missions[18].id,'incident-response');

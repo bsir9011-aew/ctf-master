@@ -4,13 +4,14 @@ import {incidentCaseProgress} from './incidentCapstone.ts';
 import {hypothesisProgress} from './hypothesisCase.ts';
 import {responseProgress} from './responseCase.ts';
 import {opsProgress} from './opsRecovery.ts';
+import {blindProgress} from './blindInvestigation.ts';
 
 export interface Mission {
   id: string;
   title: string;
   category: string;
   briefing: string;
-  hints: [string, string, string];
+  hints: readonly string[];
   success: (state: LinuxState, events: CommandResult[]) => boolean;
 }
 
@@ -231,5 +232,11 @@ export const missions: Mission[] = [
       'Wykonaj curl -i http://ops.ctf.test/health, systemctl status queue, journalctl -u queue. Napraw queue przez systemctl start queue; sprawdź ponownie curl. Następnie systemctl status queue i systemctl status sshd. Jeżeli zatrzymałeś sshd lub api, uruchom je ponownie przed weryfikacją.'
     ],
     success:(state,events)=>opsProgress(state,events).completed
+  },
+  {
+    id:'blind-investigation',title:'INC-021: zgłoszenie bez instrukcji',category:'Linux Investigator',
+    briefing:'Zgłoszenie INC-021: Po nocnej konserwacji zespół audytu nie może otworzyć materiału dowodowego. Przywróć dostęp w sposób minimalny, zabezpiecz zweryfikowaną kopię i nie naruszaj danych źródłowych. Masz tylko terminal i dostępne pliki zgłoszeń. Sam ustal punkt awarii i wybierz działania. Tryb samodzielny: bez podpowiedzi i listy wymaganych komend.',
+    hints:[],
+    success:(state,events)=>blindProgress(state,events).completed
   }
 ];
