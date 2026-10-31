@@ -359,3 +359,26 @@
 .after-action .transfer-reflection textarea:focus-visible{outline:3px solid #a9f2cb;outline-offset:2px}
 .after-action .transfer-reflection small{display:block;color:#a9bcc6;font-size:11px;line-height:1.5}
 @media(max-width:530px){.after-action{padding:12px}.after-action details{padding:10px}}
+
+
+/* RC.32: bridge to a real terminal; the in-app shell stays simulated. */
+.real-lab-bridge{margin:12px 0 16px}
+.real-lab-bridge details{
+  border:1px solid #356071;border-radius:12px;background:#12232e;
+  padding:11px 14px;color:#e8f3f5;
+}
+.real-lab-bridge summary{
+  cursor:pointer;font-size:14px;font-weight:760;
+  padding:5px 2px;min-height:29px;
+}
+.real-lab-bridge summary:focus-visible,
+.real-lab-bridge a:focus-visible{outline:3px solid #a9f2cb;outline-offset:3px}
+.real-lab-bridge p{font-size:13px;line-height:1.55;margin:12px 0}
+.real-lab-bridge pre{
+  margin:10px 0;max-width:100%;overflow-x:auto;
+  padding:12px;border:1px solid #355265;border-radius:8px;
+  color:#d9ffe9;background:#0d1b27;font-size:12px;line-height:1.65;
+}
+.real-lab-bridge a{color:#9fdfdf;overflow-wrap:anywhere}
+.real-lab-bridge .real-lab-disclaimer{color:#b4c9d0;font-size:12px}
+@media(max-width:530px){.real-lab-bridge details{padding:10px}.real-lab-bridge pre{font-size:11px}}
