@@ -353,3 +353,10 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Odwrotna kolejność testów lub brak echo $? nie powinny zaliczać ćwiczenia; wynik ma wskazywać pierwszy istotny błąd.
 - [ ] Wpisz fragment rozwiązania w 01, przejdź do 02, wróć do 01: oba szkice pozostają osobne. Cofnij i feedback nie mogą mieszać dwóch zadań.
 - [ ] Sprawdź mały ekran i klawiaturę Android: jedno pole edycji, jeden wynik, minimum przewijania. Fizyczne QA nadal PENDING, bez wydawania APK.
+
+## RC.43 - uprawnienia zamiast brakującego pliku
+- [ ] W jednym menu Bash wybierz 03 Uprawnienia; zobacz krótkie zadanie i ten sam edytor bez dodatkowych etapów.
+- [ ] Sprawdź locked.log przez test -f i test -r połączone &&. Wynik 0 dla istnienia oraz 1 dla odczytu, a potem echo $? pokazujące 1 powinny zaliczyć zadanie.
+- [ ] Błędne użycie test -f dwukrotnie, odwrócenie kolejności, próba chmod lub brak echo $? mają zostać odrzucone.
+- [ ] Wpisz inne fragmenty kodu w 01, 02 i 03. Przełączaj scenariusze - szkice muszą pozostać osobne; Cofnij nie może mieszać historii.
+- [ ] Przy otwartej klawiaturze sprawdź menu, zaznaczenie błędnej linii i brak poziomego lub nadmiernego pionowego przewijania. Fizyczne QA: PENDING.
