@@ -338,3 +338,11 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Zmień błędną linię i uruchom ponownie. Informacja i przycisk powinny zniknąć po poprawnym wykonaniu.
 - [ ] Brakującą całkowicie linię raportujemy opisowo, bez wskazywania niewłaściwej linii i bez nowego panelu.
 - [ ] Fizyczny test Androida nadal PENDING; brak dystrybucji APK.
+
+## RC.41 - Cofnij podczas pisania Bash
+- [ ] Wstaw `$` lub `&&` w środek linii, a następnie dotknij ↶; tekst i kursor powinny wrócić do stanu sprzed wstawienia.
+- [ ] Zaznacz linię przyciskiem „Popraw linię”, zastąp ją omyłkowo i użyj ↶; poprzednia linia powinna wrócić bez utraty pozostałego skryptu.
+- [ ] Szybko wpisz kilka liter i cofnij je jednym dotknięciem; po dłuższej pauzie pisanie ma osobne cofnięcie.
+- [ ] Wstaw pusty szablon, a następnie cofnij reset. Przełącz zakładki i sprawdź zachowanie zapisanego szkicu.
+- [ ] Gdy nie ma historii, ↶ jest nieaktywny. Przy otwartej klawiaturze nie powinien tworzyć dodatkowych pionowych paneli.
+- [ ] Rzeczywiste QA Android WebView: PENDING. Nie dystrybuować APK w tym PR.
