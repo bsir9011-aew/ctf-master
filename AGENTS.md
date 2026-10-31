@@ -35,3 +35,11 @@ Next priority: have the user run physical PWA QA per docs/MOBILE_QA.md and perfo
 - Do not send backups over the network, inject them as code, or silently reset saved progress. JSON backups may include learner notes; advise private storage outside APK.
 - Imported progress must remount Academy state so its old useEffect cannot overwrite restored achievements. No new server/connector/login.
 - Existing debug APK signing continuity is still not guaranteed. Physical copy/paste testing remains pending.
+
+
+## RC.37 - virtual for loops
+- Grammar: for NAME in 1-5 values; do one command; done (single line). No nested loops, globbing, eval, script files or host shell.
+- Validate entire loop structure before executing any iteration. Expand list values at loop entry, and body variables per iteration. Bound input and values.
+- Persist variable as last loop value; retain last iteration's exit code. Keep trace for each actual execution, including variable refs, target and status.
+- Intro lesson 35 and independent transfer validate exact file evidence from actual loop steps and subsequent readback. Preserve previous achievements, IDs, imports and existing app keys.
+- Continue in the GitHub repository without distributing APK.
