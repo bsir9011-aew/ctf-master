@@ -28,11 +28,11 @@ test('safe real-world setup is idempotent and verifier requires actual repair an
     assert.equal(first.status,0,first.output);
     assert.match(first.output,/Real Linux lab created/);
     assert.equal(statSync(join(root,'archive')).mode&0o777,0o600);
-    assert.equal(statSync(join(root,'archive/audit.log')).mode&0o777,0o644);
     const pre=run(verify,parent);
     assert.equal(pre.status,1,pre.output);
     assert.match(pre.output,/NOT YET/);
     chmodSync(join(root,'archive'),0o700);
+    assert.equal(statSync(join(root,'archive/audit.log')).mode&0o777,0o644);
     copyFileSync(join(root,'archive/audit.log'),join(root,'delivered/evidence.log'));
     chmodSync(join(root,'delivered/evidence.log'),0o644);
     const fixed=run(verify,parent);
