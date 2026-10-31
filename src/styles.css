@@ -445,3 +445,38 @@
   .academy-terminal .academy-command button[type=submit]{min-height:44px}
   .academy-terminal-column .academy-disclaimer{display:none}
 }
+
+
+/* RC.35: offline data portability without extending the primary mobile screen. */
+.progress-backup{margin:10px 0 4px;min-width:0}
+.progress-backup details{
+  border:1px solid #3a6264;background:#13282c;color:#d7ebe6;
+  border-radius:12px;padding:11px 13px;
+}
+.progress-backup summary{
+  cursor:pointer;min-height:32px;font-size:13px;font-weight:750;
+  padding:6px 2px;
+}
+.progress-backup summary:focus-visible,.progress-backup button:focus-visible{
+  outline:3px solid #b2f7d0;outline-offset:3px;
+}
+.progress-backup p,.progress-backup small{font-size:12px;line-height:1.55}
+.progress-backup small{display:block;color:#b0c9c3;margin:7px 0}
+.progress-backup label{display:block;font-size:12px;font-weight:750;margin:13px 0 6px}
+.progress-backup textarea{
+  width:100%;min-height:76px;max-height:165px;resize:vertical;
+  background:#0c1d25;color:#ebfff4;border:1px solid #54726d;
+  border-radius:9px;padding:10px;font:12px/1.5 ui-monospace,monospace;
+}
+.progress-backup textarea:focus-visible{outline:3px solid #c5ffdf;outline-offset:2px}
+.progress-backup .backup-actions{display:flex;gap:8px;flex-wrap:wrap;margin:11px 0}
+.progress-backup button{
+  min-height:44px;padding:9px 12px;background:#245143;
+  border:1px solid #567f6c;color:#e5fff1;border-radius:9px;
+  font-weight:750;font-size:12px;
+}
+.progress-backup button:disabled{opacity:.45}
+.progress-backup .backup-import{border-top:1px solid #355453;margin-top:13px;padding-top:2px}
+.progress-backup .backup-preview{color:#b7edcb}
+.progress-backup .backup-status{padding:9px 11px;border-radius:8px;background:#1c3941;border:1px solid #527b78}
+@media(max-width:530px){.progress-backup details{padding:10px 11px}}
