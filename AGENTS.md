@@ -90,3 +90,7 @@ Next priority: have the user run physical PWA QA per docs/MOBILE_QA.md and perfo
 - Fourth scenario `fallback`: missing.log is absent (test -f => 1), then `||` actually executes existing manual.log (test -f => 0). A direct subsequent `echo $?` must observe 0.
 - Validate trace order, operator, real statuses and no filesystem mutation; reject forged output or skipped fallback. Preserve all RC.38-43 scenario keys and use new isolated fallback draft.
 - No extra screen, more than four code lines, host execution or automatic Android APK. Manual phone QA still pending.
+
+## RC.45: conditional trace visibility
+- Show the actual executed/skipped predicates from real conditionalTrace in the existing collapsed Bash trace. Explain short-circuit decisions for && / ||; never claim a skipped test ran.
+- Leave workshop scenarios, drafts, validation, achievements, host safety and screen layout unchanged. Mobile physical QA remains pending.
