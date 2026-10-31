@@ -43,3 +43,11 @@ Next priority: have the user run physical PWA QA per docs/MOBILE_QA.md and perfo
 - Persist variable as last loop value; retain last iteration's exit code. Keep trace for each actual execution, including variable refs, target and status.
 - Intro lesson 35 and independent transfer validate exact file evidence from actual loop steps and subsequent readback. Preserve previous achievements, IDs, imports and existing app keys.
 - Continue in the GitHub repository without distributing APK.
+
+## RC.38 One-screen Mobile Bash Workshop
+- First design for phone: one short task, up to four code lines, one Run button and inline result. No multi-screen wizard, tall stacked consoles or mandatory progression.
+- Details/trace/help stay collapsed. Hide the welcome banner and REAL-01 bridge in Bash mode; keep four nav tabs in one phone row.
+- Preflight complete script before changes. Allow only assignments, a bounded for loop with cp body, and test -f predicates. All steps use the virtual Linux interpreter with fresh state per run. No host shell, network, eval, script files or real filesystem access.
+- Validate actual copied contents, loop references and predicate trace. Report first relevant mismatch.
+- Save only the draft in a separate localStorage key; do not alter Academy/mission/progress-backup schema or claim persistent mastery.
+- Repo-only work. No APK distribution.
