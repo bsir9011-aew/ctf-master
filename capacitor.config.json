@@ -1,0 +1,8 @@
+{
+  "appId": "pl.ctfmaster.training",
+  "appName": "CTF Master",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": false
+  }
+}
