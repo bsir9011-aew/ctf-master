@@ -1,5 +1,16 @@
 # CTF Master 1.0 RC — manual mobile QA
 
+## RC.33 - instalowalny testowy Android APK
+
+- [ ] Pobierz APK z zielonego przebiegu Actions → Android APK (debug) na main, rozpakuj ZIP i zainstaluj na urządzeniu.
+- [ ] Wykonaj komendy `pwd`, `ls`, wpisz ścieżkę ze spacją; sprawdź dotyk, klawiaturę i przewijanie.
+- [ ] Zamknij i otwórz aplikację - upewnij się, że zapisane w APK postępy pozostały.
+- [ ] Włącz tryb samolotowy i uruchom ponownie APK; zasoby i misje powinny działać bez internetu.
+- [ ] Sprawdź Android Back, obrót ekranu, wyświetlanie klawiatury i nawigację po lekcjach.
+- [ ] Pamiętaj, że postępy z przeglądarki PWA nie są automatycznie przeniesione do nowego WebView. Kolejne debug APK mogą wymagać odinstalowania poprzedniego z powodu nowego klucza.
+- [ ] Status: QA na fizycznym urządzeniu PENDING, do potwierdzenia przez użytkownika.
+
+
 Ten zestaw jest do wykonania na **prawdziwym telefonie**. Zielony CI nie potwierdza działania klawiatury ekranowej ani instalacji PWA.
 
 ## Jak uruchomić build produkcyjny (Codespaces)
