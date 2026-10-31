@@ -1,28 +1,9 @@
 name: Android APK (debug)
 
+# APK builds are opt-in while development continues in the repository.
+# Run manually when preparing a real device test, not on every web PR.
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - "src/**"
-      - "public/**"
-      - "index.html"
-      - "capacitor.config.json"
-      - "scripts/prepare-android.mjs"
-      - "package.json"
-      - "package-lock.json"
-      - ".github/workflows/android-apk.yml"
-  push:
-    branches: [main]
-    paths:
-      - "src/**"
-      - "public/**"
-      - "index.html"
-      - "capacitor.config.json"
-      - "scripts/prepare-android.mjs"
-      - "package.json"
-      - "package-lock.json"
-      - ".github/workflows/android-apk.yml"
 
 permissions:
   contents: read

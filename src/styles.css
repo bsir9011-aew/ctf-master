@@ -573,3 +573,12 @@
   font-size:12px;font-weight:800;cursor:pointer;
 }
 .workshop-fix-line:focus-visible{outline:3px solid #ffdfaa;outline-offset:2px}
+
+
+/* RC.41: undo lives in the existing shortcut row, without a new panel. */
+.workshop-shortcuts .workshop-undo{
+  background:#34443c;color:#e8f9e9;border-color:#667968;
+}
+.workshop-shortcuts .workshop-undo:disabled{
+  opacity:.36;cursor:default;
+}
