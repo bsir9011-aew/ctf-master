@@ -96,3 +96,7 @@
 - [x] RC.38 - Bash Workshop mobilny: jedno zadanie, edytor do czterech linii, jeden przycisk, inline feedback oraz zwijany ślad wykonania
 - [x] Ograniczony interpreter z walidacją całego skryptu przed wykonaniem, świeży wirtualny stan na każdą próbę
 - [ ] Fizyczny test mobilnego edytora, klawiatury i przewijania warsztatu; bez budowania kolejnych wieloetapowych misji przed QA
+
+- [x] RC.39 - zwarty pasek znaków Bash w mobilnym edytorze, wstawianie pod kursorem, zastępowanie zaznaczenia i wstawianie nowej linii
+- [ ] RC.39 QA: telefon Android, otwarta klawiatura, fokus, zaznaczenie, gest przewijania i przepełnienie 700 znaków
+- [ ] Dalsze scenariusze Bash dopiero po ocenie ergonomii pierwszego ekranu
