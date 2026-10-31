@@ -48,7 +48,7 @@ export const learningChapters: readonly LearningChapter[] = [
     purpose:'Połączysz rozpoznanie incydentu, ochronę oryginałów, kopiowanie warunkowe i raportowanie.',
     commands:'grep · test · && · cp · > · >> · cat',
     outcome:'Korelujesz ślady, oceniasz hipotezy, usuwasz przyczyny i naprawiasz skutki błędnych decyzji.',
-    missionIds:['incident-correlation','incident-hypotheses','incident-response','operational-recovery','blind-investigation']
+    missionIds:['incident-correlation','incident-hypotheses','incident-response','operational-recovery','blind-investigation','independent-investigation']
   }
 ];
 

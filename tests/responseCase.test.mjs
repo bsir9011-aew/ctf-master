@@ -22,7 +22,7 @@ const verify=['curl -i '+c.endpoint];
 const solve=()=>run([...baseline,...rollback,...apply,...verify]);
 
 test('append remediation as mission 19 without moving original missions',()=>{
-  assert.equal(missions.length,21);
+  assert.equal(missions.length,22);
   assert.equal(missions[16].id,'incident-correlation');
   assert.equal(missions[17].id,'incident-hypotheses');
   assert.equal(missions[18].id,'incident-response');

@@ -267,3 +267,13 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] W przypadku INC-020 niepotrzebny restart API ma pojawić się jako konsekwencja nawet po usunięciu awarii. W INC-018 tylko jawnie zapisane hipotezy są widoczne jako hipotezy.
 - [ ] Odpowiedz na pytanie transferowe, przełącz misję i odśwież stronę. Tekst do 600 znaków pozostaje, nie zwiększa licznika ukończeń i nie jest oceniany.
 - [ ] Na telefonie sprawdź czytelność zwijanego raportu, przewijanie długich ścieżek, wygodę pola tekstowego i zachowanie po pracy offline. Fizyczne PWA QA pozostaje PENDING.
+
+
+## RC.31 - weryfikacja samodzielnego transferu
+
+- [ ] Po ukończeniu INC-021 można otworzyć nową 22. misję INC-022, bez utraty zaliczeń i raportów z poprzednich zadań.
+- [ ] Misja nie wyświetla podpowiedzi ani automatycznego coachingu. Zgłoszenie prowadzi do osobnego zestawu plików, a samo powtórzenie poprzedniej naprawy nie działa.
+- [ ] Sprawdź rozpoznawanie osobno istnienia pliku, przejścia przez katalog i prawa odczytu samego pliku. Różne drogi diagnozy powinny być dopuszczalne.
+- [ ] Po minimalnej naprawie przeczytaj oryginał, wykonaj kopię i zweryfikuj jej treść. Zmiana danych, nadmierne uprawnienia i próba zaliczenia bez wcześniejszego zbadania błędu muszą zostać odrzucone.
+- [ ] Zamknij i ponownie otwórz misję oraz aplikację. Pliki i postęp powinny przetrwać, bez automatycznego przywracania usuniętego zgłoszenia. Raport po pierwszym zaliczeniu i pole refleksji mają działać jak w RC.30.
+- [ ] Na prawdziwym telefonie sprawdź układ, wprowadzanie komend, klawiaturę, zapis stanu i działanie PWA offline. **QA PENDING** do faktycznego sprawdzenia.

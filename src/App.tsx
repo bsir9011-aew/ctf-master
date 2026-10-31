@@ -9,6 +9,7 @@ import {opsProgress,seedOpsCase} from './core/opsRecovery';
 import {buildAfterAction,restoreAfterActionReports,restoreMissionReflections,
   type AfterActionReports,type MissionReflections} from './core/afterAction';
 import {seedBlindCase} from './core/blindInvestigation';
+import {seedIndependentCase} from './core/independentInvestigation';
 import PacketPath from './components/PacketPath';
 import CurriculumMap from './components/CurriculumMap';
 import CommandAcademy from './components/CommandAcademy';
@@ -121,6 +122,8 @@ function restore(): SavedSession {
       p.state=seedOpsCase(p.state);
     if(missions[missionIndex]?.id==='blind-investigation')
       p.state=seedBlindCase(p.state);
+    if(missions[missionIndex]?.id==='independent-investigation')
+      p.state=seedIndependentCase(p.state);
     p.learning = restoreLearning(p.learning);
     p.reviewHistory = restoreReviewHistory(p.reviewHistory);
     p.reviewAttempt = restoreReviewAttempt(p.reviewAttempt);
@@ -164,7 +167,8 @@ export default function App() {
   const lastResult = (review ? review.events : session.events).at(-1);
   const coach = lastResult ? explainError(lastResult) : null;
   const shownHints = review ? review.hints : stats.hints;
-  const blindMode = mode==='missions' && mission.id==='blind-investigation';
+  const blindMode = mode==='missions' &&
+    ['blind-investigation','independent-investigation'].includes(mission.id);
   const hints = reviewCase ? reviewCase.hints : mission.hints;
   const networkingMission = ['gateway-repair','dns-repair','packet-layers'].includes(mission.id);
   const networkingReview = !!review && ['routes','dns','tcp-path'].includes(review.skill);
@@ -235,7 +239,9 @@ export default function App() {
           :missions[index].id==='operational-recovery'
             ?seedOpsCase(old.state)
             :missions[index].id==='blind-investigation'
-              ?seedBlindCase(old.state):old.state,events:[],
+              ?seedBlindCase(old.state)
+              :missions[index].id==='independent-investigation'
+                ?seedIndependentCase(old.state):old.state,events:[],
       lines:[{output:'Misja: ' + missions[index].title + '. Wpisz help, jesli potrzebujesz listy komend.',ok:true}]}));
     setMode('missions'); setCommand(''); setFeedback(''); setPacketExpanded(false); setHistoryCursor(null);
   }

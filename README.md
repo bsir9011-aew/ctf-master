@@ -13,7 +13,7 @@ W Codespaces otworz udostepniony port **5173** (zakladka **Ports**). Na telefoni
 
 ## Co dziala w 1.0 RC (Akademia komend)
 
-- 21 misji: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
+- 22 misje: terminal, pliki, logi, uprawnienia, procesy, uslugi, routing IPv4, DNS i sciezki ARP/TCP (z opcjonalnym widokiem topologii).
 - Trzy tryby: **Komendy** (32 lekcje techniczne + 1 dochodzenie, 33 sprawdziany), **Misje** (21 scenariuszy), **Powtórki** (20 wariantów). Akademia komend korzysta z odrębnego symulatora i postępu.
 - Zwinięta domyślnie **Mapa nauki** z 6 rozdziałami: cele, komendy, licznik postępu, przejście do pierwszej dostępnej misji.
 - Symulowany terminal: `pwd`, `ls` (`-a`, `-l`), `cd`, `cat`, `mkdir`, `touch`, `cp`, `mv`, `rm`, `grep [-i]`, `find [-name]`, `man POLECENIE`, `man -k HASLO`, `head`, `tail`, `wc`, `sort`, `uniq`, `chmod`, `stat`, `umask`, `chgrp`, `>`, `>>`, `&&`, `||`, `test`, `ps`, `kill`, `systemctl`, `journalctl`, `ip`, `ping`, `ss`, `resolvectl`, `nslookup`, `nc -z`, `trace`, `whoami`, `id`, `groups`, `namei -l`, `help`, `clear`.
@@ -327,3 +327,10 @@ Po **pierwszym zaliczeniu** dowolnej misji powstaje niewielki, lokalnie zapisany
 Raport zapisywany jest według identyfikatora misji **raz**, zanim historia terminala zostanie nadpisana przez następną misję; ponowne wejście do niej nie zmienia pierwotnej oceny. Nie zapisuje całych plików, wyjść komend ani zagnieżdżonych stanów w raporcie. Dla misji ukończonych przed RC.30, jeśli nie istnieje wiarygodny zapis pierwszego zaliczenia, aplikacja pokazuje komunikat o braku raportu zamiast sfabrykowanego podsumowania.
 
 Pod raportem znajduje się krótkie, **nieoceniane pytanie transferowe** oraz pole na własną odpowiedź. Tekst do 600 znaków zapisuje się tylko w bieżącym lokalnym profilu przeglądarki; nie wpływa na odblokowania czy niezależność. UI jest mobilne, a `localStorage` nadal używa istniejącego klucza `ctf-master:mvp-08`, z opcjonalnymi polami raportów i refleksji. Liczby misji, lekcji i powtórek nie zmieniły się. Fizyczny test telefonu i offline PWA nadal **PENDING**.
+
+
+## RC.31 - niezależna misja transferowa po INC-021
+
+**INC-022: inny punkt awarii** jest nową, 22. misją CTF, odblokowywaną po ukończeniu poprzedniego śledztwa. Zostaje tryb **bez podpowiedzi i automatycznego coacha**, ale zmieniają się wirtualne pliki, lokalizacja materiału oraz mechanizm odmowy dostępu. Przeniesienie zapamiętanej komendy z INC-021 nie wystarczy do naprawy. Gracz musi zebrać dowody z nowego zgłoszenia, potwierdzić rzeczywistą przyczynę, zastosować minimalne uprawnienia i sprawdzić zachowaną kopię.
+
+Silnik uznaje kilka odmiennych sposobów diagnostyki, lecz wymaga dowodu odmowy odczytu przed korektą oraz prawidłowej kolejności działań. Zbyt szerokie uprawnienia, niezmieniony problem, sfałszowana kopia lub sam końcowy stan plików bez wykonanej analizy nie zaliczają misji. Po jej pierwszym ukończeniu działa znany raport after-action i pytanie transferowe. Nowe dane powstają tylko raz przy wejściu do zadania; po jego rozpoczęciu system nie odtwarza usuniętych ani zmienionych plików automatycznie. Zachowano wcześniejsze indeksy 21 misji, historię, raporty, refleksje i klucz localStorage. Wszystko działa w wirtualnym systemie. **Fizyczne QA telefonu i PWA offline nadal PENDING**.
