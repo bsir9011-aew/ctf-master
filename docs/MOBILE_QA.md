@@ -331,3 +331,10 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Sprawdź poziomy przesuw paska na wąskim ekranie i zwykłe pionowe przewijanie strony przy dotknięciu edytora.
 - [ ] Dotknięcia klawiszy powinny zachowywać zapis szkicu, a przy limicie 700 znaków nie dopisywać kolejnych. Nie powinny zmieniać zaliczeń innych trybów.
 - [ ] Fizyczny test Android/PWA nadal PENDING. Pracujemy w repo, bez APK.
+
+## RC.40 - szybka korekta konkretnej linii
+- [ ] W zakładce Bash dodaj pusty wiersz nad błędną linią; wynik powinien wskazywać jej prawdziwy numer, a nie indeks niepustego polecenia.
+- [ ] Dotknij Popraw linię N: edytor powinien wrócić na ekran, a odpowiednia linia zostać zaznaczona do edycji. Sprawdź to z otwartą klawiaturą i w orientacji pionowej.
+- [ ] Zmień błędną linię i uruchom ponownie. Informacja i przycisk powinny zniknąć po poprawnym wykonaniu.
+- [ ] Brakującą całkowicie linię raportujemy opisowo, bez wskazywania niewłaściwej linii i bez nowego panelu.
+- [ ] Fizyczny test Androida nadal PENDING; brak dystrybucji APK.
