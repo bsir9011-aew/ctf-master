@@ -44,6 +44,7 @@
 - [x] Exit status: 0/1/2/127, echo $?, zapis w sesji i natychmiastowa obserwacja, 31. lekcja i transfer
 - [x] Test -e/-f/-d/-r/-w/-x oraz [ ... ]: warunki plików, odmowa przejścia przez katalog, status i niezależna diagnoza w transferze
 - [x] && i ||: krótkie łańcuchy warunkowe, pomijanie poleceń, ślad działania, lekcja i niezależny sprawdzian
+- [x] RC.36 - zmienne Bash: przypisania, $NAME, cytowanie, unset, praktyczna lekcja 34 i niezależny sprawdzian kopiowania dowodów
 - [x] Misja 17 - korelacja dwóch logów SOC, warunkowe kopie, raport > i >> oraz odczyt dowodów; szósty rozdział końcowy
 - [x] Misja 18 - konkurencyjne hipotezy, fałszywe tropy, poziom pewności, analiza pięciu źródeł, zabezpieczenie i weryfikacja raportu
 - [x] Misja 19 - bezpieczna reakcja: diagnoza HTTP 503, porównanie konfiguracji, rollback, restart zastosowujący zmianę i weryfikacja zdrowia innych usług

@@ -383,3 +383,12 @@ Na **samym dole aplikacji** rozwiń „Postępy · Kopia zapasowa i przywracanie
 Kopia obejmuje **ukończone misje, poznane i opanowane lekcje Akademii, powtórki, liczniki pomocy, raporty po misjach i własne refleksje**. Nie przenosi bieżącego stanu wirtualnego systemu plików ani przerwanego w połowie zadania; kolejne próby rozpoczynają się w aktualnym środowisku. Import rozpoznaje wersję formatu i ID zadań, scala zaliczenia bez usuwania obecnych i nie wykonuje żadnych poleceń z wklejonego kodu. Dane nie trafiają na serwer.
 
 **Uwaga:** sam schowek nie jest kopią zapasową. Zapisz kod w trwałym, prywatnym miejscu. Kopia może zawierać Twoje notatki i statystyki nauki, dlatego nie publikuj jej w publicznym repozytorium. Fizyczny test kopiowania/wklejania w Android WebView nadal pozostaje do wykonania.
+
+
+## RC.36 - zmienne w wirtualnym Bashu
+
+Akademia zawiera **34 lekcje i 34 niezależne sprawdziany**. Nowa lekcja `variables` wprowadza przypisanie `SOURCE=~/practice/source.txt`, rozwijanie `"$SOURCE"` w komendach, cytowanie apostrofami (bez rozwijania), `echo`, `unset` i zmienne wbudowane `$HOME` / `$PWD`. Uczeń kopiuje wirtualny materiał dowodowy, używając zmiennych dla źródła i celu, a w transferze otrzymuje inne dane. Zaliczenie opiera się na zapisanych zmiennych, rzeczywistym kopiowaniu z użyciem zmiennych i późniejszym odczycie kopii.
+
+Obsługiwany jest jedynie **wąski, bezpieczny podzbiór Basha**: do 16 zmiennych sesji, każda do 256 znaków; bez dzielenia rozwiniętej wartości na nowe słowa, globów, wykonywania poleceń, `eval`, host shell, pełnych skryptów i pętli. Syntaktyczne operatory znajdujące się wewnątrz wartości zmiennej nie stają się komendami. Więcej przez `man variables` w terminalu symulatora. Wcześniejsze postępy i klucze localStorage pozostają bez zmian, a eksport/import z RC.35 działa nadal.
+
+Zmiana jest realizowana w repozytorium; nie wymaga instalowania kolejnego APK, by sprawdzić ją w Codespaces przez `npm run dev`.

@@ -303,6 +303,21 @@ export function explainAcademyAttempt(
       :'Katalogi na tej ścieżce pozwalają na przejście. Jeśli odczyt nadal nie działa, zbadaj prawo r pliku.',
     status:completed?'complete':'partial'
   };
+  if(cmd==='variable')return {
+    title:completed?'Zmienne wykorzystane poprawnie':'Zapisano zmienną w sesji',
+    detail:'Przypisanie przechowuje tekst, ale nie kopiuje plików. Dopiero użycie $SOURCE i $DEST w poleceniu cp rozwinie zapisane ścieżki. W apostrofach $NAZWA pozostaje dosłownym tekstem.',
+    status:completed?'complete':'partial'
+  };
+  if(cmd==='echo'&&result.variableRefs?.some(x=>x!=='?'))return {
+    title:completed?'Zmienna poprawnie użyta':'Wypisano rozwiniętą wartość',
+    detail:'echo pokazuje wartość zmiennej z bieżącej sesji. Rozwinięcie samo nie zmienia plików. Cudzysłów zachowuje wartość jako jeden argument, apostrofy nie rozwijają zmiennych.',
+    status:completed?'complete':'partial'
+  };
+  if(cmd==='unset')return {
+    title:'Usunięto zmienną sesji',
+    detail:'unset usuwa zapisane powiązanie nazwy z wartością, nie usuwa pliku, do którego zmienna wskazywała.',
+    status:completed?'complete':'partial'
+  };
   if(cmd==='echo'&&result.target==='previous-exit')return {
     title:completed?'Statusy porównane':'Odczytano kod poprzedniej komendy',
     detail:'echo $? wypisuje poprzedni kod: 0 to sukces, 1 oznacza m.in. brak dopasowania, 2 błąd składni lub grep, 127 nieznane polecenie. Samo echo ustawia nowy kod 0; sprawdzaj bezpośrednio po badanej operacji.',

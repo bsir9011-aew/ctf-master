@@ -156,8 +156,8 @@ test('independent transfer penalizes wrong targets and does not reward direct fi
 });
 
 test('catalogs add one new independent conditional lesson without resetting progress',()=>{
-  assert.equal(commandLessons.length,33);
-  assert.equal(transferChallenges.length,33);
+  assert.equal(commandLessons.length,34);
+  assert.equal(transferChallenges.length,34);
   assert.deepEqual(commandLessons.map(x=>x.id),transferChallenges.map(x=>x.lessonId));
   assert.equal(run(createAcademyState(),'man conditionals').ok,true);
 });
