@@ -346,3 +346,10 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Wstaw pusty szablon, a następnie cofnij reset. Przełącz zakładki i sprawdź zachowanie zapisanego szkicu.
 - [ ] Gdy nie ma historii, ↶ jest nieaktywny. Przy otwartej klawiaturze nie powinien tworzyć dodatkowych pionowych paneli.
 - [ ] Rzeczywiste QA Android WebView: PENDING. Nie dystrybuować APK w tym PR.
+
+## RC.42 - dwa zadania w jednym mobilnym warsztacie
+- [ ] Wybierz 01 Kopie logów i 02 Brakujący log z jednego małego menu. Powinny zmienić się opis i szkic, nie powinny pojawić się nowe panele ani etapy.
+- [ ] W 02 ustaw BASE i sprawdź manual.log oraz missing.log przez test -f połączone &&; po echo $? wynik 1 powinien zaliczyć diagnozę, bo oznacza brak pliku.
+- [ ] Odwrotna kolejność testów lub brak echo $? nie powinny zaliczać ćwiczenia; wynik ma wskazywać pierwszy istotny błąd.
+- [ ] Wpisz fragment rozwiązania w 01, przejdź do 02, wróć do 01: oba szkice pozostają osobne. Cofnij i feedback nie mogą mieszać dwóch zadań.
+- [ ] Sprawdź mały ekran i klawiaturę Android: jedno pole edycji, jeden wynik, minimum przewijania. Fizyczne QA nadal PENDING, bez wydawania APK.
