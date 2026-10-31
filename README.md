@@ -430,3 +430,10 @@ Wstawianie respektuje dotychczasowy limit 700 znaków i zapisuje szkic do tego s
 Mobilny warsztat Bash pokazuje teraz, **która linia skryptu wymaga poprawki**, jeśli można ją jednoznacznie ustalić. Pod krótkim komunikatem błędu pojawia się przycisk **Popraw linię N**. Jedno dotknięcie zaznacza właściwą linię w istniejącym edytorze, bez dodawania konsoli, kroków misji i dodatkowych paneli. Obsługiwane są także puste wiersze, CRLF i dłuższe zaznaczenia z klawiatury telefonu.
 
 Diagnostyka uwzględnia błędną składnię, błędy wykonania i wybrane niespełnione warunki zaliczenia. Jeśli brakuje całej linii, przycisk nie wskazuje arbitralnego miejsca - komunikat pozostaje opisowy. Ślad wykonania nadal jest zwinięty. Warsztat i pliki nadal są wyłącznie wirtualne. Szkic, klucze localStorage, postępy i liczba misji/lekcji pozostają bez zmian. Weryfikacja działania przy otwartej klawiaturze Androida wymaga jeszcze QA na prawdziwym telefonie. Bez dystrybucji APK.
+
+
+## RC.41 - Cofnij w mobilnym Bash Workshop
+
+Do istniejącego jednowierszowego paska znaków dodano klawisz **↶ Cofnij**. Przywraca ostatnią zmianę tekstu i pozycję zaznaczenia, również po przypadkowym zastąpieniu całej linii lub wybraniu „Wstaw pusty szablon”. Szybkie, sąsiadujące naciśnięcia w edytorze są grupowane w jeden krok cofnęcia. Historię ograniczono do 20 punktów w pamięci bieżącej sesji. Nie przenosimy historii edycji do localStorage - dotychczasowy zapis szkicu, lekcje i postępy działają bez zmian.
+
+W trosce o rozwój wyłącznie w repozytorium workflow Android APK ustawiono na **ręczne uruchamianie** (`workflow_dispatch`). Nie produkujemy kolejnego APK podczas każdego PR; kompilacja webowa i testy nadal wykonują się automatycznie. Zachowanie fokusu, cofania i klawiatury na fizycznym Androidzie wymaga osobnego testu.
