@@ -117,3 +117,6 @@
 
 - [x] RC.44 - czwarty kompaktowy scenariusz Bash: rzeczywisty fallback przez `||` po brakującym logu, końcowy kod 0 i własny szkic.
 - [ ] RC.44 fizyczne QA telefonu, wyboru zadania i edytora podczas otwartej klawiatury.
+
+- [x] RC.45 - zwijany ślad Bash pokazuje wykonane/pominięte testy oraz przyczynę short-circuit dla && i ||, bez dodatkowego ekranu.
+- [ ] RC.45 QA czytelności zwijanego śladu na telefonie.

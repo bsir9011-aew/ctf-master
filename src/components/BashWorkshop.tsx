@@ -219,7 +219,15 @@ export default function BashWorkshop(){
             {step.iterations>0&&<span> · {step.iterations} iteracje</span>}
             {step.variables.length>0&&<small>Zmienne: {step.variables.join(', ')}</small>}
             {step.changedFiles.length>0&&<small>Pliki: {step.changedFiles.join(', ')}</small>}
-            {step.skipped>0&&<small>Pominięte warunki: {step.skipped}</small>}
+            {step.checks.length>0&&<ul className="workshop-conditional-steps" aria-label="Warunki wykonania">
+              {step.checks.map((check,i)=><li key={i}>
+                <code>{i>0?check.operator+' ':''}{check.command}</code>
+                <span> · {check.executed?'wykonano · kod '+check.exitCode:
+                  check.operator==='&&'?'pominięto: poprzedni test nie powiódł się':
+                  check.operator==='||'?'pominięto: poprzedni test się powiódł':
+                  'pominięto'}</span>
+              </li>)}
+            </ul>}
             {step.output&&<small>{step.output}</small>}
           </li>)}
         </ol>

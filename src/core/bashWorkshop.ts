@@ -44,6 +44,7 @@ export interface WorkshopStep {
   changedFiles:string[];
   iterations:number;
   skipped:number;
+  checks:{command:string;operator?:'&&'|'||';executed:boolean;exitCode?:number}[];
 }
 export interface WorkshopResult {
   completed:boolean;
@@ -138,7 +139,11 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup'):Workshop
         .map(key=>key+'='+state.variables?.[key]),
       changedFiles:changedFiles.slice(0,5).map(path=>path.replace('/home/player/','~/')),
       iterations:result.loopTrace?.length??0,
-      skipped:result.conditionalTrace?.filter(s=>!s.executed).length??0
+      skipped:result.conditionalTrace?.filter(s=>!s.executed).length??0,
+      checks:(result.conditionalTrace??[]).map(part=>({
+        command:part.raw.slice(0,120),operator:part.operator,executed:part.executed,
+        exitCode:part.exitCode
+      }))
     });
     // A non-zero test is the evidence to observe in scenario 02, not
     // automatically a script failure. Still reject any other failed command.
