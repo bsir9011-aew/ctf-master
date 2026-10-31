@@ -69,8 +69,9 @@ export function buildAfterAction(
   // Track a documented excessive grant only if it actually happened in the
   // blind case; an unsuccessful command is not a side effect.
   if(missionId==='blind-investigation'&&events.some(e=>
-    e.ok&&e.command==='chmod'&&e.target?.endsWith('/case21-audit')&&
-    (e.state.permissions?.[e.target]??0)&0o077))
+    e.ok&&e.command==='chmod'&&typeof e.target==='string'&&
+    e.target.endsWith('/case21-audit')&&
+    ((e.state.permissions?.[e.target]??0)&0o077)!==0))
     consequences.push('W historii wystąpiło poszerzenie uprawnień grupy/innych.');
   const nonzero=events.filter(e=>e.exitCode!==undefined&&e.exitCode!==0).length;
   return {
