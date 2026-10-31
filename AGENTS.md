@@ -72,3 +72,10 @@ Next priority: have the user run physical PWA QA per docs/MOBILE_QA.md and perfo
 - Undo restores both draft content and UTF-16 textarea selection; update the same local draft key, invalidate stale result feedback, and never change Academy or mission progress.
 - History stays in memory only. No serialization, backend, new JS execution or host commands.
 - Android APK workflow is manual-only while development remains repo/web-first. Validate npm test/build automatically; physical phone keyboard QA remains outstanding.
+
+## RC.42: second short Bash diagnostic on the same mobile screen
+- Keep exactly one shared editor and result panel; the new compact native select switches between backup and diagnosis. No wizard, additional tabs or multi-stage work.
+- `src/core/workshopScenarios.ts` is the single source of scenario IDs, draft keys and starter scripts. Preserve the RC.38-41 legacy draft key for backup and use a separate key for diagnosis. Switching scenarios must clear obsolete results, prediction, undo/caret state but must not delete either saved draft.
+- Diagnosis verifies an existing and a missing log with real `test -f` results chained by `&&`, followed by `echo $?`. Expected exit status 1 is evidence, not an app failure. Do not allow unrelated commands, copying, modification, host shell or network.
+- Each evaluation starts with fresh virtual `createAcademyState`. Never claim a task passes on string matching alone; require conditional traces, target paths, actual exit codes and observed echo status.
+- Keep old `runWorkshop(script)` default behavior; do not change Academy, missions, review or backup schemas. Repo-only: no APK distribution.
