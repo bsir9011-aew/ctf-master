@@ -111,6 +111,10 @@ export function runWorkshop(script:string):WorkshopResult {
     if(!result.ok)return error('Linia '+(index+1)+': '+(result.output||'polecenie zakończyło się błędem.'),state,steps);
   }
 
+  if(state.variables?.BASE!=='~/practice')
+    return error('Ustaw BASE=~/practice. Ta zmienna określa katalog logów.',state,steps);
+  if(!lines.some(line=>line.startsWith('for ')&&/\$\{?BASE\}?/.test(line)))
+    return error('W nagłówku pętli odwołaj się do $BASE zamiast wpisywać ścieżki ponownie.',state,steps);
   const loop=events.find(x=>x.command==='for'&&x.loopTrace?.length===2);
   if(!loop||!loop.loopTrace?.every((step,i)=>step.ok&&
     step.command==='cp'&&step.target===COPIES[i]&&
