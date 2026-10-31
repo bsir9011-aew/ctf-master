@@ -44,9 +44,9 @@ const solutions={
 };
 const ids=commandLessons.map(lesson=>lesson.id);
 
-test('catalogue has 33 unique drills and all exercise texts',()=>{
-  assert.equal(ids.length,33);
-  assert.equal(new Set(ids).size,33);
+test('catalogue has 34 unique drills and all exercise texts',()=>{
+  assert.equal(ids.length,34);
+  assert.equal(new Set(ids).size,34);
   assert.deepEqual(ids,Object.keys(solutions));
   for (const lesson of commandLessons) {
     assert.ok(lesson.purpose && lesson.syntax && lesson.example && lesson.assignment && lesson.hint,lesson.id);
