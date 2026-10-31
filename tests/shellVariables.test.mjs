@@ -110,3 +110,13 @@ test('lexing protects quoting, operators and literal strings',()=>{
   assert.deepEqual(scanned.refs,['NAME']);
   assert.equal(expandVirtualWords('echo a;b',{},0),null);
 });
+
+
+test('unknown or prototype-named variables do not expose JavaScript prototype data',()=>{
+  const initial=initialLinux();
+  assert.equal(executeLinux(initial,'echo $toString').output,'');
+  assert.equal(executeLinux(initial,'echo $constructor').output,'');
+  const assigned=executeLinux(initial,'toString=literal');
+  assert.equal(assigned.ok,true);
+  assert.equal(executeLinux(assigned.state,'echo "$toString"').output,'literal');
+});
