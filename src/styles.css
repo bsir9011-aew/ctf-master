@@ -382,3 +382,66 @@
 .real-lab-bridge a{color:#9fdfdf;overflow-wrap:anywhere}
 .real-lab-bridge .real-lab-disclaimer{color:#b4c9d0;font-size:12px}
 @media(max-width:530px){.real-lab-bridge details{padding:10px}.real-lab-bridge pre{font-size:11px}}
+
+
+/* RC.34 - Android touch scroll and compact Academy */
+.academy-more-actions{min-width:0;flex:1 1 auto;max-width:100%;position:relative}
+.academy-more-actions summary{
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  min-height:42px;padding:9px 12px;border-radius:9px;
+  background:#263a3f;border:1px solid #526b6d;
+  color:#d5eae2;font-size:12px;font-weight:700;
+}
+.academy-more-actions summary:focus-visible,
+.academy-history-toggle:focus-visible{outline:3px solid #b5f7d1;outline-offset:2px}
+.academy-more-controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.academy-more-controls button{flex:1 1 auto}
+.academy-history-toggle{
+  width:100%;border:0;border-top:1px solid #253f41;
+  padding:8px 10px;background:#112024;color:#a4d9bb;
+  min-height:36px;font-size:12px;font-weight:700;cursor:pointer;
+}
+@media(max-width:840px){
+  /* The page owns vertical gestures, even when a swipe starts in the terminal.
+     No nested overflow/overscroll containment on mobile WebView. */
+  .academy-terminal .terminal-output{
+    height:auto!important;min-height:64px;max-height:none;
+    overflow:visible;overscroll-behavior:auto;
+    touch-action:pan-y;padding:11px 13px;
+  }
+  .academy-terminal,.academy-terminal-column{
+    overscroll-behavior-y:auto;touch-action:pan-y;
+  }
+  .academy-terminal .terminal-line{overflow-wrap:anywhere}
+  .academy-workspace .academy-lesson>p{margin-bottom:8px}
+  .academy-workspace .academy-lesson{padding:12px}
+  .academy-workspace .academy-lesson h3{margin:7px 0 5px}
+  .academy-workspace .academy-task{padding:10px 11px}
+  .academy-workspace .academy-actions{margin-top:9px;display:flex;gap:8px}
+  .academy-workspace .academy-actions>button,
+  .academy-workspace .academy-actions>.academy-more-actions{flex:1 1 130px}
+  .academy-workspace .academy-actions>button{width:auto}
+  .academy-workspace .academy-transfer-note{margin:8px 0 0;padding:7px 10px}
+  .academy-terminal .academy-command{margin-bottom:8px}
+}
+@media(max-width:530px){
+  .academy-active main{gap:8px}
+  .academy-workbench{gap:9px}
+  .academy-topline-title>p:last-child{display:none}
+  .academy-topline{gap:6px}
+  .academy-topline .academy-progress .progress-track{margin-top:6px}
+  .academy-nudge{padding:9px 11px;gap:8px;flex-direction:row;align-items:center}
+  .academy-nudge div p{display:none}
+  .academy-nudge strong{font-size:11px;line-height:1.35;display:block}
+  .academy-nudge button{width:auto;min-height:40px;padding:8px 12px;flex-shrink:0}
+  .academy-picker select{min-height:42px;height:42px}
+  .academy-workspace .academy-lesson h3{font-size:18px}
+  .academy-workspace .academy-lesson>p{font-size:12px;line-height:1.45}
+  .academy-workspace .academy-task p{line-height:1.45}
+  .academy-lesson .academy-previous{display:none}
+  .academy-terminal .terminal-output{min-height:58px;padding:10px 12px}
+  .academy-terminal .terminal-bar{padding:8px 11px}
+  .academy-terminal .academy-command{margin:0 8px 8px;padding:5px}
+  .academy-terminal .academy-command button[type=submit]{min-height:44px}
+  .academy-terminal-column .academy-disclaimer{display:none}
+}
