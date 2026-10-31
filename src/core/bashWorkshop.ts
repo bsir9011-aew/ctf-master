@@ -33,7 +33,7 @@ const error=(feedback:string,state:LinuxState,steps:WorkshopStep[]=[]):WorkshopR
 const wordsOnly=(raw:string):string[]|null=>{
   const tokens=scanShell(raw);
   if(!tokens||!tokens.length||tokens.some(t=>t.kind!=='word'))return null;
-  return tokens.map(t=>t.value);
+  return tokens.map(t=>t.kind==='word'?t.value:'');
 };
 
 /** Strict preflight: only assignment, one bounded for/cp and test predicates.
