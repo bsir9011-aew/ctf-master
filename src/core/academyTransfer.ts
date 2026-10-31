@@ -11,6 +11,7 @@ import {statusCase,statusCompleted} from './exitStatus.ts';
 import {transferTestFixture,fileTestCompleted,fileTestMistake} from './fileTest.ts';
 import {conditionalCompleted,conditionalMistake} from './conditionalLesson.ts';
 import {variableCompleted,variableMistake} from './variableLesson.ts';
+import {loopCompleted,loopMistake} from './forLesson.ts';
 
 const LAB='/home/player/practice';
 const hasFile=(s:LinuxState,name:string)=>Object.hasOwn(s.files,LAB+'/'+name);
@@ -81,6 +82,8 @@ export const transferChallenges:readonly TransferChallenge[]=[
     pass:(state,events)=>conditionalCompleted('transfer',state,events)},
   {lessonId:'variables',assignment:'Zachowaj w SOURCE ścieżkę ~/practice/logs/review.log, a w DEST nową ścieżkę ~/practice/logs/variable-evidence.log. Za pomocą obu zmiennych wykonaj kopię, a następnie odczytaj ją przez DEST. Oryginał musi zostać nienaruszony; nie używaj dosłownych ścieżek w cp/cat.',
     pass:(state,events)=>variableCompleted('transfer',state,events)},
+  {lessonId:'for',assignment:'Wykonaj jedną pętlę for z FILE po dwóch nowych logach: ~/practice/logs/review.log oraz ~/practice/logs/incidents.log. Nie zmieniaj oryginałów. Dla każdego zachowaj osobną kopię z sufiksem .copy, używając FILE dla źródła i celu. Na końcu odczytaj obie kopie i sprawdź ich treść.',
+    pass:(state,events)=>loopCompleted('transfer',state,events)},
   {lessonId:'investigation',assignment:'SOC otrzymał alert o nietypowych próbach logowania około 04:12. Samodzielnie rozpoznaj właściwy dziennik w ~/practice/logs, odczytaj ślad związanego z tym zdarzenia i zabezpiecz cały plik jako ~/practice/incident-evidence.log. Zachowaj oryginalne logi.',
     pass:(s,e)=>investigationStatus('transfer',s,e).completed},
   {lessonId:'find',assignment:'Znajdź audit-67.txt w podkatalogach ~/practice za pomocą find.',
@@ -192,6 +195,7 @@ export function transferMistake(
 ):boolean {
   if(lessonId==='conditionals')return conditionalMistake(result);
   if(lessonId==='variables')return variableMistake('transfer',result);
+  if(lessonId==='for')return loopMistake('transfer',result);
   if(lessonId==='test')return fileTestMistake(result);
   if(lessonId==='exit-status'){
     const c=statusCase('transfer');

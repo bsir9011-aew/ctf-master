@@ -17,6 +17,7 @@ import {type OpsRecovery} from './opsRecovery.ts';
 import {type BlindCaseState} from './blindInvestigation.ts';
 import {type IndependentCaseState} from './independentInvestigation.ts';
 import {parseConditionals,executeConditionals,type ConditionalStep} from './conditionals.ts';
+import {parseForLoop,executeForLoop,type ForStep} from './forLoop.ts';
 import { executeUmask, newFileMode, newDirectoryMode, DEFAULT_UMASK } from './umask.ts';
 import { defaultIdentity, executeIdentityCommand, identityOf, type SimIdentity } from './identity.ts';
 
@@ -58,6 +59,7 @@ export interface CommandResult {
   hypothesisConfidence?: Confidence;
   conditionalTrace?: ConditionalStep[];
   variableRefs?: string[];
+  loopTrace?: ForStep[];
 }
 
 const HOME = '/home/player';
@@ -108,6 +110,9 @@ const parent = (p: string) => p === '/' ? '/' : p.slice(0, p.lastIndexOf('/')) |
 const base = (p: string) => p === '/' ? '/' : p.slice(p.lastIndexOf('/') + 1);
 
 export function executeLinux(state: LinuxState, raw: string): CommandResult {
+  const loop=parseForLoop(state,raw);
+  if(loop===null)return finishCommand({state,output:'for: niepoprawna skladnia (man for)',ok:false,command:'for'});
+  if(loop)return finishCommand(executeForLoop(state,loop,executeLinux));
   const chain=parseConditionals(raw);
   if(chain===null)return finishCommand({state,output:'warunki: niepoprawna skladnia && / ||',ok:false,command:'conditional'});
   if(chain)return finishCommand(executeConditionals(state,chain,executeLinux));

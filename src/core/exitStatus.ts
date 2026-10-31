@@ -12,6 +12,10 @@ export function previousExitCode(state:LinuxState):number {
  * invalid syntax/grep error = 2, unknown command = 127.
  */
 export function resultExitCode(result:CommandResult):number {
+  if(result.command==='for'&&result.loopTrace?.length){
+    const last=result.loopTrace[result.loopTrace.length-1].exitCode;
+    return typeof last==='number'?last:(result.ok?0:1);
+  }
   if(result.ok)return 0;
   const message=result.output.toLowerCase();
   if(message.includes('command not found'))return 127;

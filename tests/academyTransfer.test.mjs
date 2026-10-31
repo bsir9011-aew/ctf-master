@@ -26,6 +26,7 @@ const answers={
   test:'test -r ~/practice/logs/forensics/trace.log',
   conditionals:'test -f ~/practice/logs/review.log && cp ~/practice/logs/review.log ~/practice/logs/review-evidence.log',
   variables:'SOURCE=~/practice/logs/review.log',
+  for:'for FILE in ~/practice/logs/review.log ~/practice/logs/incidents.log; do cp "$FILE" "$FILE.copy"; done',
   investigation:'grep "LOGIN FAIL" ~/practice/logs/identity.log',
   find:'find ~/practice -name "audit-*.txt"',
   cp:'cp ~/practice/intro.txt ~/practice/intro-copy.txt',
@@ -42,8 +43,8 @@ const answers={
 };
 const originalIds=commandLessons.map(x=>x.id);
 
-test('all thirty-four lessons have one different transfer task in the same order',()=>{
-  assert.equal(transferChallenges.length,34);
+test('all thirty-five lessons have one different transfer task in the same order',()=>{
+  assert.equal(transferChallenges.length,35);
   assert.deepEqual(transferChallenges.map(x=>x.lessonId),originalIds);
   for(const ch of transferChallenges) {
     assert.ok(ch.assignment.length>25,ch.lessonId);
@@ -56,6 +57,14 @@ for(const challenge of transferChallenges) {
     assert.equal(challenge.pass(seed,[]),false,challenge.lessonId);
     let result=submitTransfer(seed,[],answers[challenge.lessonId],challenge.lessonId);
     assert.equal(result.result.ok,!['exit-status','test'].includes(challenge.lessonId),challenge.lessonId);
+    if(challenge.lessonId==='for'){
+      assert.equal(result.completed,false);
+      result=submitTransfer(result.result.state,result.events,
+        'cat ~/practice/logs/review.log.copy',challenge.lessonId);
+      assert.equal(result.completed,false);
+      result=submitTransfer(result.result.state,result.events,
+        'cat ~/practice/logs/incidents.log.copy',challenge.lessonId);
+    }
     if(challenge.lessonId==='variables'){
       assert.equal(result.completed,false);
       result=submitTransfer(result.result.state,result.events,

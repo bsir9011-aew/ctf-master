@@ -88,3 +88,7 @@
 - [x] RC.35 - lokalny eksport/import zaliczeń, Akademii, powtórek i raportów przez bezpieczny, wersjonowany JSON z niekasującym importem
 - [ ] QA Android WebView: kopiuj/wklej pełny kod na fizycznym telefonie oraz przywróć przed odinstalowaniem APK
 - [ ] Stałe podpisywanie Android release i osobny test aktualizacji bez utraty danych
+
+
+- [x] RC.37 - ograniczona pętla for do wielu plików, ślad iteracji, 35. lekcja i niezależny sprawdzian z potwierdzeniem kopii
+- [ ] Kolejny etap - kontrolowane, wirtualne skrypty Bash; nadal bez host shell
