@@ -465,3 +465,8 @@ Czwarte zadanie na tym samym ekranie: brak `missing.log` uruchamia przez `||` te
 ## RC.45 - czytelny przebieg warunków Bash
 
 W zwijanej sekcji Przebieg widać teraz kolejno testy wykonane i pominięte przez `&&` oraz `||`, wraz z kodem zakończenia lub przyczyną pominięcia. Widok wynika z rzeczywistego śladu interpretera, nie z samego tekstu skryptu. Brak nowych ekranów, misji, schematów zapisu i APK. Fizyczne QA telefonu pozostaje PENDING.
+
+
+## RC.46 - przewiduj kod zakończenia
+
+W tym samym kompaktowym rzędzie co przycisk **Uruchom** można opcjonalnie przewidzieć wynik: zadanie z kopiowaniem nadal pyta o liczbę kopii, zaś zadania diagnostyczne o kod `0` lub `1`. Odpowiedź jest zapamiętywana dokładnie w chwili uruchomienia; wybór po wyniku nie daje pozornej trafności. Porównanie korzysta tylko z rzeczywiście wykonanego `echo $?`; bez takiego odczytu nie oceniamy przewidywania. To ćwiczenie myślenia, nie nowy warunek zaliczenia. Brak dodatkowych ekranów, zmian postępów i APK. Ręczne QA Androida nadal pending.
