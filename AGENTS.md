@@ -65,3 +65,10 @@ Next priority: have the user run physical PWA QA per docs/MOBILE_QA.md and perfo
 - One `Popraw linię N` action inside the existing compact result focuses the editor, selects the actual command text, and scrolls it into view. No separate editor, extra panel or multi-stage tutorial.
 - `src/core/workshopSourceLines.ts` is pure and tests logical source mappings / selections with LF, CRLF and UTF-16 offsets. Preserve old draft and achievements.
 - CI tests do not constitute physical Android keyboard QA. Repo-only: no APK distribution.
+
+## RC.41 Mobile editor undo and opt-in native CI
+- Keep one compact Bash screen. Add one Undo key to the existing shortcut row, with accessible label and disabled state. Do not add new panels or missions.
+- Record bounded (20) undo snapshots for typing, shortcut insertions and template reset. Group only adjacent fast typing at the same caret; never merge independent shortcut, paste or reset edits.
+- Undo restores both draft content and UTF-16 textarea selection; update the same local draft key, invalidate stale result feedback, and never change Academy or mission progress.
+- History stays in memory only. No serialization, backend, new JS execution or host commands.
+- Android APK workflow is manual-only while development remains repo/web-first. Validate npm test/build automatically; physical phone keyboard QA remains outstanding.
