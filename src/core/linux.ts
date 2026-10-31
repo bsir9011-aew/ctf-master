@@ -8,7 +8,7 @@ import { executeManual } from './manual.ts';
 import { executeNamei } from './namei.ts';
 import { executeChgrp } from './chgrp.ts';
 import {parseRedirection,executeRedirection} from './redirection.ts';
-import {tokenizeShellWords} from './shellSyntax.ts';
+import {expandVirtualWords,readAssignment,validName,VARIABLE_LIMIT,VARIABLE_VALUE_LIMIT} from './shellVariables.ts';
 import {finishCommand,previousExitCode} from './exitStatus.ts';
 import {executeFileTest,type TestFlag} from './fileTest.ts';
 import {executeHypothesis,type Confidence} from './hypothesisCase.ts';
@@ -33,6 +33,7 @@ export interface LinuxState {
   identity?: SimIdentity;
   umask?: number;
   lastExitCode?: number;
+  variables?: Record<string,string>;
   response?: ResponseRuntime;
   ops?: OpsRecovery;
   blindCase?: BlindCaseState;
@@ -56,6 +57,7 @@ export interface CommandResult {
   testFlag?: TestFlag;
   hypothesisConfidence?: Confidence;
   conditionalTrace?: ConditionalStep[];
+  variableRefs?: string[];
 }
 
 const HOME = '/home/player';
@@ -102,8 +104,6 @@ export function resolvePath(cwd: string, requested: string): string {
   return '/' + stack.join('/');
 }
 
-const tokenize=tokenizeShellWords;
-
 const parent = (p: string) => p === '/' ? '/' : p.slice(0, p.lastIndexOf('/')) || '/';
 const base = (p: string) => p === '/' ? '/' : p.slice(p.lastIndexOf('/') + 1);
 
@@ -117,6 +117,9 @@ export function executeLinux(state: LinuxState, raw: string): CommandResult {
 /** Internal execution does not update $? for stages within a pipeline/redirect. */
 function runLinux(state: LinuxState, raw: string): CommandResult {
   const command = raw.trim();
+  const environment={...state.variables,HOME,PWD:state.cwd};
+  const lex=(text:string)=>expandVirtualWords(text,environment,previousExitCode(state));
+  const tokenize=(text:string)=>lex(text)?.words??null;
   const redirect=parseRedirection(command);
   if(redirect===null)return {state,output:'przekierowanie: niepoprawna skladnia',ok:false,command:'redirect'};
   if(redirect)return executeRedirection(state,redirect,tokenize,
@@ -128,13 +131,25 @@ function runLinux(state: LinuxState, raw: string): CommandResult {
     if(segments.length>1)
       return executePipeline(state,segments,tokenize,part=>runLinux(state,part));
   }
-  const parts = tokenize(command);
+  const expansion=lex(command);
+  const parts=expansion?.words??null;
   const done = (output: string, ok = true, nextState = state, target?: string, clear = false): CommandResult => ({
-    output, ok, state: nextState, command: parts?.[0] ?? '', target, clear
+    output, ok, state: nextState, command: parts?.[0] ?? '', target, clear,
+    variableRefs:expansion?.refs
   });
   if(!parts)return done('Niepoprawne cytowanie, escape lub nieobsługiwany operator powłoki.',false);
   if(parts.length===0)return done('Wpisz polecenie.',false);
   const [cmd, ...args] = parts;
+  const assignment=readAssignment(parts);
+  if(assignment){
+    const {name,value}=assignment;
+    if(name==='HOME'||name==='PWD')return done('Zmienna wbudowana jest tylko do odczytu',false);
+    if(value.length>VARIABLE_VALUE_LIMIT)return done('Wartosc zmiennej przekracza 256 znakow',false);
+    const variables=state.variables??{};
+    if(!Object.hasOwn(variables,name)&&Object.keys(variables).length>=VARIABLE_LIMIT)
+      return done('Limit zmiennych w symulatorze: 16',false);
+    return {...done('',true,{...state,variables:{...variables,[name]:value}},name),command:'variable'};
+  }
   const argPath = (v: string) => resolvePath(state.cwd, v);
   const exists = (path: string) => state.dirs.includes(path) || Object.hasOwn(state.files, path);
   const current=identityOf(state);
