@@ -111,3 +111,6 @@
 
 - [x] RC.42 - drugi krótki scenariusz Bash na tym samym ekranie, analiza poprawnego kodu wyjścia 1 po test -f oraz echo $? i osobne szkice zadań
 - [ ] Fizyczne QA: wybór zadania przy otwartej klawiaturze, powrót do szkiców, wynik i brak nadmiernego przewijania
+
+- [x] RC.43 - trzeci krótki scenariusz Bash: odróżnienie istnienia pliku (`test -f`) od prawa odczytu (`test -r`), poprawny kod zakończenia 1 i niezależny szkic
+- [ ] Fizyczny test mobilnego menu trzech zadań i działania edytora przy otwartej klawiaturze Androida
