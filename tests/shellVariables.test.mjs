@@ -104,7 +104,7 @@ test('both catalogs stay synchronized and the local man page exists',()=>{
 });
 
 test('lexing protects quoting, operators and literal strings',()=>{
-  const scanned=expandVirtualWords('echo "one two" \\'$NAME\\' "$NAME" \\$NAME',
+  const scanned=expandVirtualWords("echo \"one two\" '$NAME' \"$NAME\" \\$NAME",
     {NAME:'hello world'},0);
   assert.deepEqual(scanned.words,['echo','one two','$NAME','hello world','$NAME']);
   assert.deepEqual(scanned.refs,['NAME']);
