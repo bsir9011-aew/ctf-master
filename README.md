@@ -365,3 +365,12 @@ node labs/real-linux/verify.mjs
 Weryfikator czyta prawdziwe atrybuty plików i porównuje treść przez SHA-256. `RESULT: 6/6` potwierdza poprawny **stan końcowy**, ale nie dowodzi, że analiza i dobór komend były samodzielne. Nie wymaga `sudo`, nie modyfikuje `/etc` ani plików użytkownika poza katalogiem ćwiczenia. Nie resetuje istniejącego labu. Wynik nie odblokowuje automatycznie misji PWA. W menu aplikacji jest link do laboratorium.
 
 Pozostaje osobne zadanie do wykonania przez użytkownika: **QA fizycznego telefonu i offline PWA (PENDING)**.
+
+
+## RC.34 - krótszy ekran Akademii na Androidzie
+
+Widok sprawdzianu zajmuje mniej miejsca: na małych ekranach ograniczamy rozmiar nagłówka, rekomendacji i kart, a reset oraz powrót do nauki umieszczamy w rozwijanych „Opcjach ćwiczenia”. Terminal pokazuje sześć ostatnich wyników; pełna historia nadal jest dostępna po rozwinięciu.
+
+**Poprawka dotyku:** w mobilnym WebView obszar wyników terminala nie ma własnego przewijania ani blokady `overscroll-behavior: contain`. Przesunięcie palcem po terminalu powinno przewijać całą stronę (z wyjątkiem interaktywnych kontrolek). Mechanizm komend, zaliczenia oraz klucze localStorage nie zostały zmienione.
+
+Nowa wersja APK: **RC.34**. Wskutek zmiennego podpisu debugowego Android może wymagać odinstalowania starego RC.33 - to usuwa dane zapisane wewnątrz APK. Fizyczna weryfikacja gestu i klawiatury nadal wymaga testu na telefonie.
