@@ -561,3 +561,15 @@
     min-width:35px;min-height:44px;padding:6px 5px;
   }
 }
+
+
+/* RC.40 - direct correction from a short result, no extra debugger panel. */
+.workshop-fix-line{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:44px;max-width:100%;
+  padding:9px 13px;margin:4px 0 2px;
+  border:1px solid #bd9871;border-radius:9px;
+  background:#51402d;color:#ffe9ca;
+  font-size:12px;font-weight:800;cursor:pointer;
+}
+.workshop-fix-line:focus-visible{outline:3px solid #ffdfaa;outline-offset:2px}
