@@ -53,3 +53,12 @@ bash ./gradlew assembleDebug
 ```
 
 Wynik: `android/app/build/outputs/apk/debug/app-debug.apk`. Domyślnie rekomendowany jest build GitHub Actions, by nie konfigurować lokalnego SDK.
+
+
+## Kopia zapasowa zaliczeń przed aktualizacją
+
+Od RC.35 można przenosić postępy bez konta i serwera: na końcu ekranu rozwiń „Postępy · Kopia zapasowa i przywracanie”, wygeneruj kod, skopiuj cały JSON i zachowaj go w prywatnej notatce poza APK. Po reinstalacji wklej go, sprawdź i wybierz „Połącz postępy”. Import nie kasuje osiągnięć już zapisanych w nowej wersji.
+
+**Co wraca:** poznane/opanowane lekcje, zaliczone misje, historia powtórek, liczniki, raporty i refleksje. **Czego nie przywraca:** stanu plików wirtualnego Linuksa, surowych wyników terminala i niedokończonych sesji. Kopia może zawierać prywatne notatki, więc nie wysyłaj jej do publicznych serwisów. Skopiowanie na schowek bez zapisania poza APK nie chroni przed odinstalowaniem.
+
+Test funkcji na fizycznym telefonie pozostaje wymagany. Podpis debugowego APK nadal nie gwarantuje aktualizacji bez reinstalacji.
