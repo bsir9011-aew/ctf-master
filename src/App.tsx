@@ -310,6 +310,19 @@ export default function App() {
           onClick={() => {setMode('review');setCommand('');setFeedback('');setPacketExpanded(false);setHistoryCursor(null);}}>Powtórki</button>
       </nav>
 
+      <section className="real-lab-bridge" aria-label="Laboratorium na prawdziwym Linuksie">
+        <details>
+          <summary>REAL-01 · Przenieś umiejętności na prawdziwy Linux</summary>
+          <p>To osobne ćwiczenie w terminalu <strong>GitHub Codespaces</strong>, nie w symulowanym terminalu aplikacji. Tworzy izolowane pliki w repozytorium. Nie wymaga sudo.</p>
+          <pre><code>{'node labs/real-linux/setup.mjs\ncd .ctf-master-labs/permissions-01\ncat issue.txt'}</code></pre>
+          <p>Sam zdiagnozuj problem. Po naprawie wróć do katalogu repozytorium i uruchom:</p>
+          <pre><code>{'cd ../..\nnode labs/real-linux/verify.mjs'}</code></pre>
+          <a href="https://github.com/bsir9011-aew/ctf-master/blob/main/labs/real-linux/README.md"
+            target="_blank" rel="noopener noreferrer">Zasady i pełna instrukcja REAL-01</a>
+          <p className="real-lab-disclaimer">Wynik labu nie zmienia automatycznie postępu misji PWA. Weryfikator sprawdza uprawnienia i integralność kopii, nie Twoje rozumowanie.</p>
+        </details>
+      </section>
+
       {mode === 'commands' && <CommandAcademy/>}
       {mode === 'missions' ? <>
         <CurriculumMap completed={session.completed} highestUnlocked={unlocked}

@@ -277,3 +277,11 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Po minimalnej naprawie przeczytaj oryginał, wykonaj kopię i zweryfikuj jej treść. Zmiana danych, nadmierne uprawnienia i próba zaliczenia bez wcześniejszego zbadania błędu muszą zostać odrzucone.
 - [ ] Zamknij i ponownie otwórz misję oraz aplikację. Pliki i postęp powinny przetrwać, bez automatycznego przywracania usuniętego zgłoszenia. Raport po pierwszym zaliczeniu i pole refleksji mają działać jak w RC.30.
 - [ ] Na prawdziwym telefonie sprawdź układ, wprowadzanie komend, klawiaturę, zapis stanu i działanie PWA offline. **QA PENDING** do faktycznego sprawdzenia.
+
+
+## RC.32 - most do rzeczywistego terminala (nie QA mobilne)
+
+- [ ] W aplikacji sekcja REAL-01 wyraźnie rozróżnia symulator od prawdziwego terminala Codespaces; link prowadzi do instrukcji labu.
+- [ ] PWA nadal wykonuje tylko symulowane komendy. Przycisk/sekcja REAL-01 nie uruchamia niczego na serwerze ani na telefonie.
+- [ ] Osobno w Codespaces: node labs/real-linux/setup.mjs, a po wykonaniu ćwiczenia node labs/real-linux/verify.mjs - wynik 6/6 potwierdza stan plików, nie ocenę rozumowania.
+- [ ] Bez sudo, z zachowanym stanem po ponownym setup, i bez dodania .ctf-master-labs do repozytorium. Fizyczny test offline PWA nadal PENDING.

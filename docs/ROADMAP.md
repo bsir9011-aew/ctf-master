@@ -51,7 +51,9 @@
 - [x] Misja 21 - diagnostyka bez podpowiedzi: analiza zgłoszenia, odmowa dostępu, naprawa z zasadą least privilege i sprawdzony dowód
 - [x] RC.30 - zapisany przy pierwszym zaliczeniu raport dowodów, decyzji i konsekwencji oraz nieoceniane pytanie transferowe
 - [x] RC.31 - samodzielna misja 22, inny mechanizm odmowy odczytu (plik, nie katalog), weryfikacja dowodów i minimalnej naprawy
-- [ ] Manual QA na fizycznym telefonie (1.0 RC.31)
+- [x] RC.32 - osobny, izolowany realny lab Linux w Codespaces: błędne uprawnienia, diagnoza, integralność SHA-256 i bezpieczny weryfikator wyniku
+- [ ] Użytkownik uruchomi REAL-01 samodzielnie i wyjaśni mechanizm naprawy (nie potwierdzają tego testy CI)
+- [ ] Manual QA na fizycznym telefonie (1.0 RC.32)
 
 ## Etap 1 - Linux Administrator
 - [x] Podstawy chmod, stat, tryby rwx i testy Permission denied
