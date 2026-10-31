@@ -4,12 +4,15 @@ import {parseConditionals} from './conditionals.ts';
 import {parseForLoop} from './forLoop.ts';
 import {scanShell} from './shellSyntax.ts';
 import {workshopSourceLines,type SourceLine} from './workshopSourceLines.ts';
+import {type WorkshopId} from './workshopScenarios.ts';
+export {WORKSHOP_DEFAULT} from './workshopScenarios.ts';
 
-export const WORKSHOP_DEFAULT='BASE=~/practice\nfor FILE in ...; do ...; done\ntest -f ... && test -f ...';
 export const WORKSHOP_MAX_LINES=4;
 export const WORKSHOP_MAX_CHARS=700;
 const SOURCES=['/home/player/practice/events.log','/home/player/practice/alerts.log'];
 const COPIES=SOURCES.map(path=>path+'.copy');
+const EXPECTED_LOG='/home/player/practice/manual.log';
+const MISSING_LOG='/home/player/practice/missing.log';
 
 export interface WorkshopStep {
   line:number;
@@ -42,13 +45,14 @@ const wordsOnly=(raw:string):string[]|null=>{
 /** Strict preflight: only assignment, one bounded for/cp and test predicates.
  * The entire program is checked before executing ANY file-changing command.
  */
-function preflight(lines:readonly SourceLine[],seed:LinuxState):{feedback:string;line:number}|null{
+function preflight(lines:readonly SourceLine[],seed:LinuxState,scenario:WorkshopId):{feedback:string;line:number}|null{
   let simulated=seed;
   for(let i=0;i<lines.length;i++){
     const {raw:line,line:number}=lines[i];
     const fail=(feedback:string)=>({feedback:'Linia '+number+': '+feedback,line:number});
     if(line.length>240)return fail('za długa (limit 240 znaków).');
     if(/^for(?:\s|$)/u.test(line)){
+      if(scenario==='diagnosis')return fail('w tej diagnozie użyj test -f oraz echo $?, nie pętli.');
       const loop=parseForLoop(simulated,line);
       if(!loop)return fail('sprawdź składnię for ...; do cp ...; done.');
       const body=wordsOnly(loop.body);
@@ -74,6 +78,7 @@ function preflight(lines:readonly SourceLine[],seed:LinuxState):{feedback:string
       continue;
     }
     if(words.length===3&&words[0]==='test'&&words[1]==='-f')continue;
+    if(scenario==='diagnosis'&&/^echo\s+\$\?$/u.test(line))continue;
     return fail('dozwolone są przypisania, for z cp i test -f.');
   }
   return null;
@@ -82,7 +87,7 @@ function preflight(lines:readonly SourceLine[],seed:LinuxState):{feedback:string
 /** Rebuild world per run: no stale files from earlier attempts can make a bad
  * script appear successful. Never accept scripts, paths, or shell on the host.
  */
-export function runWorkshop(script:string):WorkshopResult {
+export function runWorkshop(script:string,scenario:WorkshopId='backup'):WorkshopResult {
   const initial=createAcademyState();
   if(script.length>WORKSHOP_MAX_CHARS)
     return error('Skrypt jest za długi (maksymalnie 700 znaków).',initial);
@@ -90,7 +95,7 @@ export function runWorkshop(script:string):WorkshopResult {
   if(!lines.length)return error('Wpisz krótki skrypt i uruchom go.',initial);
   if(lines.length>WORKSHOP_MAX_LINES)
     return error('Maksymalnie 4 niepuste linie. Nie rozbudowuj tego zadania.',initial,[],lines[WORKSHOP_MAX_LINES].line);
-  const invalid=preflight(lines,initial);
+  const invalid=preflight(lines,initial,scenario);
   if(invalid)return error(invalid.feedback,initial,[],invalid.line);
 
   let state=initial;
@@ -112,12 +117,36 @@ export function runWorkshop(script:string):WorkshopResult {
       iterations:result.loopTrace?.length??0,
       skipped:result.conditionalTrace?.filter(s=>!s.executed).length??0
     });
-    if(!result.ok)return error('Linia '+lines[index].line+': '+(result.output||'polecenie zakończyło się błędem.'),state,steps,lines[index].line);
+    // A non-zero test is the evidence to observe in scenario 02, not
+    // automatically a script failure. Still reject any other failed command.
+    const diagnosticTest=scenario==='diagnosis'&&result.command==='conditional'&&
+      result.conditionalTrace?.every(part=>part.command==='test'&&part.testFlag==='-f');
+    if(!result.ok&&!diagnosticTest)return error('Linia '+lines[index].line+': '+(result.output||'polecenie zakończyło się błędem.'),state,steps,lines[index].line);
   }
 
   if(state.variables?.BASE!=='~/practice')
     return error('Ustaw BASE=~/practice. Ta zmienna określa katalog logów.',state,steps,
       lines.find(x=>/^BASE=/.test(x.raw))?.line);
+  if(scenario==='diagnosis'){
+    const position=events.findIndex(e=>e.command==='conditional');
+    const checked=position>=0?events[position].conditionalTrace:undefined;
+    const valid=checked?.length===2&&checked.every((part,i)=>
+      part.executed&&part.command==='test'&&part.testFlag==='-f'&&
+      part.target===(i===0?EXPECTED_LOG:MISSING_LOG)&&
+      part.exitCode===(i===0?0:1)&&/\$\{?BASE\}?/.test(part.raw));
+    if(!valid)return error('Zdiagnozuj dwa logi jedną linią: test -f dla istniejącego manual.log, następnie && test -f dla brakującego missing.log. Użyj $BASE.',state,steps,
+      lines.find(x=>x.raw.startsWith('test '))?.line);
+    const status=events.findIndex((e,i)=>i>position&&e.command==='echo'&&
+      e.target==='previous-exit'&&e.output==='1');
+    if(status<0)return error('Brakuje odczytu kodu wyjścia. Po dwóch testach wpisz echo $? i zaobserwuj status 1.',state,steps,
+      lines.find(x=>x.raw.startsWith('echo '))?.line);
+    if(Object.keys(state.files).some(path=>state.files[path]!==initial.files[path])||
+       Object.keys(initial.files).some(path=>state.files[path]!==initial.files[path]))
+      return error('Diagnoza nie powinna modyfikować plików.',state,steps);
+    return {completed:true,
+      feedback:'Zaliczone: manual.log istnieje, missing.log nie istnieje, a echo $? potwierdziło status 1. Kod 1 to wynik testu, nie awaria terminala.',
+      steps,state};
+  }
   if(!lines.some(item=>item.raw.startsWith('for ')&&/\$\{?BASE\}?/.test(item.raw)))
     return error('W nagłówku pętli odwołaj się do $BASE zamiast wpisywać ścieżki ponownie.',state,steps,
       lines.find(x=>x.raw.startsWith('for '))?.line);
