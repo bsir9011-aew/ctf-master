@@ -6,6 +6,8 @@ import {incidentCaseProgress} from './core/incidentCapstone';
 import {hypothesisProgress,seedHypothesisCase} from './core/hypothesisCase';
 import {responseProgress,seedResponseCase} from './core/responseCase';
 import {opsProgress,seedOpsCase} from './core/opsRecovery';
+import {buildAfterAction,restoreAfterActionReports,restoreMissionReflections,
+  type AfterActionReports,type MissionReflections} from './core/afterAction';
 import {seedBlindCase} from './core/blindInvestigation';
 import PacketPath from './components/PacketPath';
 import CurriculumMap from './components/CurriculumMap';
@@ -23,6 +25,7 @@ interface SavedSession {
   missionIndex:number; state:LinuxState; events:CommandResult[]; completed:number[];
   lines:Line[]; learning:LearningMap;
   reviewAttempt:ReviewAttempt | null; reviewHistory:ReviewHistory;
+  reports:AfterActionReports; reflections:MissionReflections;
 }
 const STORAGE = 'ctf-master:mvp-08';
 const V7 = 'ctf-master:mvp-07';
@@ -36,7 +39,7 @@ const V1 = 'ctf-master:mvp-01';
 function blankSession(): SavedSession {
   return {
     missionIndex:0, state:initialLinux(), events:[], completed:[], learning:{},
-    reviewAttempt:null, reviewHistory:{},
+    reviewAttempt:null, reviewHistory:{},reports:{},reflections:{},
     lines:[{output:'CTF Master - symulowany terminal Linux. Wpisz help, aby poznac polecenia.',ok:true}]
   };
 }
@@ -121,6 +124,8 @@ function restore(): SavedSession {
     p.learning = restoreLearning(p.learning);
     p.reviewHistory = restoreReviewHistory(p.reviewHistory);
     p.reviewAttempt = restoreReviewAttempt(p.reviewAttempt);
+    p.reports = restoreAfterActionReports(p.reports);
+    p.reflections = restoreMissionReflections(p.reflections);
     // Review worlds are independent: they never replace the original saved mission world.
     return p as SavedSession;
   } catch { return blankSession(); }
@@ -139,6 +144,7 @@ export default function App() {
   const inputRef = useRef<HTMLInputElement>(null);
   const mission = missions[session.missionIndex];
   const missionComplete = session.completed.includes(session.missionIndex) || mission.success(session.state,session.events);
+  const afterAction = session.reports[mission.id];
   const caseProgress = mission.id==='incident-correlation'
     ? incidentCaseProgress(session.state,session.events) : null;
   const hypothesisCaseProgress = mission.id==='incident-hypotheses'
@@ -192,10 +198,14 @@ export default function App() {
       const firstCompletion = done && !old.completed.includes(old.missionIndex);
       const completed = firstCompletion ? [...old.completed,old.missionIndex] : old.completed;
       const learning = trackCommand(old.learning,missions[old.missionIndex].id,result,firstCompletion);
+      const id=missions[old.missionIndex].id;
+      const summary=firstCompletion
+        ?buildAfterAction(id,events,learning[id],done):null;
+      const reports=summary?{...old.reports,[id]:summary}:old.reports;
       const newLines = result.clear ? [] : [...old.lines,{
         input:old.state.cwd + ' $ ' + raw.trim(), output:result.output,ok:result.ok
       }].slice(-45);
-      return {...old,state:result.state,events,completed,learning,lines:newLines};
+      return {...old,state:result.state,events,completed,learning,reports,lines:newLines};
     });
     setCommand('');
     inputRef.current?.focus();
@@ -354,6 +364,47 @@ export default function App() {
           </div>}
           {operationalProgress && operationalProgress.sideEffectNotes.length>0 &&
             <p className="feedback-note" role="status">Skutki działań: {operationalProgress.sideEffectNotes.join(' · ')}. Możesz naprawić awarię, ale historia decyzji pozostaje widoczna.</p>}
+          {missionComplete && <section className="after-action" aria-label="Raport po misji">
+            <h3>Raport po misji</h3>
+            {afterAction ? <>
+              <p>Podsumowanie pierwszego zaliczenia. Zapisano wyłącznie fakty z historii wirtualnego terminala.</p>
+              <div className="learning-stats">
+                <span>Polecenia: {afterAction.commands}</span>
+                <span>Statusy niezerowe: {afterAction.nonzero}</span>
+                <span>Podpowiedzi: {afterAction.hints}</span>
+                <span>{afterAction.independent?'Bez podpowiedzi i nieudanych poleceń':'Ukończono z próbami lub pomocą'}</span>
+              </div>
+              <details>
+                <summary>Przegląd dowodów i decyzji</summary>
+                <h4>Sprawdzone źródła i obserwacje</h4>
+                {afterAction.sources.length ? <ul>{afterAction.sources.map((line,i)=><li key={i}>{line}</li>)}</ul>
+                  : <p>Brak zarejestrowanych obserwacji ze źródeł w tym zadaniu.</p>}
+                {afterAction.hypotheses.length>0 && <>
+                  <h4>Zgłoszone hipotezy</h4>
+                  <ul>{afterAction.hypotheses.map((line,i)=><li key={i}>{line}</li>)}</ul>
+                </>}
+                <h4>Wykonane interwencje</h4>
+                {afterAction.actions.length ? <ul>{afterAction.actions.map((line,i)=><li key={i}>{line}</li>)}</ul>
+                  : <p>Brak zarejestrowanych interwencji.</p>}
+                <h4>Dodatkowe konsekwencje</h4>
+                {afterAction.consequences.length ? <ul>{afterAction.consequences.map((line,i)=><li key={i}>{line}</li>)}</ul>
+                  : <p>Nie wykryto dodatkowych skutków w obsługiwanych regułach oceny. Nie oznacza to braku wszystkich ryzyk.</p>}
+                <p><strong>Potwierdzenie:</strong> {afterAction.verification}</p>
+              </details>
+              <div className="transfer-reflection">
+                <label htmlFor="mission-reflection"><strong>Transfer wiedzy - zmieniony przypadek</strong></label>
+                <p>{afterAction.transferQuestion}</p>
+                <textarea id="mission-reflection" rows={3} maxLength={600}
+                  placeholder="Twoja hipoteza i sposób weryfikacji (opcjonalnie)"
+                  value={session.reflections[mission.id]??''}
+                  onChange={e=>{
+                    const value=e.target.value.slice(0,600);
+                    setSession(old=>({...old,reflections:{...old.reflections,[mission.id]:value}}));
+                  }}/>
+                <small>Twoja odpowiedź zostaje lokalnie w przeglądarce. Nie jest automatycznie oceniana ani zaliczana jako osobny sprawdzian.</small>
+              </div>
+            </> : <p>Ta misja została ukończona wcześniej, zanim dodano raporty. Brak pełnej historii pierwszego zaliczenia - nie odtwarzamy jej z przypuszczeń.</p>}
+          </section>}
           {missionComplete && <div className="success" role="status">
             <span>✓ Cel misji osiągnięty! {stats.independent ? 'Samodzielnie, bez błędów i podpowiedzi.' : 'Powtórz umiejętność w nowym wariancie.'}</span>
             {session.missionIndex < missions.length-1

@@ -329,3 +329,33 @@
   line-height:1.5;
 }
 .academy-investigation-checks span {display:block}
+
+
+/* RC.30: evidence-first after-action debrief, usable at phone width. */
+.after-action{
+  margin-top:14px;padding:16px;border:1px solid #33515c;
+  border-radius:12px;background:#12222d;color:#e3edf2;
+}
+.after-action h3{font-size:17px;margin:0 0 9px}
+.after-action h4{font-size:13px;margin:14px 0 6px;color:#c5e5dc}
+.after-action p,.after-action li{font-size:13px;line-height:1.58}
+.after-action p{margin:9px 0}
+.after-action .learning-stats{margin:10px 0}
+.after-action details{
+  margin-top:12px;padding:11px 12px;border:1px solid #304759;
+  border-radius:9px;background:#152833;
+}
+.after-action summary{cursor:pointer;font-weight:750;font-size:13px;min-height:30px}
+.after-action details ul{padding-left:21px;margin:6px 0 10px}
+.after-action details li{overflow-wrap:anywhere;margin-bottom:5px}
+.after-action .transfer-reflection{margin-top:14px;border-top:1px solid #355264;padding-top:13px}
+.after-action .transfer-reflection label{display:block;font-size:14px}
+.after-action .transfer-reflection textarea{
+  display:block;margin:9px 0 7px;width:100%;min-height:90px;
+  resize:vertical;max-width:100%;background:#0e1b25;
+  color:#f1f7fa;border:1px solid #56717e;border-radius:8px;
+  padding:10px;font:inherit;font-size:16px;line-height:1.5;
+}
+.after-action .transfer-reflection textarea:focus-visible{outline:3px solid #a9f2cb;outline-offset:2px}
+.after-action .transfer-reflection small{display:block;color:#a9bcc6;font-size:11px;line-height:1.5}
+@media(max-width:530px){.after-action{padding:12px}.after-action details{padding:10px}}
