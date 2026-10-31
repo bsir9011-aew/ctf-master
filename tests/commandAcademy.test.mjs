@@ -29,6 +29,7 @@ const solutions={
   test:'test -f ~/practice/checks/locked.log',
   conditionals:'test -f ~/practice/source.txt && cp ~/practice/source.txt ~/practice/guarded-copy.txt',
   variables:'SOURCE=~/practice/source.txt',
+  for:'for FILE in ~/practice/events.log ~/practice/alerts.log; do cp "$FILE" "$FILE.copy"; done',
   investigation:'grep "HTTP 502" ~/practice/logs/edge.log',
   find:'find ~/practice -name "ticket-*.txt"',
   cp:'cp ~/practice/source.txt ~/practice/backup.txt',
@@ -45,9 +46,9 @@ const solutions={
 };
 const ids=commandLessons.map(lesson=>lesson.id);
 
-test('catalogue has 34 unique drills and all exercise texts',()=>{
-  assert.equal(ids.length,34);
-  assert.equal(new Set(ids).size,34);
+test('catalogue has 35 unique drills and all exercise texts',()=>{
+  assert.equal(ids.length,35);
+  assert.equal(new Set(ids).size,35);
   assert.deepEqual(ids,Object.keys(solutions));
   for (const lesson of commandLessons) {
     assert.ok(lesson.purpose && lesson.syntax && lesson.example && lesson.assignment && lesson.hint,lesson.id);
@@ -59,6 +60,14 @@ for(const lesson of commandLessons) {
     assert.equal(lesson.pass(original,[]),false,'must not start completed');
     let result=academySubmit(original,[],solutions[lesson.id],lesson.id);
     assert.equal(result.result.ok,lesson.id!=='exit-status');
+    if(lesson.id==='for'){
+      assert.equal(result.completed,false);
+      result=academySubmit(result.result.state,result.events,
+        'cat ~/practice/events.log.copy',lesson.id);
+      assert.equal(result.completed,false);
+      result=academySubmit(result.result.state,result.events,
+        'cat ~/practice/alerts.log.copy',lesson.id);
+    }
     if(lesson.id==='variables'){
       assert.equal(result.completed,false);
       result=academySubmit(result.result.state,result.events,
