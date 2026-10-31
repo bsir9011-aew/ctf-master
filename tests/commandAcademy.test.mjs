@@ -28,6 +28,7 @@ const solutions={
   'exit-status':'grep FATAL ~/practice/events.log',
   test:'test -f ~/practice/checks/locked.log',
   conditionals:'test -f ~/practice/source.txt && cp ~/practice/source.txt ~/practice/guarded-copy.txt',
+  variables:'SOURCE=~/practice/source.txt',
   investigation:'grep "HTTP 502" ~/practice/logs/edge.log',
   find:'find ~/practice -name "ticket-*.txt"',
   cp:'cp ~/practice/source.txt ~/practice/backup.txt',
@@ -58,6 +59,16 @@ for(const lesson of commandLessons) {
     assert.equal(lesson.pass(original,[]),false,'must not start completed');
     let result=academySubmit(original,[],solutions[lesson.id],lesson.id);
     assert.equal(result.result.ok,lesson.id!=='exit-status');
+    if(lesson.id==='variables'){
+      assert.equal(result.completed,false);
+      result=academySubmit(result.result.state,result.events,
+        'DEST=~/practice/variable-copy.txt',lesson.id);
+      result=academySubmit(result.result.state,result.events,
+        'cp "$SOURCE" "$DEST"',lesson.id);
+      assert.equal(result.completed,false);
+      result=academySubmit(result.result.state,result.events,
+        'cat "$DEST"',lesson.id);
+    }
     if(lesson.id==='conditionals'){
       assert.equal(result.completed,false);
       result=academySubmit(result.result.state,result.events,
