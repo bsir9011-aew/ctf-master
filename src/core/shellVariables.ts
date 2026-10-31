@@ -29,14 +29,14 @@ export function expandVirtualWords(
       if(close<0)return -1;
       const name=raw.slice(index+2,close);
       if(!VALID_NAME.test(name))return -1;
-      value+=variables[name]??'';
+      value+=Object.hasOwn(variables,name)?variables[name]:'';
       refs.push(name);
       return close;
     }
     const match=/^[A-Za-z_][A-Za-z0-9_]*/.exec(raw.slice(index+1));
     if(!match){value+='$';return index;}
     const name=match[0];
-    value+=variables[name]??'';
+    value+=Object.hasOwn(variables,name)?variables[name]:'';
     refs.push(name);
     return index+name.length;
   };
