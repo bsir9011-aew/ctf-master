@@ -416,3 +416,10 @@ Nowa zakładka Bash zawiera jeden krótki warsztat zamiast rozbudowanej, wieloet
 W pierwszym ćwiczeniu ustawiasz BASE, używasz jednej pętli for do wykonania kopii dwóch logów, a następnie sprawdzasz obie kopie przez test -f i &&. Walidator sprawdza stan źródeł, wykonane iteracje oraz warunki - nie opiera się tylko na porównaniu wpisanego tekstu. Nieprawidłowy skrypt pokazuje pierwszy konkretny problem.
 
 Przed startem cały skrypt jest sprawdzany. Dozwolone są tylko przypisania, ograniczona pętla for z pojedynczym cp oraz predykaty test -f. Nie ma wykonywania poleceń hosta, sieci, sudo ani eval. Każda próba startuje od świeżego wirtualnego systemu. Szkic zapisuje się lokalnie, ale RC.38 nie dodaje trwałego zaliczenia do 35 lekcji/22 misji i nie zmienia formatu kopii postępów. Pracujemy wyłącznie w repo, bez dystrybucji APK.
+
+
+## RC.39 - pasek znaków do Bash na telefonie
+
+Warsztat Bash zachowuje ten sam jeden ekran i jeden scenariusz. Pod edytorem znajduje się zwarty pasek siedmiu klawiszy: `$`, `"`, `'`, `~`, `&&`, `;` i `↵` (nowa linia). Dotknięcie wstawia znak w miejscu kursora, ewentualnie zamienia aktualnie zaznaczony fragment tekstu. Po wstawieniu kursor pozostaje za nowym znakiem, a edytor odzyskuje fokus. Pasek jest niewysoki i można przesunąć go poziomo na małych telefonach.
+
+Wstawianie respektuje dotychczasowy limit 700 znaków i zapisuje szkic do tego samego lokalnego klucza. Nie zmienia działania interpretera Basha, kryteriów zaliczenia, lekcji ani misji; niczego nie uruchamia na hoście. Pasek znaków i zachowanie klawiatury Android wymagają jeszcze testu na fizycznym urządzeniu. Bez udostępniania APK.
