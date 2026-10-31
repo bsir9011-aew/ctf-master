@@ -1,12 +1,13 @@
 {
   "name": "ctf-master",
   "private": true,
-  "version": "1.0.0-rc.32",
+  "version": "1.0.0-rc.33",
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 0.0.0.0",
+    "android:prepare": "node scripts/prepare-android.mjs",
     "test": "node --experimental-strip-types --test tests/*.test.mjs"
   },
   "dependencies": {
