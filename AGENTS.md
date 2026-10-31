@@ -51,3 +51,10 @@ Next priority: have the user run physical PWA QA per docs/MOBILE_QA.md and perfo
 - Validate actual copied contents, loop references and predicate trace. Report first relevant mismatch.
 - Save only the draft in a separate localStorage key; do not alter Academy/mission/progress-backup schema or claim persistent mastery.
 - Repo-only work. No APK distribution.
+
+## RC.39 Bash editor thumb controls
+- Keep the existing one-screen workshop and the same challenge; avoid multi-step missions and extra permanent panels.
+- A single compact row of Bash symbol shortcuts inserts text at a stored textarea selection/caret (including replacing a selection), returns focus with preventScroll and restores the caret after React commits.
+- Use pure `insertAtSelection` and respect the existing 700-character max. Unsupported/overflow input must not mutate the draft or grant any progress.
+- Shortcuts: `$`, double quote, single quote, tilde, `&&`, semicolon, and newline. Keep original localStorage draft key and engine untouched. Let vertical page scroll remain available on mobile.
+- CI tests the pure editing function; actual Android keyboard behavior still needs physical QA. Repo-only: no APK distribution.

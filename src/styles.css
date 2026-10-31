@@ -537,3 +537,27 @@
   .bash-workshop h2{font-size:18px;margin:6px 0}
   .bash-workshop .workshop-task{font-size:12px;line-height:1.48;margin-bottom:10px}
 }
+
+
+/* RC.39 - thumb-friendly Bash characters; never a second editor or scroll pane. */
+.workshop-shortcuts{
+  display:flex;align-items:center;gap:6px;margin-top:7px;
+  overflow-x:auto;overflow-y:hidden;scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;touch-action:pan-x;
+}
+.workshop-shortcuts::-webkit-scrollbar{display:none}
+.workshop-shortcuts button{
+  flex:1 0 37px;min-width:37px;max-width:58px;min-height:43px;
+  padding:7px 8px;border:1px solid #45685f;border-radius:9px;
+  background:#213839;color:#b8f6d3;font:800 16px/1 ui-monospace,SFMono-Regular,Consolas,monospace;
+  user-select:none;-webkit-user-select:none;
+}
+.workshop-shortcuts button:active{background:#385d4e}
+.workshop-shortcuts button:focus-visible{outline:3px solid #a7edcd;outline-offset:2px}
+.workshop-editor-notice{margin:6px 0;font-size:12px;color:#ffcbac}
+@media(max-width:530px){
+  .workshop-shortcuts{gap:4px;margin-top:6px}
+  .workshop-shortcuts button{
+    min-width:35px;min-height:44px;padding:6px 5px;
+  }
+}

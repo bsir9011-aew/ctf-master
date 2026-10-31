@@ -323,3 +323,11 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Sprawdź poprawny skrypt, błędny warunek, zwijany przebieg iteracji i informację o pierwszym błędzie.
 - [ ] Wróć do innej zakładki, a potem do Bash: szkic zostaje bez zmiany ukończeń Akademii i misji.
 - [ ] Przetestuj działanie w PWA bez sieci; fizyczne QA nadal PENDING. W tym PR nie dystrybuujemy APK.
+
+## RC.39 - Bash na klawiaturze telefonu
+- [ ] Ustaw kursor w połowie drugiej linii; dotknij klawisza `$` i sprawdź, że znak pojawił się w środku tekstu, a nie na końcu.
+- [ ] Zaznacz fragment tekstu i zastąp go jednym z klawiszy; klawisz `↵` powinien dodać prawdziwą nową linię.
+- [ ] Po dotknięciu paska znaków kursor powinien pozostać w edytorze, a przy otwartej klawiaturze nie powinno być dużych skoków strony.
+- [ ] Sprawdź poziomy przesuw paska na wąskim ekranie i zwykłe pionowe przewijanie strony przy dotknięciu edytora.
+- [ ] Dotknięcia klawiszy powinny zachowywać zapis szkicu, a przy limicie 700 znaków nie dopisywać kolejnych. Nie powinny zmieniać zaliczeń innych trybów.
+- [ ] Fizyczny test Android/PWA nadal PENDING. Pracujemy w repo, bez APK.
