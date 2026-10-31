@@ -183,10 +183,16 @@ function runLinux(state: LinuxState, raw: string): CommandResult {
 
   switch (cmd) {
     case 'echo':
-      if(/^echo\s+\$\?$/.test(command))return done(String(previousExitCode(state)),true,state,'previous-exit');
-      return done('echo: w tej lekcji obslugiwane jest tylko echo $? bez cytowania',false);
+      return done(args.join(' '),true,state,/^echo\s+\$\?$/.test(command)?'previous-exit':undefined);
+    case 'unset': {
+      if(args.length!==1||!validName(args[0])||['HOME','PWD'].includes(args[0]))
+        return done('Uzycie: unset NAZWA (nie HOME/PWD)',false);
+      const variables={...state.variables};
+      delete variables[args[0]];
+      return done('',true,{...state,variables},args[0]);
+    }
     case 'help':
-      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE SCIEZKA, stat PLIK, namei -l SCIEZKA, umask [NNN], chgrp GRUPA PLIK, man POLECENIE, man -k HASLO, whoami, id [-u|-g|-G], groups, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Potoki: komenda_czytajaca PLIK | grep|sort|uniq|head|tail|wc (max 5 etapow). Łańcuchy warunkowe: KOMENDA && KOMENDA albo KOMENDA || KOMENDA (man conditionals, do 5 poleceń). HTTP test: curl -i http://api.ctf.test/health lub http://ops.ctf.test/health (symulacja). Scenariusz hipotez: hypothesis IDENTYFIKATOR PEWNOSC (man hypothesis). Warunki plików: test -f SCIEZKA lub [ -r SCIEZKA ] (man test). Status ostatniej komendy: echo $? (man exit-status). Przekierowania odczytu: POLECENIE > PLIK lub POLECENIE >> PLIK. Sciezki ze spacjami: uzyj cudzyslowow lub backslasha (man quoting); brak podstawiania zmiennych i wykonywania host shell.');
+      return done('Dostepne: pwd, ls [-a] [-l], cd, cat, mkdir, touch, cp, mv, rm, grep [-i], find [-name], head [-n N], tail [-n N], wc [-l|-w|-c], sort PLIK, uniq PLIK, chmod MODE SCIEZKA, stat PLIK, namei -l SCIEZKA, umask [NNN], chgrp GRUPA PLIK, man POLECENIE, man -k HASLO, whoami, id [-u|-g|-G], groups, clear, help. chmod: 3 cyfry octal lub u/g/o/a +/- rwx. Procesy: ps [aux], kill PID, systemctl status|start|stop|restart UNIT, journalctl -u UNIT. Siec: ip addr/route/link/neigh, ping -c 1 IP, ss -lnt, resolvectl dns eth0 [IP], nslookup NAZWA, nc -z HOST PORT, trace HOST PORT. Potoki: komenda_czytajaca PLIK | grep|sort|uniq|head|tail|wc (max 5 etapow). Łańcuchy warunkowe: KOMENDA && KOMENDA albo KOMENDA || KOMENDA (man conditionals, do 5 poleceń). HTTP test: curl -i http://api.ctf.test/health lub http://ops.ctf.test/health (symulacja). Scenariusz hipotez: hypothesis IDENTYFIKATOR PEWNOSC (man hypothesis). Warunki plików: test -f SCIEZKA lub [ -r SCIEZKA ] (man test). Status ostatniej komendy: echo $? (man exit-status). Przekierowania odczytu: POLECENIE > PLIK lub POLECENIE >> PLIK. Sciezki ze spacjami: uzyj cudzyslowow lub backslasha (man quoting); zmienne: NAZWA=wartosc, echo $NAZWA, cp $NAZWA CEL, unset NAZWA (man variables). Bez wykonywania host shell.');
     case 'whoami':
       return args.length ? done('whoami: nieoczekiwany argument', false) : done(identityOf(state).user);
     case 'pwd':
