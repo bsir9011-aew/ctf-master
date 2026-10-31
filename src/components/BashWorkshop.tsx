@@ -3,6 +3,7 @@ import {insertAtSelection} from '../core/editorInsertion';
 import {emptyUndoHistory,recordEditorEdit,undoEditorEdit,
   type EditKind} from '../core/editorUndo';
 import {sourceLineRange} from '../core/workshopSourceLines';
+import {compareExitPrediction,type ExitPrediction} from '../core/workshopPrediction';
 import {workshopScenarios,workshopInitialScript,workshopDraftKey,
   type WorkshopId} from '../core/workshopScenarios';
 import {
@@ -38,7 +39,8 @@ function restoreDraft(id:WorkshopId):string{
 export default function BashWorkshop(){
   const [scenario,setScenario]=useState<WorkshopId>(restoreScenario);
   const [draft,setDraft]=useState(()=>restoreDraft(restoreScenario()));
-  const [prediction,setPrediction]=useState('');
+  const [prediction,setPrediction]=useState<ExitPrediction>('');
+  const [submittedPrediction,setSubmittedPrediction]=useState<ExitPrediction>('');
   const [result,setResult]=useState<WorkshopResult|null>(null);
   const [editorNotice,setEditorNotice]=useState('');
   const [canUndo,setCanUndo]=useState(false);
@@ -57,6 +59,9 @@ export default function BashWorkshop(){
     cursor.current=selection;
   },[draft]);
   const change=(next:string)=>{
+    // An edited script needs a new prediction; never compare a stale guess.
+    setPrediction('');
+    setSubmittedPrediction('');
     setEditorNotice('');
     setDraft(next);
     setResult(null);
@@ -67,6 +72,7 @@ export default function BashWorkshop(){
     setScenario(next);
     setDraft(restoreDraft(next));
     setPrediction('');
+    setSubmittedPrediction('');
     setResult(null);
     setEditorNotice('');
     undoHistory.current=emptyUndoHistory();
@@ -116,6 +122,8 @@ export default function BashWorkshop(){
     change(next.value);
   };
   const run=()=>{
+    // Freeze the answer at run time; edits or post-result selections cannot backfill it.
+    setSubmittedPrediction(prediction);
     setResult(runWorkshop(draft,scenario));
   };
   const focusErrorLine=()=>{
@@ -132,6 +140,7 @@ export default function BashWorkshop(){
   };
   const copies=result?.steps.flatMap(s=>s.changedFiles)
     .filter(path=>path.endsWith('.copy')).length??0;
+  const exitComparison=result?compareExitPrediction(scenario,submittedPrediction,result):null;
   return <section className="bash-workshop" aria-label="Mobilny warsztat Bash">
     <div className="workshop-heading">
       <span className="eyebrow">BASH WORKSHOP</span>
@@ -188,15 +197,18 @@ export default function BashWorkshop(){
     </div>
     {editorNotice&&<p role="status" className="workshop-editor-notice">{editorNotice}</p>}
     <div className={'workshop-controls '+(scenario!=='backup'?'diagnosis':'')}>
-      {scenario==='backup'&&<label htmlFor="workshop-prediction">Przewidź
+      <label htmlFor="workshop-prediction">{scenario==='backup'?'Przewidź kopie':'Przewidź kod'}
         <select id="workshop-prediction" value={prediction}
-          onChange={e=>setPrediction(e.target.value)}>
-          <option value="">Ile kopii?</option>
-          <option value="0">0 kopii</option>
-          <option value="1">1 kopia</option>
-          <option value="2">2 kopie</option>
+          onChange={e=>{
+            setPrediction(e.target.value as ExitPrediction);
+            setSubmittedPrediction('');
+          }}>
+          <option value="">{scenario==='backup'?'Ile kopii?':'Kod zakończenia?'}</option>
+          <option value="0">{scenario==='backup'?'0 kopii':'0 - sukces'}</option>
+          <option value="1">{scenario==='backup'?'1 kopia':'1 - brak sukcesu'}</option>
+          {scenario==='backup'&&<option value="2">2 kopie</option>}
         </select>
-      </label>}
+      </label>
       <button type="button" onClick={run}>Uruchom <span aria-hidden="true">▶</span></button>
     </div>
     <p className="workshop-limit" id="workshop-editor-help">Tylko wirtualny Linux · bez poleceń hosta i sieci.</p>
@@ -209,8 +221,17 @@ export default function BashWorkshop(){
         aria-label={'Przejdź do poprawienia linii '+result.errorLine}>
         Popraw linię {result.errorLine} ↑
       </button>}
-      {scenario==='backup'&&prediction&&<p className="workshop-prediction">Przewidywanie: {prediction} · kopie utworzone: {copies}.
-        {Number(prediction)===copies?' Zgadza się.':' Porównaj to z wykonanymi krokami.'}</p>}
+      {scenario==='backup'&&submittedPrediction&&<p className="workshop-prediction">Przewidywanie: {submittedPrediction} · kopie utworzone: {copies}.
+        {Number(submittedPrediction)===copies?' Zgadza się.':' Porównaj to z wykonanymi krokami.'}</p>}
+      {exitComparison&&<p className="workshop-prediction">
+        Przewidziano kod {exitComparison.predicted}.
+        {exitComparison.observed===null
+          ?' Brak wykonanego echo $? - nie można jeszcze ocenić przewidywania.'
+          :<> Faktyczny odczyt: {exitComparison.observed}.
+            {exitComparison.matched?' Trafnie.':' Sprawdź wykonane i pominięte warunki w Przebiegu.'}
+            {!result.completed&&' Sam kod nie oznacza zaliczenia zadania.'}
+          </>}
+      </p>}
       {result.steps.length>0&&<details className="workshop-trace">
         <summary>Przebieg · {result.steps.length} {result.steps.length===1?'linia':'linie'}</summary>
         <ol>
@@ -249,7 +270,7 @@ export default function BashWorkshop(){
        :<p>Operator <code>||</code> uruchamia drugi test tylko wtedy, gdy pierwszy zakończy się
         niepowodzeniem. Ustaw <code>BASE=~/practice</code>, sprawdź najpierw
         <code> missing.log</code>, potem <code>manual.log</code>. Odczytaj kod przez <code>echo $?</code>.
-        W tej sytuacji prawidłowy końcowy status to 0.</p>}
+        Przewidź, czy wynik drugiego testu zmieni ostatni kod zakończenia.</p>}
       <button type="button" className="workshop-reset" onClick={()=>{
         const selected=cursor.current??{start:draft.length,end:draft.length};
         const template=workshopInitialScript(scenario);

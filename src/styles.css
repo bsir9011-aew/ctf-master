@@ -593,7 +593,7 @@
   font-size:12px;font-weight:700;
 }
 .workshop-scenario-picker select:focus-visible{outline:3px solid #a7edcd;outline-offset:2px}
-.workshop-controls.diagnosis button{width:100%}
+.workshop-controls.diagnosis button{width:auto;flex:0 0 auto}
 @media(max-width:530px){
   .workshop-heading{gap:8px}
   .workshop-scenario-picker{max-width:65%}

@@ -94,3 +94,9 @@ Next priority: have the user run physical PWA QA per docs/MOBILE_QA.md and perfo
 ## RC.45: conditional trace visibility
 - Show the actual executed/skipped predicates from real conditionalTrace in the existing collapsed Bash trace. Explain short-circuit decisions for && / ||; never claim a skipped test ran.
 - Leave workshop scenarios, drafts, validation, achievements, host safety and screen layout unchanged. Mobile physical QA remains pending.
+
+## RC.46: pre-run exit-status prediction
+- Keep the same compact select beside Run in Bash Workshop: backup predicts copies (legacy behavior); diagnostic scenarios optionally predict exit status 0/1 before execution.
+- Capture prediction only on Run, never grade a choice made after inspecting the result. Script edits and scenario switches invalidate stale prediction feedback.
+- Compare against actually executed final `echo $?` output, not the scenario's expected status or script text. If no echo executed, show no fabricated verdict. Prediction is formative and never changes challenge completion, persistent scores or progress.
+- Preserve old scenario IDs/draft keys and safety. Do not create a new screen, mission, full Bash interpreter, or automatic APK. Device QA remains pending.

@@ -120,3 +120,6 @@
 
 - [x] RC.45 - zwijany ślad Bash pokazuje wykonane/pominięte testy oraz przyczynę short-circuit dla && i ||, bez dodatkowego ekranu.
 - [ ] RC.45 QA czytelności zwijanego śladu na telefonie.
+
+- [x] RC.46 - dobrowolna prognoza kodu 0/1 przed uruchomieniem Bash; porównanie z rzeczywistym echo $?, bez fałszywej oceny, gdy brak odczytu.
+- [ ] RC.46 fizyczne QA mobilnego układu przewidywanie + Uruchom oraz zmiany przewidywania po wykonaniu.
