@@ -74,10 +74,7 @@ export function blindProgress(
   const denied=events.findIndex((e,i)=>i>ticket&&ticket>=0&&
     e.command==='cat'&&!e.ok&&
     e.output.includes('Permission denied')&&
-    // cat does not set target on failure; confirm source pathname via
-    // actual virtual state, and only attribute this denial when other
-    // protected fixture files were not involved.
-    e.state.files[c.evidence]===c.evidenceBody);
+    e.target===c.evidence&&e.state.files[c.evidence]===c.evidenceBody);
   const observed=ticket>=0&&denied>=0;
   if(!observed)return blank;
   const inspected=events.findIndex((e,i)=>i>denied&&diagnostic(e));
