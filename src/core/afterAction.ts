@@ -24,7 +24,8 @@ const questions:Record<string,string>={
   'incident-hypotheses':'Gdyby log wdrożenia nie zawierał zmiany limitu, jakich danych potrzebowałbyś do odróżnienia awarii bazy od ataku?',
   'incident-response':'Co sprawdzisz, jeśli plik konfiguracyjny jest poprawny, ale po restarcie API nadal zwraca HTTP 503?',
   'operational-recovery':'Co zrobisz, jeśli kolejka działa po naprawie, ale nadal nie można połączyć się przez SSH?',
-  'blind-investigation':'Jak rozpoznasz podobną odmowę dostępu, gdy plik ma prawidłowe rwx, a zablokowany jest inny katalog po drodze?'
+  'blind-investigation':'Jak rozpoznasz podobną odmowę dostępu, gdy plik ma prawidłowe rwx, a zablokowany jest inny katalog po drodze?',
+  'independent-investigation':'Gdyby właściciel miał prawo odczytu, lecz odczyt nadal nie działał, jak rozróżniłbyś brak x na katalogu od problemu z właścicielem lub grupą?'
 };
 const unique=(items:string[],max=6)=>[...new Set(items)].slice(0,max);
 const sourceCommands=new Set(['cat','grep','stat','namei','test','head','tail','journalctl','curl','ping','nslookup','trace','nc']);
