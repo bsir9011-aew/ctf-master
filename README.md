@@ -2,6 +2,12 @@
 
 **From Linux Explorer to CTF Master.** Mobilna aplikacja edukacyjna typu PWA: terminal treningowy, mini-laboratoria i zadania CTF. Cel: samodzielne rozwiazywanie nowych problemow, a nie odgadywanie jednej komendy.
 
+## Android APK (RC.33)
+
+Dostępny jest automatyczny build **testowego, instalowalnego Android APK** z wbudowaną aplikacją offline (Capacitor 8). Pobierz go przez **Actions → Android APK (debug) → Artifacts** po zielonym buildzie. Szczegóły i bezpieczeństwo: [docs/ANDROID_APK.md](docs/ANDROID_APK.md).
+
+Ważne: debug APK używa klucza podpisywania runnera, który może zmieniać się między buildami. Postępy zapisane w PWA/Chrome **nie przenoszą się automatycznie** do APK, a odinstalowanie aplikacji usuwa jej lokalne dane. Fizyczne QA telefonu jest nadal wymagane.
+
 ## Uruchomienie (GitHub Codespaces)
 
 ```bash
