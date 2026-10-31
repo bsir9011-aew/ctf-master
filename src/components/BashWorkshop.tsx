@@ -270,7 +270,7 @@ export default function BashWorkshop(){
        :<p>Operator <code>||</code> uruchamia drugi test tylko wtedy, gdy pierwszy zakończy się
         niepowodzeniem. Ustaw <code>BASE=~/practice</code>, sprawdź najpierw
         <code> missing.log</code>, potem <code>manual.log</code>. Odczytaj kod przez <code>echo $?</code>.
-        Przewidź, czy wynik drugiego testu zmieni ostatni kod zakończenia.</p>
+        Przewidź, czy wynik drugiego testu zmieni ostatni kod zakończenia.</p>}
       <button type="button" className="workshop-reset" onClick={()=>{
         const selected=cursor.current??{start:draft.length,end:draft.length};
         const template=workshopInitialScript(scenario);
