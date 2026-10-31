@@ -58,7 +58,7 @@ test('Academy merge combines completed lessons and preserves mastery; coach uses
 
 test('strictly rejects malformed JSON, unsupported versions and incomplete data',()=>{
   assert.throws(()=>parseProgressBackup('not JSON'),/JSON/);
-  assert.throws(()=>parseProgressBackup('{}'),/nie jest kopią/);
+  assert.throws(()=>parseProgressBackup('{}'),/nie jest kopia/);
   const raw=JSON.parse(makeProgressBackup(base(),academy,{}));
   raw.schema=5;
   assert.throws(()=>parseProgressBackup(JSON.stringify(raw)),/Nieobsługiwany/);
