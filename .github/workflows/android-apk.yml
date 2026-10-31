@@ -78,9 +78,9 @@ jobs:
       - name: Prepare downloadable APK and checksum
         run: |
           mkdir -p android-output
-          cp android/app/build/outputs/apk/debug/app-debug.apk android-output/CTF-Master-RC33-debug.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk android-output/CTF-Master-RC34-debug.apk
           cd android-output
-          sha256sum CTF-Master-RC33-debug.apk > SHA256SUMS.txt
+          sha256sum CTF-Master-RC34-debug.apk > SHA256SUMS.txt
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
