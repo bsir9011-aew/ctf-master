@@ -242,7 +242,7 @@ export const missions: Mission[] = [
   },
   {
     id:'independent-investigation',title:'INC-022: inny punkt awarii',category:'Linux Investigator',
-    briefing:'INC-022. Po nocnej rotacji logów zespół audytu nie może odczytać eksportu. Poprzedni incydent dotyczył uprawnień do przechodzenia przez katalog. Ten przypadek rozwiąż od nowa: zbierz dowody, wskaż rzeczywistą przyczynę, przywróć wyłącznie niezbędny dostęp, zabezpiecz kopię i potwierdź jej odczyt. Zgłoszenie i ślady znajdują się w wirtualnym środowisku. Tryb transferu - bez podpowiedzi, coachingu i gotowej listy poleceń.',
+    briefing:'INC-022. Po nocnej rotacji logów zespół audytu nie może odczytać eksportu. Rozwiąż ten przypadek od podstaw: zbierz dowody, wskaż rzeczywistą przyczynę, przywróć wyłącznie niezbędny dostęp, zabezpiecz kopię i potwierdź jej odczyt. Zgłoszenie i ślady znajdują się w wirtualnym środowisku. Tryb transferu - bez podpowiedzi, coachingu i gotowej listy poleceń.',
     hints:[],
     success:(state,events)=>independentProgress(state,events).completed
   }
