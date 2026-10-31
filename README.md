@@ -318,3 +318,12 @@ To **nie jest prawdziwe HTTP ani systemd**. Żadne żądanie sieciowe nie jest w
 **INC-021** zaczyna się od krótkiego zgłoszenia o niedostępnym materiale audytowym. Użytkownik musi sam odnaleźć wskazówki w wirtualnym systemie, potwierdzić problem, rozpoznać granicę dostępu, zastosować zasadę najmniejszych uprawnień i zabezpieczyć zweryfikowaną kopię dowodową. W interfejsie tej misji celowo nie ma trzech podpowiedzi, coachingu po błędnych poleceniach ani wskazującego kolejne kroki panelu. Normalne polecenia terminala, takie jak help i man, pozostają dostępne.
 
 Rozwiązanie oceniane jest na podstawie kolejnych działań i skutków, nie na podstawie wpisania jednej gotowej komendy. Nowe dane scenariusza są tworzone raz po wejściu do misji 21, bez nadpisywania plików użytkownika; późniejsze usunięcie nie powoduje automatycznego odtworzenia pliku. Poprzednie 20 misji zachowuje indeksy, dane postępów i klucze localStorage. **Fizyczne QA PWA na telefonie i offline nadal PENDING.**
+
+
+## RC.30 - raport po misji i pytanie transferowe
+
+Po **pierwszym zaliczeniu** dowolnej misji powstaje niewielki, lokalnie zapisany raport after-action. Pokazuje tylko ślady rzeczywiście zarejestrowane przez symulator: sprawdzone źródła i ich statusy, wykonane interwencje (w tym warunkowe), zadeklarowane hipotezy i poziomy pewności, znane skutki uboczne, liczby poleceń, kodów niezerowych i wykorzystanych podpowiedzi oraz fakt zaliczenia. Kody niezerowe nie są automatycznie określane jako pomyłki - np. fałszywy warunek `test` bywa oczekiwany. W szczególności RC.30 nie wymyśla brakujących hipotez ani zdarzeń, których gracz nie wykonał.
+
+Raport zapisywany jest według identyfikatora misji **raz**, zanim historia terminala zostanie nadpisana przez następną misję; ponowne wejście do niej nie zmienia pierwotnej oceny. Nie zapisuje całych plików, wyjść komend ani zagnieżdżonych stanów w raporcie. Dla misji ukończonych przed RC.30, jeśli nie istnieje wiarygodny zapis pierwszego zaliczenia, aplikacja pokazuje komunikat o braku raportu zamiast sfabrykowanego podsumowania.
+
+Pod raportem znajduje się krótkie, **nieoceniane pytanie transferowe** oraz pole na własną odpowiedź. Tekst do 600 znaków zapisuje się tylko w bieżącym lokalnym profilu przeglądarki; nie wpływa na odblokowania czy niezależność. UI jest mobilne, a `localStorage` nadal używa istniejącego klucza `ctf-master:mvp-08`, z opcjonalnymi polami raportów i refleksji. Liczby misji, lekcji i powtórek nie zmieniły się. Fizyczny test telefonu i offline PWA nadal **PENDING**.
