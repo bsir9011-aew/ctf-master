@@ -1,5 +1,7 @@
 import {useLayoutEffect,useRef,useState} from 'react';
 import {insertAtSelection} from '../core/editorInsertion';
+import {emptyUndoHistory,recordEditorEdit,undoEditorEdit,
+  type EditKind} from '../core/editorUndo';
 import {sourceLineRange} from '../core/workshopSourceLines';
 import {
   WORKSHOP_DEFAULT,WORKSHOP_MAX_CHARS,runWorkshop,
@@ -29,24 +31,43 @@ export default function BashWorkshop(){
   const [prediction,setPrediction]=useState('');
   const [result,setResult]=useState<WorkshopResult|null>(null);
   const [editorNotice,setEditorNotice]=useState('');
+  const [canUndo,setCanUndo]=useState(false);
+  const undoHistory=useRef(emptyUndoHistory());
   const editor=useRef<HTMLTextAreaElement>(null);
   const cursor=useRef<{start:number;end:number}|null>(null);
-  const pendingCursor=useRef<number|null>(null);
+  const pendingCursor=useRef<{start:number;end:number}|null>(null);
   useLayoutEffect(()=>{
     if(pendingCursor.current===null)return;
-    const position=pendingCursor.current;
+    const selection=pendingCursor.current;
     pendingCursor.current=null;
     const element=editor.current;
     if(!element)return;
     element.focus({preventScroll:true});
-    element.setSelectionRange(position,position);
-    cursor.current={start:position,end:position};
+    element.setSelectionRange(selection.start,selection.end);
+    cursor.current=selection;
   },[draft]);
   const change=(next:string)=>{
     setEditorNotice('');
     setDraft(next);
     setResult(null);
     try{localStorage.setItem(DRAFT_KEY,next);}catch{/* private browsing */}
+  };
+  const recordEdit=(next:string,kind:EditKind,
+    before:{start:number;end:number},after:{start:number;end:number})=>{
+    const updated=recordEditorEdit(undoHistory.current,
+      {value:draft,...before},{value:next,...after},kind,Date.now());
+    undoHistory.current=updated;
+    setCanUndo(updated.past.length>0);
+  };
+  const undo=()=>{
+    const restored=undoEditorEdit(undoHistory.current);
+    if(!restored)return;
+    undoHistory.current=restored.history;
+    setCanUndo(restored.history.past.length>0);
+    const selection={start:restored.snapshot.start,end:restored.snapshot.end};
+    cursor.current=selection;
+    pendingCursor.current=selection;
+    change(restored.snapshot.value);
   };
   const trackSelection=()=>{
     const field=editor.current;
@@ -65,7 +86,10 @@ export default function BashWorkshop(){
       cursor.current={start:next.cursor,end:next.cursor};
       return;
     }
-    pendingCursor.current=next.cursor;
+    const after={start:next.cursor,end:next.cursor};
+    recordEdit(next.value,'shortcut',selected,after);
+    cursor.current=after;
+    pendingCursor.current=after;
     change(next.value);
   };
   const run=()=>{
@@ -99,11 +123,24 @@ export default function BashWorkshop(){
     <textarea id="bash-workshop-editor" ref={editor} value={draft} rows={4}
       spellCheck={false} autoCapitalize="none" autoCorrect="off"
       maxLength={WORKSHOP_MAX_CHARS}
-      onChange={e=>change(e.target.value)}
+      onChange={e=>{
+        const field=e.currentTarget;
+        const next=field.value;
+        const previous=cursor.current??{
+          start:Math.min(field.selectionStart,draft.length),
+          end:Math.min(field.selectionEnd,draft.length)
+        };
+        const after={start:field.selectionStart,end:field.selectionEnd};
+        recordEdit(next,'typing',previous,after);
+        cursor.current=after;
+        change(next);
+      }}
       onSelect={trackSelection} onKeyUp={trackSelection} onClick={trackSelection}
       aria-describedby="workshop-editor-help"
     />
     <div className="workshop-shortcuts" role="group" aria-label="Znaki Bash - wstaw do edytora">
+      <button type="button" className="workshop-undo" disabled={!canUndo}
+        aria-label="Cofnij ostatnią zmianę w edytorze" title="Cofnij" onClick={undo}>↶</button>
       {shortcuts.map(item=><button key={item.label} type="button"
         onPointerDown={e=>{if(e.pointerType==='mouse')e.preventDefault();}}
         onClick={()=>insertShortcut(item.value)} aria-label={item.description}
@@ -154,7 +191,10 @@ export default function BashWorkshop(){
         W drugiej użyj <code>for FILE in ...; do cp ...; done</code>.
         W trzeciej sprawdź dwie kopie, używając <code>test -f</code> i <code>&amp;&amp;</code>.</p>
       <button type="button" className="workshop-reset" onClick={()=>{
+        const selected=cursor.current??{start:draft.length,end:draft.length};
+        recordEdit(WORKSHOP_DEFAULT,'reset',selected,{start:WORKSHOP_DEFAULT.length,end:WORKSHOP_DEFAULT.length});
         cursor.current=null;
+        pendingCursor.current=null;
         change(WORKSHOP_DEFAULT);setPrediction('');
       }}>Wstaw pusty szablon</button>
     </details>
