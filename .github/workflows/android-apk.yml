@@ -47,11 +47,12 @@ jobs:
           distribution: temurin
           java-version: "21"
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android API 36
-        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+      # Ubuntu runners already have Android command line tools and SDK licenses.
+      # Avoid setup-android's deprecated "sdkmanager tools" installation.
+      - name: Verify SDK and install Android API 36
+        run: |
+          sdkmanager --version
+          sdkmanager "platforms;android-36" "build-tools;36.0.0"
 
       - name: Install web dependencies
         run: npm install --no-audit --no-fund
