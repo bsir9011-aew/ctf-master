@@ -58,3 +58,10 @@ Next priority: have the user run physical PWA QA per docs/MOBILE_QA.md and perfo
 - Use pure `insertAtSelection` and respect the existing 700-character max. Unsupported/overflow input must not mutate the draft or grant any progress.
 - Shortcuts: `$`, double quote, single quote, tilde, `&&`, semicolon, and newline. Keep original localStorage draft key and engine untouched. Let vertical page scroll remain available on mobile.
 - CI tests the pure editing function; actual Android keyboard behavior still needs physical QA. Repo-only: no APK distribution.
+
+## RC.40 Error-to-line navigation on mobile
+- Feedback for Bash Workshop may expose optional `errorLine`, a one-based *physical textarea* line number. Blank lines and CRLF must retain their original positions, even though evaluation ignores blank lines.
+- Preflight and runtime failures map to exact source lines; semantic failures navigate only when there is a supported source line (do not invent a target when a command is missing entirely).
+- One `Popraw linię N` action inside the existing compact result focuses the editor, selects the actual command text, and scrolls it into view. No separate editor, extra panel or multi-stage tutorial.
+- `src/core/workshopSourceLines.ts` is pure and tests logical source mappings / selections with LF, CRLF and UTF-16 offsets. Preserve old draft and achievements.
+- CI tests do not constitute physical Android keyboard QA. Repo-only: no APK distribution.

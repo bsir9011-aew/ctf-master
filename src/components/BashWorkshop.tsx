@@ -1,5 +1,6 @@
 import {useLayoutEffect,useRef,useState} from 'react';
 import {insertAtSelection} from '../core/editorInsertion';
+import {sourceLineRange} from '../core/workshopSourceLines';
 import {
   WORKSHOP_DEFAULT,WORKSHOP_MAX_CHARS,runWorkshop,
   type WorkshopResult
@@ -70,6 +71,18 @@ export default function BashWorkshop(){
   const run=()=>{
     setResult(runWorkshop(draft));
   };
+  const focusErrorLine=()=>{
+    const element=editor.current;
+    if(!element||!result?.errorLine)return;
+    const range=sourceLineRange(draft,result.errorLine);
+    if(!range)return;
+    // Select the problem line for editing, not the entire script. Explicit
+    // tap allows scrolling the editor into view without keyboard surprises.
+    element.focus({preventScroll:true});
+    element.setSelectionRange(range.start,range.end);
+    cursor.current=range;
+    element.scrollIntoView({block:'nearest'});
+  };
   const copies=result?.steps.flatMap(s=>s.changedFiles)
     .filter(path=>path.endsWith('.copy')).length??0;
   return <section className="bash-workshop" aria-label="Mobilny warsztat Bash">
@@ -114,6 +127,11 @@ export default function BashWorkshop(){
       role="status" aria-live="polite">
       <strong>{result.completed?'✓ Zadanie wykonane':'Sprawdź i popraw'}</strong>
       <p>{result.feedback}</p>
+      {!result.completed&&result.errorLine!==undefined&&<button type="button"
+        className="workshop-fix-line" onClick={focusErrorLine}
+        aria-label={'Przejdź do poprawienia linii '+result.errorLine}>
+        Popraw linię {result.errorLine} ↑
+      </button>}
       {prediction&&<p className="workshop-prediction">Przewidywanie: {prediction} · kopie utworzone: {copies}.
         {Number(prediction)===copies?' Zgadza się.':' Porównaj to z wykonanymi krokami.'}</p>}
       {result.steps.length>0&&<details className="workshop-trace">
