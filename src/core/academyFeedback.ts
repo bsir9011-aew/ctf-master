@@ -303,6 +303,15 @@ export function explainAcademyAttempt(
       :'Katalogi na tej ścieżce pozwalają na przejście. Jeśli odczyt nadal nie działa, zbadaj prawo r pliku.',
     status:completed?'complete':'partial'
   };
+  if(cmd==='for'&&result.loopTrace){
+    const ok=result.loopTrace.filter(step=>step.ok).length;
+    const fail=result.loopTrace.length-ok;
+    return {
+      title:completed?'Pętla zastosowana poprawnie':'Przejrzyj skutki kolejnych iteracji',
+      detail:'Wykonano '+result.loopTrace.length+' iteracji: '+ok+' poprawnych i '+fail+' nieudanych. Zmienna przyjmuje kolejno każdą wartość. Pętla może kontynuować po błędzie, dlatego sprawdź osobno kopie i ich treść.',
+      status:completed?'complete':fail?'error':'partial'
+    };
+  }
   if(cmd==='variable')return {
     title:completed?'Zmienne wykorzystane poprawnie':'Zapisano zmienną w sesji',
     detail:'Przypisanie przechowuje tekst, ale nie kopiuje plików. Dopiero użycie $SOURCE i $DEST w poleceniu cp rozwinie zapisane ścieżki. W apostrofach $NAZWA pozostaje dosłownym tekstem.',
