@@ -3,12 +3,14 @@ import {insertAtSelection} from '../core/editorInsertion';
 import {emptyUndoHistory,recordEditorEdit,undoEditorEdit,
   type EditKind} from '../core/editorUndo';
 import {sourceLineRange} from '../core/workshopSourceLines';
+import {workshopScenarios,workshopInitialScript,workshopDraftKey,
+  type WorkshopId} from '../core/workshopScenarios';
 import {
-  WORKSHOP_DEFAULT,WORKSHOP_MAX_CHARS,runWorkshop,
+  WORKSHOP_MAX_CHARS,runWorkshop,
   type WorkshopResult
 } from '../core/bashWorkshop';
 
-const DRAFT_KEY='ctf-master:bash-workshop-draft-v1';
+const SELECTION_KEY='ctf-master:bash-workshop-selected-v1';
 const shortcuts=[
   {label:'$',value:'$',description:'Wstaw dolar - początek nazwy zmiennej'},
   {label:'"',value:'"',description:'Wstaw cudzysłów'},
@@ -18,16 +20,21 @@ const shortcuts=[
   {label:';',value:';',description:'Wstaw średnik'},
   {label:'↵',value:'\n',description:'Wstaw nową linię'}
 ] as const;
-function restoreDraft():string{
+function restoreScenario():WorkshopId{
+  try{return localStorage.getItem(SELECTION_KEY)==='diagnosis'?'diagnosis':'backup';}
+  catch{return 'backup';}
+}
+function restoreDraft(id:WorkshopId):string{
   try{
-    const saved=localStorage.getItem(DRAFT_KEY);
-    return saved&&saved.length<=WORKSHOP_MAX_CHARS?saved:WORKSHOP_DEFAULT;
-  }catch{return WORKSHOP_DEFAULT;}
+    const saved=localStorage.getItem(workshopDraftKey(id));
+    return saved&&saved.length<=WORKSHOP_MAX_CHARS?saved:workshopInitialScript(id);
+  }catch{return workshopInitialScript(id);}
 }
 
 /** One compact mobile screen, one task, one run; no multi-panel wizard. */
 export default function BashWorkshop(){
-  const [draft,setDraft]=useState(restoreDraft);
+  const [scenario,setScenario]=useState<WorkshopId>(restoreScenario);
+  const [draft,setDraft]=useState(()=>restoreDraft(restoreScenario()));
   const [prediction,setPrediction]=useState('');
   const [result,setResult]=useState<WorkshopResult|null>(null);
   const [editorNotice,setEditorNotice]=useState('');
@@ -50,7 +57,20 @@ export default function BashWorkshop(){
     setEditorNotice('');
     setDraft(next);
     setResult(null);
-    try{localStorage.setItem(DRAFT_KEY,next);}catch{/* private browsing */}
+    try{localStorage.setItem(workshopDraftKey(scenario),next);}catch{/* private browsing */}
+  };
+  const selectScenario=(next:WorkshopId)=>{
+    if(next===scenario)return;
+    setScenario(next);
+    setDraft(restoreDraft(next));
+    setPrediction('');
+    setResult(null);
+    setEditorNotice('');
+    undoHistory.current=emptyUndoHistory();
+    setCanUndo(false);
+    cursor.current=null;
+    pendingCursor.current=null;
+    try{localStorage.setItem(SELECTION_KEY,next);}catch{/* private browsing */}
   };
   const recordEdit=(next:string,kind:EditKind,
     before:{start:number;end:number},after:{start:number;end:number})=>{
@@ -93,7 +113,7 @@ export default function BashWorkshop(){
     change(next.value);
   };
   const run=()=>{
-    setResult(runWorkshop(draft));
+    setResult(runWorkshop(draft,scenario));
   };
   const focusErrorLine=()=>{
     const element=editor.current;
@@ -111,14 +131,23 @@ export default function BashWorkshop(){
     .filter(path=>path.endsWith('.copy')).length??0;
   return <section className="bash-workshop" aria-label="Mobilny warsztat Bash">
     <div className="workshop-heading">
-      <span className="eyebrow">BASH WORKSHOP · 01</span>
-      <span className="workshop-badge">1 zadanie</span>
+      <span className="eyebrow">BASH WORKSHOP</span>
+      <label className="workshop-scenario-picker" htmlFor="workshop-scenario">
+        <span className="sr-only">Wybierz ćwiczenie Bash</span>
+        <select id="workshop-scenario" value={scenario}
+          onChange={e=>selectScenario(e.target.value as WorkshopId)}>
+          {workshopScenarios.map(item=><option key={item.id} value={item.id}>{item.label}</option>)}
+        </select>
+      </label>
     </div>
-    <h2>Zabezpiecz dwa logi</h2>
-    <p className="workshop-task">Ustaw <code>BASE=~/practice</code>. Jedną pętlą <code>for</code> skopiuj
+    <h2>{scenario==='backup'?'Zabezpiecz dwa logi':'Zdiagnozuj brakujący log'}</h2>
+    {scenario==='backup'?<p className="workshop-task">Ustaw <code>BASE=~/practice</code>. Jedną pętlą <code>for</code> skopiuj
       <code> events.log</code> i <code> alerts.log</code> do plików z końcówką <code>.copy</code>.
       Na końcu sprawdź istnienie <strong>obu kopii</strong> przez <code>test -f</code> i <code>&amp;&amp;</code>.
-      Nie zmieniaj oryginałów.</p>
+      Nie zmieniaj oryginałów.</p>:<p className="workshop-task">
+      Ustaw <code>BASE=~/practice</code>. Sprawdź po kolei <code>manual.log</code> i <code>missing.log</code> przez
+      <code> test -f</code> połączone <code>&amp;&amp;</code>. Następnie użyj <code>echo $?</code>,
+      żeby ustalić kod wyniku. Niczego nie kopiuj ani nie usuwaj.</p>}
     <label htmlFor="bash-workshop-editor" className="workshop-editor-label">Twój skrypt (maks. 4 linie)</label>
     <textarea id="bash-workshop-editor" ref={editor} value={draft} rows={4}
       spellCheck={false} autoCapitalize="none" autoCorrect="off"
@@ -147,8 +176,8 @@ export default function BashWorkshop(){
         title={item.description}>{item.label}</button>)}
     </div>
     {editorNotice&&<p role="status" className="workshop-editor-notice">{editorNotice}</p>}
-    <div className="workshop-controls">
-      <label htmlFor="workshop-prediction">Przewidź
+    <div className={'workshop-controls '+(scenario==='diagnosis'?'diagnosis':'')}>
+      {scenario==='backup'&&<label htmlFor="workshop-prediction">Przewidź
         <select id="workshop-prediction" value={prediction}
           onChange={e=>setPrediction(e.target.value)}>
           <option value="">Ile kopii?</option>
@@ -156,7 +185,7 @@ export default function BashWorkshop(){
           <option value="1">1 kopia</option>
           <option value="2">2 kopie</option>
         </select>
-      </label>
+      </label>}
       <button type="button" onClick={run}>Uruchom <span aria-hidden="true">▶</span></button>
     </div>
     <p className="workshop-limit" id="workshop-editor-help">Tylko wirtualny Linux · bez poleceń hosta i sieci.</p>
@@ -169,7 +198,7 @@ export default function BashWorkshop(){
         aria-label={'Przejdź do poprawienia linii '+result.errorLine}>
         Popraw linię {result.errorLine} ↑
       </button>}
-      {prediction&&<p className="workshop-prediction">Przewidywanie: {prediction} · kopie utworzone: {copies}.
+      {scenario==='backup'&&prediction&&<p className="workshop-prediction">Przewidywanie: {prediction} · kopie utworzone: {copies}.
         {Number(prediction)===copies?' Zgadza się.':' Porównaj to z wykonanymi krokami.'}</p>}
       {result.steps.length>0&&<details className="workshop-trace">
         <summary>Przebieg · {result.steps.length} {result.steps.length===1?'linia':'linie'}</summary>
@@ -187,15 +216,20 @@ export default function BashWorkshop(){
     </div>}
     <details className="workshop-help">
       <summary>Składnia i rozpoczęcie od nowa</summary>
-      <p>W pierwszej linii przypisz katalog do zmiennej <code>BASE</code>.
+      {scenario==='backup'?<p>W pierwszej linii przypisz katalog do zmiennej <code>BASE</code>.
         W drugiej użyj <code>for FILE in ...; do cp ...; done</code>.
         W trzeciej sprawdź dwie kopie, używając <code>test -f</code> i <code>&amp;&amp;</code>.</p>
+       :<p>Wpisz <code>BASE=~/practice</code>, potem dwa testy
+        <code> test -f "$BASE/manual.log" &amp;&amp; test -f "$BASE/missing.log"</code>.
+        Kod zakończenia ostatniego testu sprawdzisz przez <code>echo $?</code>.
+        Wynik 1 jest w tej diagnozie oczekiwanym sygnałem braku pliku.</p>}
       <button type="button" className="workshop-reset" onClick={()=>{
         const selected=cursor.current??{start:draft.length,end:draft.length};
-        recordEdit(WORKSHOP_DEFAULT,'reset',selected,{start:WORKSHOP_DEFAULT.length,end:WORKSHOP_DEFAULT.length});
+        const template=workshopInitialScript(scenario);
+        recordEdit(template,'reset',selected,{start:template.length,end:template.length});
         cursor.current=null;
         pendingCursor.current=null;
-        change(WORKSHOP_DEFAULT);setPrediction('');
+        change(template);setPrediction('');
       }}>Wstaw pusty szablon</button>
     </details>
   </section>;

@@ -108,3 +108,6 @@
 - [x] RC.41 - Cofnij w mobilnym edytorze Bash: 20 punktów historii, grupowanie szybkiego pisania, cofanie znaków i resetu szablonu
 - [x] Workflow Android APK tylko ręczny podczas rozwoju w repozytorium
 - [ ] Fizyczna próba cofania po zaznaczeniu, pisaniu i klikaniu skrótów na klawiaturze Androida
+
+- [x] RC.42 - drugi krótki scenariusz Bash na tym samym ekranie, analiza poprawnego kodu wyjścia 1 po test -f oraz echo $? i osobne szkice zadań
+- [ ] Fizyczne QA: wybór zadania przy otwartej klawiaturze, powrót do szkiców, wynik i brak nadmiernego przewijania
