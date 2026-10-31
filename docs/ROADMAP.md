@@ -104,3 +104,7 @@
 - [x] RC.40 - wskazanie pierwszej błędnej linii w mobilnym Bash Workshop i szybki powrót do jej edycji, bez dodatkowych ekranów
 - [x] Mapowanie numerów linii z uwzględnieniem pustych wierszy i CRLF, testy błędów składni, wykonania oraz walidacji
 - [ ] QA na fizycznym Androidzie: czy przycisk Popraw linię N poprawnie ustawia zaznaczenie i widoczność przy otwartej klawiaturze
+
+- [x] RC.41 - Cofnij w mobilnym edytorze Bash: 20 punktów historii, grupowanie szybkiego pisania, cofanie znaków i resetu szablonu
+- [x] Workflow Android APK tylko ręczny podczas rozwoju w repozytorium
+- [ ] Fizyczna próba cofania po zaznaczeniu, pisaniu i klikaniu skrótów na klawiaturze Androida
