@@ -46,13 +46,15 @@ test('syntax errors produce 2 and unknown commands 127, without host access',()=
   assert.deepEqual(missing.state.dirs,original.dirs);
 });
 
-test('quoted echo is not treated as variable expansion',()=>{
+test('single quoted and escaped $? remain literal under expanded echo',()=>{
   const seed=createAcademyState();
-  const unsupported=run(seed,"echo '$?'");
-  assert.equal(unsupported.ok,false);
-  assert.equal(unsupported.exitCode,1);
+  const quoted=run(seed,"echo '$?'");
+  assert.equal(quoted.ok,true);
+  assert.equal(quoted.output,'$?');
   const escaped=run(seed,'echo \\$?');
-  assert.equal(escaped.ok,false);
+  assert.equal(escaped.ok,true);
+  assert.equal(escaped.output,'$?');
+  assert.equal(escaped.target,undefined);
 });
 
 test('successful commands, pipelines and redirects set only final command status',()=>{
@@ -120,7 +122,7 @@ test('unrelated failed command still penalizes the transfer',()=>{
 });
 
 test('curriculum adds exactly one lesson and transfer',()=>{
-  assert.equal(commandLessons.length,33);
-  assert.equal(transferChallenges.length,33);
+  assert.equal(commandLessons.length,34);
+  assert.equal(transferChallenges.length,34);
   assert.deepEqual(commandLessons.map(x=>x.id),transferChallenges.map(x=>x.lessonId));
 });
