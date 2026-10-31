@@ -15,6 +15,7 @@ import {executeHypothesis,type Confidence} from './hypothesisCase.ts';
 import {executeResponseCurl,applyResponseRestart,type ResponseRuntime} from './responseCase.ts';
 import {type OpsRecovery} from './opsRecovery.ts';
 import {type BlindCaseState} from './blindInvestigation.ts';
+import {type IndependentCaseState} from './independentInvestigation.ts';
 import {parseConditionals,executeConditionals,type ConditionalStep} from './conditionals.ts';
 import { executeUmask, newFileMode, newDirectoryMode, DEFAULT_UMASK } from './umask.ts';
 import { defaultIdentity, executeIdentityCommand, identityOf, type SimIdentity } from './identity.ts';
@@ -35,6 +36,7 @@ export interface LinuxState {
   response?: ResponseRuntime;
   ops?: OpsRecovery;
   blindCase?: BlindCaseState;
+  independentCase?: IndependentCaseState;
 }
 
 export interface CommandResult {
