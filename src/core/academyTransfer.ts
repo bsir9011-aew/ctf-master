@@ -25,8 +25,6 @@ export interface TransferChallenge {
 
 /** A second, changed problem for each command. No answer strings are exposed in UI. */
 export const transferChallenges:readonly TransferChallenge[]=[
-  {lessonId:'variables',assignment:'Zachowaj w SOURCE ścieżkę ~/practice/logs/review.log, a w DEST nową ścieżkę ~/practice/logs/variable-evidence.log. Za pomocą obu zmiennych wykonaj kopię, a następnie odczytaj ją przez DEST. Oryginał musi zostać nienaruszony; nie używaj dosłownych ścieżek w cp/cat.',
-    pass:(state,events)=>variableCompleted('transfer',state,events)},
   {lessonId:'pwd',assignment:'Pracujesz teraz w katalogu logs. Wyświetl jego pełną ścieżkę.',
     pass:(_s,e)=>saw(e,'pwd',r=>r.output===LAB+'/logs')},
   {lessonId:'ls',assignment:'Sprawdź zawartość katalogu ~/practice/logs i znajdź plik audit-67.txt.',
@@ -81,6 +79,8 @@ export const transferChallenges:readonly TransferChallenge[]=[
     pass:(state,events)=>fileTestCompleted('transfer',state,events)},
   {lessonId:'conditionals',assignment:'Przygotuj raport dowodowy z ~/practice/logs/review.log do ~/practice/logs/review-evidence.log, używając test -f i &&, aby nie wykonywać cp bez źródła. Następnie sprawdź brak unknown-evidence.log i upewnij się przez &&, że skip-this.tmp NIE powstanie. Gdy unknown-evidence.log nie istnieje, przez || utwórz investigate.flag. Potwierdź treść kopii poleceniem cat. Zachowaj oryginalny log.',
     pass:(state,events)=>conditionalCompleted('transfer',state,events)},
+  {lessonId:'variables',assignment:'Zachowaj w SOURCE ścieżkę ~/practice/logs/review.log, a w DEST nową ścieżkę ~/practice/logs/variable-evidence.log. Za pomocą obu zmiennych wykonaj kopię, a następnie odczytaj ją przez DEST. Oryginał musi zostać nienaruszony; nie używaj dosłownych ścieżek w cp/cat.',
+    pass:(state,events)=>variableCompleted('transfer',state,events)},
   {lessonId:'investigation',assignment:'SOC otrzymał alert o nietypowych próbach logowania około 04:12. Samodzielnie rozpoznaj właściwy dziennik w ~/practice/logs, odczytaj ślad związanego z tym zdarzenia i zabezpiecz cały plik jako ~/practice/incident-evidence.log. Zachowaj oryginalne logi.',
     pass:(s,e)=>investigationStatus('transfer',s,e).completed},
   {lessonId:'find',assignment:'Znajdź audit-67.txt w podkatalogach ~/practice za pomocą find.',
