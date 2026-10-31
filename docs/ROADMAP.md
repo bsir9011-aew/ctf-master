@@ -50,7 +50,8 @@
 - [x] Misja 20 - awaria kolejki, odwracalne skutki interwencji, trwała historia błędnych decyzji oraz ponowna weryfikacja SSH i dostępności
 - [x] Misja 21 - diagnostyka bez podpowiedzi: analiza zgłoszenia, odmowa dostępu, naprawa z zasadą least privilege i sprawdzony dowód
 - [x] RC.30 - zapisany przy pierwszym zaliczeniu raport dowodów, decyzji i konsekwencji oraz nieoceniane pytanie transferowe
-- [ ] Manual QA na fizycznym telefonie (1.0 RC.30)
+- [x] RC.31 - samodzielna misja 22, inny mechanizm odmowy odczytu (plik, nie katalog), weryfikacja dowodów i minimalnej naprawy
+- [ ] Manual QA na fizycznym telefonie (1.0 RC.31)
 
 ## Etap 1 - Linux Administrator
 - [x] Podstawy chmod, stat, tryby rwx i testy Permission denied
