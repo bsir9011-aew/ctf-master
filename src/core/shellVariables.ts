@@ -58,7 +58,10 @@ export function expandVirtualWords(
       continue;
     }
     if(c===quote){quote=null;continue;}
-    if(c==='"'||c==="'"){quote=c;begun=true;continue;}
+    if(c==='"'||c==="'"){
+      if(quote===null){quote=c;begun=true;}else {begun=true;value+=c;}
+      continue;
+    }
     if(c==='$'){
       begun=true;
       const end=substitute(i);
