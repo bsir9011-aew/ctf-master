@@ -42,7 +42,7 @@ const answers={
 const originalIds=commandLessons.map(x=>x.id);
 
 test('all thirty-three lessons have one different transfer task in the same order',()=>{
-  assert.equal(transferChallenges.length,33);
+  assert.equal(transferChallenges.length,34);
   assert.deepEqual(transferChallenges.map(x=>x.lessonId),originalIds);
   for(const ch of transferChallenges) {
     assert.ok(ch.assignment.length>25,ch.lessonId);
