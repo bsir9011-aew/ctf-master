@@ -136,3 +136,6 @@
 
 - [x] RC.50 - samodzielny wariant wewnątrz 07 · Naprawa: nowy health.log, puste pole, osobny szkic, kontrola skutków i minimalności bez ósmej pozycji menu.
 - [ ] RC.50 QA na telefonie: toggle przy otwartej klawiaturze, osobne szkice, focus i przewijanie, zmiana zadania przy wyniku oraz wyświetlenie zablokowanego katalogu.
+
+- [x] RC.51 - Bash Workshop: wysokość edytora dopasowana do tekstu; dotykowe przewijanie pionowe strony bez pułapki na pasku skrótów; skrót `||`.
+- [ ] RC.51 fizyczny Android QA klawiatury, przewijania i orientacji nadal pending.
