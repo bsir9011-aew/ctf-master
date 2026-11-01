@@ -489,3 +489,9 @@ Ocena wymaga rzeczywistych operacji, ich kolejności, poprawnego kodu i rzeczywi
 W zadaniu `07 · Naprawa` w tym samym Bash Workshop katalog `~/practice/diagnostics` ma tryb 600 i blokuje dostęp do istniejącego `service.log`. Cztery krótkie linie: przypisanie katalogu, diagnoza `namei -l`, minimalne `chmod u+x` (lub dokładnie 700) i końcowy odczyt `cat`.
 
 Zaliczenie wymaga prawdziwych zdarzeń: wykrytej blokady, zmiany jedynie owner-x na 700 i odczytania treści bez zmiany innych praw, własności i danych. `chmod 777`, niewłaściwe ścieżki i niebezpieczne komendy są blokowane w preflight. Osobny szkic, sześć starszych wariantów bez zmian, bez dodatkowego ekranu i APK. Fizyczne QA Androida nadal pending.
+
+## RC.50 - samodzielna naprawa, bez ósmego zadania
+
+W istniejącym **07 · Naprawa** pojawił się niewielki przycisk **Samodzielny przypadek**. Uruchamia nowy incydent: nie można odczytać `~/practice/logs/locked/health.log`. Użytkownik nie dostaje komend ani wypełnionego szablonu, tylko cel: znaleźć przyczynę, przywrócić dostęp minimalną zmianą i potwierdzić odczyt. Przycisk umożliwia powrót do wariantu z pomocą. Oba warianty mają osobne szkice i zachowują je podczas przełączania.
+
+Symulator przygotowuje nową wirtualną ścieżkę z katalogiem 0600 i plikiem 0644 wyłącznie dla tego uruchomienia. Sprawdzanie dotyczy realnych zdarzeń, blokującego katalogu, dokładnej zmiany owner-x (0600→0700), poprawnego końcowego `cat` i zachowania pozostałych danych. Zakaz szerokiego chmod i nieautoryzowanych poleceń już w preflight. Nadal 7 opcji menu, jeden ekran, maksymalnie 4 linie, bez APK; fizyczne QA Androida oczekuje na test.

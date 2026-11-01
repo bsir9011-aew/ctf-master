@@ -4,7 +4,9 @@ import {emptyUndoHistory,recordEditorEdit,undoEditorEdit,
   type EditKind} from '../core/editorUndo';
 import {sourceLineRange} from '../core/workshopSourceLines';
 import {compareExitPrediction,type ExitPrediction} from '../core/workshopPrediction';
+import type {RecoveryVariant} from '../core/pathRecovery';
 import {workshopScenarios,workshopInitialScript,workshopDraftKey,
+  repairWorkshopDraftKey,repairWorkshopStarter,
   type WorkshopId} from '../core/workshopScenarios';
 import {
   WORKSHOP_MAX_CHARS,runWorkshop,
@@ -12,6 +14,7 @@ import {
 } from '../core/bashWorkshop';
 
 const SELECTION_KEY='ctf-master:bash-workshop-selected-v1';
+const REPAIR_CASE_KEY='ctf-master:bash-workshop-repair-case-v1';
 const shortcuts=[
   {label:'$',value:'$',description:'Wstaw dolar - początek nazwy zmiennej'},
   {label:'"',value:'"',description:'Wstaw cudzysłów'},
@@ -28,17 +31,29 @@ function restoreScenario():WorkshopId{
   }
   catch{return 'backup';}
 }
-function restoreDraft(id:WorkshopId):string{
+function restoreRepairCase():RecoveryVariant {
+  try{return localStorage.getItem(REPAIR_CASE_KEY)==='transfer'?'transfer':'intro';}
+  catch{return 'intro';}
+}
+function initialDraft(id:WorkshopId,repairCase:RecoveryVariant):string{
+  return id==='repair'?repairWorkshopStarter(repairCase):workshopInitialScript(id);
+}
+function draftKey(id:WorkshopId,repairCase:RecoveryVariant):string{
+  return id==='repair'?repairWorkshopDraftKey(repairCase):workshopDraftKey(id);
+}
+function restoreDraft(id:WorkshopId,repairCase:RecoveryVariant):string{
+  const starter=initialDraft(id,repairCase);
   try{
-    const saved=localStorage.getItem(workshopDraftKey(id));
-    return saved&&saved.length<=WORKSHOP_MAX_CHARS?saved:workshopInitialScript(id);
-  }catch{return workshopInitialScript(id);}
+    const saved=localStorage.getItem(draftKey(id,repairCase));
+    return saved!==null&&saved.length<=WORKSHOP_MAX_CHARS?saved:starter;
+  }catch{return starter;}
 }
 
 /** One compact mobile screen, one task, one run; no multi-panel wizard. */
 export default function BashWorkshop(){
   const [scenario,setScenario]=useState<WorkshopId>(restoreScenario);
-  const [draft,setDraft]=useState(()=>restoreDraft(restoreScenario()));
+  const [repairCase,setRepairCase]=useState<RecoveryVariant>(restoreRepairCase);
+  const [draft,setDraft]=useState(()=>restoreDraft(restoreScenario(),restoreRepairCase()));
   const [prediction,setPrediction]=useState<ExitPrediction>('');
   const [submittedPrediction,setSubmittedPrediction]=useState<ExitPrediction>('');
   const [result,setResult]=useState<WorkshopResult|null>(null);
@@ -65,12 +80,12 @@ export default function BashWorkshop(){
     setEditorNotice('');
     setDraft(next);
     setResult(null);
-    try{localStorage.setItem(workshopDraftKey(scenario),next);}catch{/* private browsing */}
+    try{localStorage.setItem(draftKey(scenario,repairCase),next);}catch{/* private browsing */}
   };
   const selectScenario=(next:WorkshopId)=>{
     if(next===scenario)return;
     setScenario(next);
-    setDraft(restoreDraft(next));
+    setDraft(restoreDraft(next,repairCase));
     setPrediction('');
     setSubmittedPrediction('');
     setResult(null);
@@ -80,6 +95,20 @@ export default function BashWorkshop(){
     cursor.current=null;
     pendingCursor.current=null;
     try{localStorage.setItem(SELECTION_KEY,next);}catch{/* private browsing */}
+  };
+  const toggleRepairCase=()=>{
+    const next:RecoveryVariant=repairCase==='intro'?'transfer':'intro';
+    setRepairCase(next);
+    setDraft(restoreDraft('repair',next));
+    setPrediction('');
+    setSubmittedPrediction('');
+    setResult(null);
+    setEditorNotice('');
+    undoHistory.current=emptyUndoHistory();
+    setCanUndo(false);
+    cursor.current=null;
+    pendingCursor.current=null;
+    try{localStorage.setItem(REPAIR_CASE_KEY,next);}catch{/* private browsing */}
   };
   const recordEdit=(next:string,kind:EditKind,
     before:{start:number;end:number},after:{start:number;end:number})=>{
@@ -124,7 +153,7 @@ export default function BashWorkshop(){
   const run=()=>{
     // Freeze the answer at run time; edits or post-result selections cannot backfill it.
     setSubmittedPrediction(prediction);
-    setResult(runWorkshop(draft,scenario));
+    setResult(runWorkshop(draft,scenario,repairCase));
   };
   const focusErrorLine=()=>{
     const element=editor.current;
@@ -153,7 +182,17 @@ export default function BashWorkshop(){
       </label>
     </div>
     <h2>{workshopScenarios.find(item=>item.id===scenario)?.title}</h2>
-    {scenario==='repair'?<p className="workshop-task">Diagnoza wskazała katalog
+    {scenario==='repair'&&<button type="button" className="workshop-repair-variant"
+      onClick={toggleRepairCase} aria-label={repairCase==='intro'?
+        'Przejdź do samodzielnego przypadku naprawy':'Powróć do wariantu naprawy z pomocą'}>
+      {repairCase==='intro'?'Samodzielny przypadek →':'← Wariant z pomocą'}
+    </button>}
+    {scenario==='repair'&&repairCase==='transfer'?<p className="workshop-task">
+      Zgłoszenie z monitoringu: istniejący plik
+      <code> ~/practice/logs/locked/health.log</code> nie daje się odczytać.
+      Samodzielnie ustal przyczynę, przywróć dostęp najmniejszą niezbędną zmianą
+      i potwierdź odczyt. Nie zmieniaj innych zasobów.</p>
+    :scenario==='repair'?<p className="workshop-task">Diagnoza wskazała katalog
       <code> ~/practice/diagnostics</code> bez prawa <code>x</code>.
       W krótkim skrypcie samodzielnie potwierdź blokadę, napraw tylko brakujące prawo
       właściciela i sprawdź odczyt <code>service.log</code>. Nie używaj <code>chmod 777</code>
@@ -270,7 +309,10 @@ export default function BashWorkshop(){
     </div>}
     <details className="workshop-help">
       <summary>Składnia i rozpoczęcie od nowa</summary>
-      {scenario==='repair'?<p>W czterech liniach użyj <code>BASE=~/practice</code>,
+      {scenario==='repair'&&repairCase==='transfer'?<p>Bez gotowego szablonu.
+        Rozwiąż incydent na podstawie zgłoszenia. Jeśli utkniesz,
+        możesz wrócić do wariantu z pomocą i ponownie spróbować samodzielnie.</p>
+       :scenario==='repair'?<p>W czterech liniach użyj <code>BASE=~/practice</code>,
         <code> namei -l</code>, minimalnego <code>chmod u+x</code> i końcowego
         <code> cat</code>. Możesz też ustawić dokładny tryb <code>700</code>.
         Nie stosuj praw dla grupy lub pozostałych.</p>
@@ -297,12 +339,13 @@ export default function BashWorkshop(){
         Przewidź, czy wynik drugiego testu zmieni ostatni kod zakończenia.</p>}
       <button type="button" className="workshop-reset" onClick={()=>{
         const selected=cursor.current??{start:draft.length,end:draft.length};
-        const template=workshopInitialScript(scenario);
+        const template=initialDraft(scenario,repairCase);
         recordEdit(template,'reset',selected,{start:template.length,end:template.length});
         cursor.current=null;
         pendingCursor.current=null;
         change(template);setPrediction('');
-      }}>{scenario==='transfer'?'Wyczyść skrypt':'Wstaw pusty szablon'}</button>
+      }}>{scenario==='transfer'||(scenario==='repair'&&repairCase==='transfer')?
+        'Wyczyść skrypt':'Wstaw pusty szablon'}</button>
     </details>
   </section>;
 }

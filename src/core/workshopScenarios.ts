@@ -30,3 +30,10 @@ export const workshopDraftKey=(id:WorkshopId)=>
   id==='permissions'?'ctf-master:bash-workshop-permissions-draft-v1':
   id==='diagnosis'?'ctf-master:bash-workshop-diagnosis-draft-v1':
     'ctf-master:bash-workshop-draft-v1';
+
+/** Separate transfer draft, without changing the existing repair ID or legacy key. */
+export const repairWorkshopDraftKey=(variant:'intro'|'transfer')=>
+  variant==='transfer'?'ctf-master:bash-workshop-repair-transfer-draft-v1':
+    workshopDraftKey('repair');
+export const repairWorkshopStarter=(variant:'intro'|'transfer')=>
+  variant==='transfer'?'':REPAIR_DEFAULT;
