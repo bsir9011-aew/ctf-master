@@ -496,7 +496,8 @@
   display:block;width:100%;max-width:100%;min-width:0;min-height:112px;
   background:#091620;color:#e9f8ef;border:1px solid #527568;
   border-radius:10px;padding:12px;font:16px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;
-  resize:vertical;touch-action:pan-y;white-space:pre-wrap;overflow-wrap:anywhere;
+  resize:none;overflow-y:hidden;overscroll-behavior-y:auto;touch-action:pan-y;
+  white-space:pre-wrap;overflow-wrap:anywhere;
 }
 .bash-workshop textarea:focus-visible,.bash-workshop select:focus-visible,
 .bash-workshop button:focus-visible,.bash-workshop summary:focus-visible{
@@ -543,7 +544,7 @@
 .workshop-shortcuts{
   display:flex;align-items:center;gap:6px;margin-top:7px;
   overflow-x:auto;overflow-y:hidden;scrollbar-width:none;
-  -webkit-overflow-scrolling:touch;touch-action:pan-x;
+  -webkit-overflow-scrolling:touch;touch-action:auto;overscroll-behavior-x:contain;
 }
 .workshop-shortcuts::-webkit-scrollbar{display:none}
 .workshop-shortcuts button{
