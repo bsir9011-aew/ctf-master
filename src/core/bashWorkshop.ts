@@ -1,5 +1,5 @@
 import {createAcademyState} from './commandAcademy.ts';
-import {recoveryFixture} from './pathRecovery.ts';
+import {recoveryFixture,type RecoveryVariant} from './pathRecovery.ts';
 import {modeOf} from './permissions.ts';
 import {executeLinux,type CommandResult,type LinuxState} from './linux.ts';
 import {parseConditionals} from './conditionals.ts';
@@ -19,6 +19,7 @@ const LOCKED_LOG='/home/player/practice/checks/locked.log';
 const BLOCKED_FILE=recoveryFixture('intro').file;
 const BLOCKED_DIR=recoveryFixture('intro').directory;
 const BLOCKED_CONTENT=recoveryFixture('intro').content;
+const PRACTICE='/home/player/practice';
 const AUDIT_DAILY_LOG='/home/player/practice/audit-daily.log';
 const ALERTS_LOG='/home/player/practice/alerts.log';
 const diagnostics={
@@ -81,7 +82,8 @@ const wordsOnly=(raw:string):string[]|null=>{
 /** Strict preflight: permit only scenario-approved virtual commands.
  * The entire program is checked before executing ANY file-changing command.
  */
-function preflight(lines:readonly SourceLine[],seed:LinuxState,scenario:WorkshopId):{feedback:string;line:number}|null{
+function preflight(lines:readonly SourceLine[],seed:LinuxState,scenario:WorkshopId,
+  repairVariant:RecoveryVariant):{feedback:string;line:number}|null{
   let simulated=seed;
   for(let i=0;i<lines.length;i++){
     const {raw:line,line:number}=lines[i];
@@ -122,16 +124,20 @@ function preflight(lines:readonly SourceLine[],seed:LinuxState,scenario:Workshop
     if(scenario==='repair'){
       // Whole-script allowlist BEFORE executing any chmod. These are source
       // spellings, NOT completion checks (completion uses executed state).
-      const filePaths=['$BASE/diagnostics/service.log','${BASE}/diagnostics/service.log',
-        '~/practice/diagnostics/service.log'];
-      const dirPaths=['$BASE/diagnostics','${BASE}/diagnostics','~/practice/diagnostics'];
+      const fix=recoveryFixture(repairVariant);
+      const suffixFile=fix.file.slice(PRACTICE.length);
+      const suffixDir=fix.directory.slice(PRACTICE.length);
+      const filePaths=['$BASE'+suffixFile,'${BASE}'+suffixFile,'~/practice'+suffixFile];
+      const dirPaths=['$BASE'+suffixDir,'${BASE}'+suffixDir,'~/practice'+suffixDir];
       if(words.length===3&&words[0]==='namei'&&words[1]==='-l'&&filePaths.includes(words[2]))continue;
       if(words.length===3&&words[0]==='chmod'&&['u+x','700','0700'].includes(words[1])&&
         dirPaths.includes(words[2]))continue;
       if(words.length===2&&words[0]==='cat'&&filePaths.includes(words[1]))continue;
     }
     if(scenario!=='backup'&&/^echo\s+\$\?$/u.test(line))continue;
-    return fail(scenario==='repair'?'dozwolone są: BASE, namei -l, minimalny chmod i cat wskazanego pliku.':
+    return fail(scenario==='repair'?(repairVariant==='transfer'?
+      'polecenie lub ścieżka nie należy do bezpiecznej naprawy tego incydentu.':
+      'dozwolone są: BASE, namei -l, minimalny chmod i cat wskazanego pliku.'):
       scenario==='pathblock'?'dozwolone są przypisania, test -r, echo $? oraz namei -l.':
       scenario==='permissions'?'dozwolone są przypisania, test -f, test -r i echo $?.':'dozwolone są przypisania, for z cp i test -f.');
   }
@@ -141,15 +147,25 @@ function preflight(lines:readonly SourceLine[],seed:LinuxState,scenario:Workshop
 /** Rebuild world per run: no stale files from earlier attempts can make a bad
  * script appear successful. Never accept scripts, paths, or shell on the host.
  */
-export function runWorkshop(script:string,scenario:WorkshopId='backup'):WorkshopResult {
-  const initial=createAcademyState();
+export function runWorkshop(script:string,scenario:WorkshopId='backup',
+  repairVariant:RecoveryVariant='intro'):WorkshopResult {
+  const academy=createAcademyState();
+  const fixture=recoveryFixture(repairVariant);
+  // The alternate incident lives ONLY in this fresh virtual run. No changes
+  // to Academy seeds, persisted user data or the guided repair fixture.
+  const initial:LinuxState=scenario==='repair'&&repairVariant==='transfer'?{
+    ...academy,
+    dirs:[...academy.dirs,fixture.directory],
+    files:{...academy.files,[fixture.file]:fixture.content},
+    permissions:{...academy.permissions,[fixture.directory]:0o600,[fixture.file]:0o644}
+  }:academy;
   if(script.length>WORKSHOP_MAX_CHARS)
     return error('Skrypt jest za długi (maksymalnie 700 znaków).',initial);
   const lines=workshopSourceLines(script);
   if(!lines.length)return error('Wpisz krótki skrypt i uruchom go.',initial);
   if(lines.length>WORKSHOP_MAX_LINES)
     return error('Maksymalnie 4 niepuste linie. Nie rozbudowuj tego zadania.',initial,[],lines[WORKSHOP_MAX_LINES].line);
-  const invalid=preflight(lines,initial,scenario);
+  const invalid=preflight(lines,initial,scenario,repairVariant);
   if(invalid)return error(invalid.feedback,initial,[],invalid.line);
 
   let state=initial;
@@ -190,26 +206,33 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup'):Workshop
       'Ustaw BASE=~/practice. Ta zmienna określa katalog logów.',state,steps,
       lines.find(x=>/^BASE=/.test(x.raw))?.line);
   if(scenario==='repair'){
+    const blockedFile=fixture.file,blockedDir=fixture.directory;
+    const expectedContent=fixture.content;
+    const notice=(guided:string,independent:string)=>
+      repairVariant==='transfer'?independent:guided;
     const inspect=events[1],fix=events[2],read=events[3];
     if(events.length!==4||events[0]?.command!=='variable'||
       state.variables?.BASE!=='~/practice'||inspect?.command!=='namei'||
-      !inspect.ok||inspect.target!==BLOCKED_FILE||inspect.blockedAt!==BLOCKED_DIR)
-      return error('Najpierw ustal blokujący katalog na podstawie rzeczywistej diagnozy namei.',
+      !inspect.ok||inspect.target!==blockedFile||inspect.blockedAt!==blockedDir)
+      return error(notice('Najpierw ustal blokujący katalog na podstawie rzeczywistej diagnozy namei.',
+        'Nie potwierdzono, który element ścieżki blokował dostęp.'),
         state,steps,lines[1]?.line);
-    if(fix?.command!=='chmod'||!fix.ok||fix.target!==BLOCKED_DIR||
-      modeOf(fix.state,BLOCKED_DIR)!==0o700||modeOf(initial,BLOCKED_DIR)!==0o600)
-      return error('Popraw tylko brakujące prawo przejścia (x) dla właściciela katalogu.',
+    if(fix?.command!=='chmod'||!fix.ok||fix.target!==blockedDir||
+      modeOf(fix.state,blockedDir)!==0o700||modeOf(initial,blockedDir)!==0o600)
+      return error(notice('Popraw tylko brakujące prawo przejścia (x) dla właściciela katalogu.',
+        'Naprawa nie przywróciła wyłącznie niezbędnego prawa katalogu.'),
         state,steps,lines[2]?.line);
-    if(read?.command!=='cat'||!read.ok||read.target!==BLOCKED_FILE||
-      read.output!==BLOCKED_CONTENT)
-      return error('Po naprawie odczytaj wcześniej niedostępny plik, aby potwierdzić skutek.',
+    if(read?.command!=='cat'||!read.ok||read.target!==blockedFile||
+      read.output!==expectedContent)
+      return error(notice('Po naprawie odczytaj wcześniej niedostępny plik, aby potwierdzić skutek.',
+        'Nie potwierdzono, że plik da się odczytać po naprawie.'),
         state,steps,lines[3]?.line);
     const sameRecords=(a:Record<string,unknown>,b:Record<string,unknown>)=>
       Object.keys(a).length===Object.keys(b).length&&
       Object.keys(a).every(path=>Object.hasOwn(b,path)&&a[path]===b[path]);
     const beforePerm=initial.permissions??{},afterPerm=state.permissions??{};
     const untouchedPerms=Object.keys(beforePerm).length===Object.keys(afterPerm).length&&
-      Object.keys(beforePerm).every(path=>path===BLOCKED_DIR?
+      Object.keys(beforePerm).every(path=>path===blockedDir?
         afterPerm[path]===0o700:afterPerm[path]===beforePerm[path]);
     if(!sameRecords(state.files,initial.files)||!untouchedPerms||
       !sameRecords(state.ownership??{},initial.ownership??{})||
@@ -218,7 +241,8 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup'):Workshop
       return error('Naprawa zmieniła inne dane lub prawa. Obowiązuje zasada najmniejszych uprawnień.',
         state,steps);
     return {completed:true,
-      feedback:'Zaliczone: namei wskazało katalog bez x; przywrócono tylko owner-x (600 → 700), a odczyt service.log potwierdził naprawę. Pozostałe dane i prawa bez zmian.',
+      feedback:notice('Zaliczone: namei wskazało katalog bez x; przywrócono tylko owner-x (600 → 700), a odczyt service.log potwierdził naprawę. Pozostałe dane i prawa bez zmian.',
+        'Samodzielny przypadek zaliczony: ustalono blokadę, naprawiono wyłącznie prawo owner-x (600 → 700) i potwierdzono odczyt health.log. Pozostałe dane i prawa bez zmian.'),
       steps,state};
   }
   if(scenario==='pathblock') {
