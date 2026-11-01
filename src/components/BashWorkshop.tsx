@@ -24,7 +24,7 @@ const shortcuts=[
 function restoreScenario():WorkshopId{
   try{
     const saved=localStorage.getItem(SELECTION_KEY);
-    return saved==='diagnosis'||saved==='permissions'||saved==='fallback'?saved:'backup';
+    return saved==='diagnosis'||saved==='permissions'||saved==='fallback'||saved==='transfer'?saved:'backup';
   }
   catch{return 'backup';}
 }
@@ -153,7 +153,11 @@ export default function BashWorkshop(){
       </label>
     </div>
     <h2>{workshopScenarios.find(item=>item.id===scenario)?.title}</h2>
-    {scenario==='backup'?<p className="workshop-task">Ustaw <code>BASE=~/practice</code>. Jedną pętlą <code>for</code> skopiuj
+    {scenario==='transfer'?<p className="workshop-task">Zgłoszenie z dyżuru: w katalogu
+      <code> ~/practice</code> nie pojawił się <code>audit-daily.log</code>.
+      Dostępny jest <code>alerts.log</code>. Samodzielnie sprawdź działanie planu awaryjnego
+      i odczytaj końcowy kod wyjścia. Nie zmieniaj plików.</p>
+    :scenario==='backup'?<p className="workshop-task">Ustaw <code>BASE=~/practice</code>. Jedną pętlą <code>for</code> skopiuj
       <code> events.log</code> i <code> alerts.log</code> do plików z końcówką <code>.copy</code>.
       Na końcu sprawdź istnienie <strong>obu kopii</strong> przez <code>test -f</code> i <code>&amp;&amp;</code>.
       Nie zmieniaj oryginałów.</p>:scenario==='diagnosis'?<p className="workshop-task">
@@ -256,7 +260,9 @@ export default function BashWorkshop(){
     </div>}
     <details className="workshop-help">
       <summary>Składnia i rozpoczęcie od nowa</summary>
-      {scenario==='backup'?<p>W pierwszej linii przypisz katalog do zmiennej <code>BASE</code>.
+      {scenario==='transfer'?<p>Brak gotowego skryptu i instrukcji składni.
+        Jeśli utkniesz, wróć do zadania 04, a potem spróbuj tu ponownie.</p>
+       :scenario==='backup'?<p>W pierwszej linii przypisz katalog do zmiennej <code>BASE</code>.
         W drugiej użyj <code>for FILE in ...; do cp ...; done</code>.
         W trzeciej sprawdź dwie kopie, używając <code>test -f</code> i <code>&amp;&amp;</code>.</p>
        :scenario==='diagnosis'?<p>Wpisz <code>BASE=~/practice</code>, potem dwa testy
@@ -278,7 +284,7 @@ export default function BashWorkshop(){
         cursor.current=null;
         pendingCursor.current=null;
         change(template);setPrediction('');
-      }}>Wstaw pusty szablon</button>
+      }}>{scenario==='transfer'?'Wyczyść skrypt':'Wstaw pusty szablon'}</button>
     </details>
   </section>;
 }
