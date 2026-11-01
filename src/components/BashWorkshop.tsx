@@ -1,5 +1,6 @@
 import {useLayoutEffect,useRef,useState} from 'react';
 import {insertAtSelection} from '../core/editorInsertion';
+import {fitWorkshopEditor} from '../core/workshopEditorSize';
 import {emptyUndoHistory,recordEditorEdit,undoEditorEdit,
   type EditKind} from '../core/editorUndo';
 import {sourceLineRange} from '../core/workshopSourceLines';
@@ -21,6 +22,7 @@ const shortcuts=[
   {label:"'",value:"'",description:'Wstaw apostrof'},
   {label:'~',value:'~',description:'Wstaw tyldę - katalog domowy'},
   {label:'&&',value:'&&',description:'Wstaw dwa ampersandy - wykonaj po sukcesie'},
+  {label:'||',value:'||',description:'Wstaw dwie kreski pionowe - wykonaj po niepowodzeniu'},
   {label:';',value:';',description:'Wstaw średnik'},
   {label:'↵',value:'\n',description:'Wstaw nową linię'}
 ] as const;
@@ -63,6 +65,14 @@ export default function BashWorkshop(){
   const editor=useRef<HTMLTextAreaElement>(null);
   const cursor=useRef<{start:number;end:number}|null>(null);
   const pendingCursor=useRef<{start:number;end:number}|null>(null);
+  // No inner vertical scroll: edits and viewport resizing expand the text area
+  // so finger swipes may scroll the page even when starting over the editor.
+  useLayoutEffect(()=>{
+    const fit=()=>{if(editor.current)fitWorkshopEditor(editor.current);};
+    fit();
+    window.addEventListener('resize',fit);
+    return ()=>window.removeEventListener('resize',fit);
+  },[draft,scenario,repairCase]);
   useLayoutEffect(()=>{
     if(pendingCursor.current===null)return;
     const selection=pendingCursor.current;
