@@ -475,3 +475,10 @@ W tym samym kompaktowym rzędzie co przycisk **Uruchom** można opcjonalnie prze
 ## RC.47 - samodzielny sprawdzian Bash
 
 Piąta pozycja w tym samym mobilnym wyborze: **Samodzielnie: awaria logowania**. Zgłoszenie mówi, że `audit-daily.log` nie pojawił się w katalogu `~/practice`, a `alerts.log` jest dostępny. Nie dajemy szablonu ani poleceń do przepisania - użytkownik układa krótki skrypt, uruchamia go i wyjaśnia wynik. Test zaliczenia wymaga rzeczywiście wykonanej ścieżki fallback, kodów obu testów, poprawnego odczytu `echo $?` i niezmienionych plików. Rozwiązanie z ćwiczenia 04 nie zalicza transferu. Szkic w osobnym kluczu, stare cztery scenariusze i postępy bez zmian. Jeden ekran, bez APK. QA na fizycznym Androidzie pending.
+
+
+## RC.48 - katalog blokuje dostęp do pliku
+
+Szósta pozycja w istniejącym mobilnym menu Bash: **06 · Katalog**. Wirtualny `~/practice/diagnostics/service.log` istnieje, ale katalog `diagnostics` ma tryb `600` i nie pozwala przejść do pliku (brak prawa `x`). Użytkownik sprawdza `test -r`, odczytuje status przez `echo $?`, a następnie używa `namei -l`, które identyfikuje blokujący katalog.
+
+Ocena wymaga rzeczywistych operacji, ich kolejności, poprawnego kodu i rzeczywistego `blockedAt`. Zakaz zmiany uprawnień, wykonywania komend hosta, sieci i modyfikacji plików. Bez nowego ekranu, misji, zmiany starych szkiców lub APK. Fizyczne QA Androida: PENDING.
