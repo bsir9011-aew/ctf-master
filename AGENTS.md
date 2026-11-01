@@ -100,3 +100,9 @@ Next priority: have the user run physical PWA QA per docs/MOBILE_QA.md and perfo
 - Capture prediction only on Run, never grade a choice made after inspecting the result. Script edits and scenario switches invalidate stale prediction feedback.
 - Compare against actually executed final `echo $?` output, not the scenario's expected status or script text. If no echo executed, show no fabricated verdict. Prediction is formative and never changes challenge completion, persistent scores or progress.
 - Preserve old scenario IDs/draft keys and safety. Do not create a new screen, mission, full Bash interpreter, or automatic APK. Device QA remains pending.
+
+## RC.47: independent Bash transfer, no new screen
+- Append fifth short workshop option `transfer`; four existing scenario IDs, starters and draft keys remain unchanged.
+- New task is different evidence: missing `~/practice/audit-daily.log`, existing `~/practice/alerts.log`; learner must infer and execute fallback (`||`), inspect real status via `echo $?`, and use BASE from earlier learning. Blank starter, no ready-made script or syntax hints in task/help.
+- The strict evaluator checks the *actual* two predicates, target paths, executed order, operator, statuses, immediate echo and no file changes. Reject old scenario's solution, skipped branch, forged echo, unsafe commands before execution. Start from fresh virtual academy state per attempt.
+- Do not create another screen, panel, wizard or progress schema. Transfer draft is separately stored under `ctf-master:bash-workshop-transfer-draft-v1`. Keep up to four nonblank script lines and avoid APK production. Physical phone QA pending.

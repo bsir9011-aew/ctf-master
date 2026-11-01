@@ -14,6 +14,8 @@ const COPIES=SOURCES.map(path=>path+'.copy');
 const EXPECTED_LOG='/home/player/practice/manual.log';
 const MISSING_LOG='/home/player/practice/missing.log';
 const LOCKED_LOG='/home/player/practice/checks/locked.log';
+const AUDIT_DAILY_LOG='/home/player/practice/audit-daily.log';
+const ALERTS_LOG='/home/player/practice/alerts.log';
 const diagnostics={
   diagnosis:{
     checks:[{flag:'-f',target:EXPECTED_LOG,code:0},{flag:'-f',target:MISSING_LOG,code:1}],
@@ -32,6 +34,12 @@ const diagnostics={
     operator:'||',status:'0',
     incomplete:'Najpierw sprawdź missing.log (wynik 1). Następnie użyj ||, aby uruchomić test istniejącego manual.log (wynik 0). Obie ścieżki przez $BASE.',
     completed:'Zaliczone: missing.log nie istnieje (1), więc operator || uruchomił sprawdzanie manual.log (0). echo $? pokazało 0: plan awaryjny zadziałał.'
+  },
+  transfer:{
+    checks:[{flag:'-f',target:AUDIT_DAILY_LOG,code:1},{flag:'-f',target:ALERTS_LOG,code:0}],
+    operator:'||',status:'0',
+    incomplete:'Plan awaryjny nie został potwierdzony. Sprawdź kolejność rzeczywiście wykonanych testów i to, czy po pierwszym niepowodzeniu uruchomiono drugi.',
+    completed:'Sprawdzian zaliczony: wykazałeś brak dziennika głównego, rzeczywiste użycie zapasowego i końcowy kod 0 bez zmiany plików.'
   }
 } as const;
 
@@ -154,7 +162,8 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup'):Workshop
   }
 
   if(state.variables?.BASE!=='~/practice')
-    return error('Ustaw BASE=~/practice. Ta zmienna określa katalog logów.',state,steps,
+    return error(scenario==='transfer'?'Brakuje poprawnego wskazania katalogu za pomocą zmiennej BASE.':
+      'Ustaw BASE=~/practice. Ta zmienna określa katalog logów.',state,steps,
       lines.find(x=>/^BASE=/.test(x.raw))?.line);
   if(scenario!=='backup'){
     const config=diagnostics[scenario];
@@ -170,7 +179,8 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup'):Workshop
     const status=events[position+1];
     if(!status||status.command!=='echo'||status.target!=='previous-exit'||
        status.output!==config.status||position!==1||events.length!==3)
-      return error('Po dwóch testach odczytaj ich ostatni kod przez echo $?. Oczekiwany wynik: '+config.status+'.',state,steps,
+      return error(scenario==='transfer'?'Sprawdź ostatni kod wyjścia po testach. Zobacz, co rzeczywiście wykonało się w skrypcie.':
+        'Po dwóch testach odczytaj ich ostatni kod przez echo $?. Oczekiwany wynik: '+config.status+'.',state,steps,
         lines.find(x=>x.raw.startsWith('echo '))?.line);
     if(Object.keys(state.files).some(path=>state.files[path]!==initial.files[path])||
        Object.keys(initial.files).some(path=>state.files[path]!==initial.files[path]))

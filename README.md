@@ -470,3 +470,8 @@ W zwijanej sekcji Przebieg widać teraz kolejno testy wykonane i pominięte prze
 ## RC.46 - przewiduj kod zakończenia
 
 W tym samym kompaktowym rzędzie co przycisk **Uruchom** można opcjonalnie przewidzieć wynik: zadanie z kopiowaniem nadal pyta o liczbę kopii, zaś zadania diagnostyczne o kod `0` lub `1`. Odpowiedź jest zapamiętywana dokładnie w chwili uruchomienia; wybór po wyniku nie daje pozornej trafności. Porównanie korzysta tylko z rzeczywiście wykonanego `echo $?`; bez takiego odczytu nie oceniamy przewidywania. To ćwiczenie myślenia, nie nowy warunek zaliczenia. Brak dodatkowych ekranów, zmian postępów i APK. Ręczne QA Androida nadal pending.
+
+
+## RC.47 - samodzielny sprawdzian Bash
+
+Piąta pozycja w tym samym mobilnym wyborze: **Samodzielnie: awaria logowania**. Zgłoszenie mówi, że `audit-daily.log` nie pojawił się w katalogu `~/practice`, a `alerts.log` jest dostępny. Nie dajemy szablonu ani poleceń do przepisania - użytkownik układa krótki skrypt, uruchamia go i wyjaśnia wynik. Test zaliczenia wymaga rzeczywiście wykonanej ścieżki fallback, kodów obu testów, poprawnego odczytu `echo $?` i niezmienionych plików. Rozwiązanie z ćwiczenia 04 nie zalicza transferu. Szkic w osobnym kluczu, stare cztery scenariusze i postępy bez zmian. Jeden ekran, bez APK. QA na fizycznym Androidzie pending.

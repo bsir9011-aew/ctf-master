@@ -360,3 +360,11 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Błędne użycie test -f dwukrotnie, odwrócenie kolejności, próba chmod lub brak echo $? mają zostać odrzucone.
 - [ ] Wpisz inne fragmenty kodu w 01, 02 i 03. Przełączaj scenariusze - szkice muszą pozostać osobne; Cofnij nie może mieszać historii.
 - [ ] Przy otwartej klawiaturze sprawdź menu, zaznaczenie błędnej linii i brak poziomego lub nadmiernego pionowego przewijania. Fizyczne QA: PENDING.
+
+
+## RC.47 - jeden ekran: sprawdzian transferowy Bash
+
+- [ ] Na telefonie otwórz Bash → **05 · Sprawdzian**. Zweryfikuj puste pole edycji, bez podanego szablonu; nie może pojawić się kolejny ekran ani przewijany panel na panelu.
+- [ ] Wpisz próbę, przejdź do zadania 04 i wróć do 05: osobny szkic nie może się zgubić ani nadpisać.
+- [ ] Wykonaj diagnozę `audit-daily.log` / `alerts.log` i odczyt statusu. Sprawdź, że wcześniejszy skrypt z 04 nie zalicza zadania 05.
+- [ ] Otwórz i zamknij klawiaturę Androida, przewiń ekran dotykając edytora, sprawdź Cofnij i poprawianie linii. Status fizycznego QA: PENDING, dopóki nie wykonano tego na urządzeniu.
