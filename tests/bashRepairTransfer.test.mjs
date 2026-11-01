@@ -62,7 +62,9 @@ test('independent case starts fresh on every run',()=>{
   assert.equal(runWorkshop(independent,'repair','transfer').completed,true);
   const failed=runWorkshop('BASE=~/practice\ncat '+transferFile,'repair','transfer');
   assert.equal(failed.completed,false);
-  assert.equal(failed.steps.length,0);
+  assert.equal(failed.steps.length,2);
+  assert.equal(failed.steps[1].command,'cat');
+  assert.equal(failed.steps[1].exitCode,1);
   assert.equal(failed.state.permissions[recoveryFixture('transfer').directory],0o600);
 });
 
