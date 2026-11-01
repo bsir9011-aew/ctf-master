@@ -78,7 +78,7 @@ test('preflight disallows modifications, loops, network and hidden shell effects
 
 test('pathblock has independent draft and does not alter old scenarios',()=>{
   assert.deepEqual(workshopScenarios.map(s=>s.id),[
-    'backup','diagnosis','permissions','fallback','transfer','pathblock'
+    'backup','diagnosis','permissions','fallback','transfer','pathblock','repair'
   ]);
   assert.equal(workshopInitialScript('pathblock'),PATHBLOCK_DEFAULT);
   assert.equal(runWorkshop(PATHBLOCK_DEFAULT,'pathblock').completed,false);

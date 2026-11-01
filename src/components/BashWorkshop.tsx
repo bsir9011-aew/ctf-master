@@ -24,7 +24,7 @@ const shortcuts=[
 function restoreScenario():WorkshopId{
   try{
     const saved=localStorage.getItem(SELECTION_KEY);
-    return saved==='diagnosis'||saved==='permissions'||saved==='fallback'||saved==='transfer'||saved==='pathblock'?saved:'backup';
+    return saved==='diagnosis'||saved==='permissions'||saved==='fallback'||saved==='transfer'||saved==='pathblock'||saved==='repair'?saved:'backup';
   }
   catch{return 'backup';}
 }
@@ -153,7 +153,12 @@ export default function BashWorkshop(){
       </label>
     </div>
     <h2>{workshopScenarios.find(item=>item.id===scenario)?.title}</h2>
-    {scenario==='pathblock'?<p className="workshop-task">Wirtualny plik <code>~/practice/diagnostics/service.log</code>
+    {scenario==='repair'?<p className="workshop-task">Diagnoza wskazała katalog
+      <code> ~/practice/diagnostics</code> bez prawa <code>x</code>.
+      W krótkim skrypcie samodzielnie potwierdź blokadę, napraw tylko brakujące prawo
+      właściciela i sprawdź odczyt <code>service.log</code>. Nie używaj <code>chmod 777</code>
+      i nie zmieniaj innych plików.</p>
+    :scenario==='pathblock'?<p className="workshop-task">Wirtualny plik <code>~/practice/diagnostics/service.log</code>
       istnieje, ale aplikacja nie może go odczytać. Sprawdź dostęp przez <code>test -r</code>,
       odczytaj kod przez <code>echo $?</code> i znajdź blokujący element ścieżki poleceniem <code>namei -l</code>.
       Nie zmieniaj uprawnień ani danych.</p>
@@ -204,8 +209,8 @@ export default function BashWorkshop(){
         title={item.description}>{item.label}</button>)}
     </div>
     {editorNotice&&<p role="status" className="workshop-editor-notice">{editorNotice}</p>}
-    <div className={'workshop-controls '+(scenario!=='backup'?'diagnosis':'')}>
-      <label htmlFor="workshop-prediction">{scenario==='backup'?'Przewidź kopie':'Przewidź kod'}
+    <div className={'workshop-controls '+(scenario==='repair'?'repair':scenario!=='backup'?'diagnosis':'')}>
+      {scenario!=='repair'&&<label htmlFor="workshop-prediction">{scenario==='backup'?'Przewidź kopie':'Przewidź kod'}
         <select id="workshop-prediction" value={prediction}
           onChange={e=>{
             setPrediction(e.target.value as ExitPrediction);
@@ -216,7 +221,7 @@ export default function BashWorkshop(){
           <option value="1">{scenario==='backup'?'1 kopia':'1 - brak sukcesu'}</option>
           {scenario==='backup'&&<option value="2">2 kopie</option>}
         </select>
-      </label>
+      </label>}
       <button type="button" onClick={run}>Uruchom <span aria-hidden="true">▶</span></button>
     </div>
     <p className="workshop-limit" id="workshop-editor-help">Tylko wirtualny Linux · bez poleceń hosta i sieci.</p>
@@ -265,7 +270,11 @@ export default function BashWorkshop(){
     </div>}
     <details className="workshop-help">
       <summary>Składnia i rozpoczęcie od nowa</summary>
-      {scenario==='pathblock'?<p>Zacznij od <code>BASE=~/practice</code>. Wykonaj
+      {scenario==='repair'?<p>W czterech liniach użyj <code>BASE=~/practice</code>,
+        <code> namei -l</code>, minimalnego <code>chmod u+x</code> i końcowego
+        <code> cat</code>. Możesz też ustawić dokładny tryb <code>700</code>.
+        Nie stosuj praw dla grupy lub pozostałych.</p>
+       :scenario==='pathblock'?<p>Zacznij od <code>BASE=~/practice</code>. Wykonaj
         <code> test -r</code> na ścieżce przez <code>$BASE</code>, natychmiast odczytaj
         <code> echo $?</code>, a następnie użyj <code>namei -l</code> do sprawdzenia katalogów.
         Prawa <code>r</code> samego pliku nie wystarczą, gdy katalog nadrzędny nie ma <code>x</code>.</p>

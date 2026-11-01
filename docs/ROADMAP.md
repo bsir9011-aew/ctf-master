@@ -129,3 +129,7 @@
 
 - [x] RC.48 - diagnoza błędnego prawa x katalogu, mimo istnienia pliku; test -r i namei -l w tym samym mobilnym edytorze oraz realny ślad blockedAt.
 - [ ] RC.48 fizyczne QA Android: 06 · Katalog, klawiatura, zwijany ślad i brak dodatkowych ekranów.
+
+
+- [x] RC.49 - nowy krótki etap 07 · Naprawa w mobilnym Bash: namei -> minimalne chmod owner-x 600->700 -> weryfikacja cat; ocena rzeczywistej zmiany i brak innych skutków.
+- [ ] RC.49 QA na telefonie: siedem opcji menu, edytor przy klawiaturze, Cofnij, zwijany przebieg i scroll.

@@ -81,7 +81,7 @@ test('preflight blocks unsafe commands before running any step',()=>{
 
 test('blank transfer starter, isolated draft, original scenarios remain intact',()=>{
   assert.deepEqual(workshopScenarios.map(x=>x.id),[
-    'backup','diagnosis','permissions','fallback','transfer','pathblock'
+    'backup','diagnosis','permissions','fallback','transfer','pathblock','repair'
   ]);
   assert.equal(workshopInitialScript('transfer'),'');
   assert.equal(workshopInitialScript('fallback'),FALLBACK_DEFAULT);

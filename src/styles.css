@@ -599,3 +599,7 @@
   .workshop-scenario-picker{max-width:65%}
   .workshop-scenario-picker select{font-size:11px}
 }
+
+
+/* RC.49: one Run button in repair, without an inapplicable exit-code picker. */
+.workshop-controls.repair button{width:100%;flex:1 1 auto}

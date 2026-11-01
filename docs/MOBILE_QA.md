@@ -377,3 +377,12 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Rozwiń i zwiń Przebieg, sprawdź czy widać brak `x`, bez odsłaniania treści chronionego pliku.
 - [ ] Przy otwartej klawiaturze sprawdź przewijanie dotykiem edytora, Cofnij, wybór scenariusza i osobny szkic.
 - [ ] Fizyczne QA: PENDING, dopóki nie wykona się powyższych kroków na telefonie.
+
+
+## RC.49 - minimalna naprawa (Android QA)
+
+- [ ] Bash → 07 · Naprawa na fizycznym telefonie; brak dodatkowego panelu.
+- [ ] Wpisz namei -l, minimalne chmod u+x na diagnostics i końcowe cat service.log, obserwuj 600 -> 700.
+- [ ] Wpisz chmod 777: powinno zostać odrzucone całe wykonanie, bez jakichkolwiek zmian.
+- [ ] Przy otwartej klawiaturze sprawdź nawigację, wybór scenariusza, Cofnij, fokus, przewijanie i zachowanie osobnego szkicu.
+- [ ] Fizyczne QA: PENDING.

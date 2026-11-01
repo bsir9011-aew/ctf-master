@@ -112,3 +112,10 @@ Next priority: have the user run physical PWA QA per docs/MOBILE_QA.md and perfo
 - Allow exactly bounded assignment, standalone `test -r`, real `echo $?` and read-only `namei -l` in this scenario. The expected execution is read test (exit 1) -> immediate echo showing 1 -> namei identifying the blocked directory. Require BASE references and real event targets, exit codes, `blockedAt`, and unchanged files, directories, permissions.
 - Do not run `chmod`, repair permissions, shell code, host processes, network, or mutations. Reject unsafe commands at whole-script preflight. Keep four nonblank lines max, all older scenario IDs/draft keys intact and a distinct new draft.
 - No new UI section, APK, changed mission/academy/progress schemas. Physical Android QA pending.
+
+
+## RC.49: least-privilege directory permission repair
+- Append the seventh short Bash option `repair` on the same mobile screen with the same four-nonblank-line limit and a unique draft key. Preserve all six old scenario IDs and storage keys.
+- Start fresh with the existing virtual `recoveryFixture('intro')` (`diagnostics` starts 0600, service.log remains intact). Require `namei -l` evidence with blockedAt, minimal owner-x change (0600 -> 0700) and successful `cat` readback, in that order. Grade actual events, final state and unchanged unrelated modes, ownership, directories and file contents.
+- Strict whole-script preflight allows safe assignment, read-only namei -l, one scoped chmod (u+x/700/0700), and read-only cat; reject chmod 777, unrelated writes, conditional operators, other targets and host commands *before* mutation.
+- No exit-code prediction on Repair because there is no echo; do not affect other scenarios. No new screen, APK or achievement schema. Physical Android QA pending.
