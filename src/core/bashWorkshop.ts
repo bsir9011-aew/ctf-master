@@ -18,7 +18,6 @@ const MISSING_LOG='/home/player/practice/missing.log';
 const LOCKED_LOG='/home/player/practice/checks/locked.log';
 const BLOCKED_FILE=recoveryFixture('intro').file;
 const BLOCKED_DIR=recoveryFixture('intro').directory;
-const BLOCKED_CONTENT=recoveryFixture('intro').content;
 const PRACTICE='/home/player/practice';
 const AUDIT_DAILY_LOG='/home/player/practice/audit-daily.log';
 const ALERTS_LOG='/home/player/practice/alerts.log';
