@@ -133,3 +133,6 @@
 
 - [x] RC.49 - nowy krótki etap 07 · Naprawa w mobilnym Bash: namei -> minimalne chmod owner-x 600->700 -> weryfikacja cat; ocena rzeczywistej zmiany i brak innych skutków.
 - [ ] RC.49 QA na telefonie: siedem opcji menu, edytor przy klawiaturze, Cofnij, zwijany przebieg i scroll.
+
+- [x] RC.50 - samodzielny wariant wewnątrz 07 · Naprawa: nowy health.log, puste pole, osobny szkic, kontrola skutków i minimalności bez ósmej pozycji menu.
+- [ ] RC.50 QA na telefonie: toggle przy otwartej klawiaturze, osobne szkice, focus i przewijanie, zmiana zadania przy wyniku oraz wyświetlenie zablokowanego katalogu.
