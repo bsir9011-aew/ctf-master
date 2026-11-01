@@ -123,3 +123,6 @@
 
 - [x] RC.46 - dobrowolna prognoza kodu 0/1 przed uruchomieniem Bash; porównanie z rzeczywistym echo $?, bez fałszywej oceny, gdy brak odczytu.
 - [ ] RC.46 fizyczne QA mobilnego układu przewidywanie + Uruchom oraz zmiany przewidywania po wykonaniu.
+
+- [x] RC.47 - piąta pozycja w tym samym menu: samodzielny transfer Bash, nowe pliki audit-daily.log / alerts.log, pusty edytor, ocena wykonania i osobny szkic.
+- [ ] RC.47 sprawdzić na telefonie menu 5 pozycji, klawiaturę i brak dodatkowego przewijania; fizyczny Android QA pending.
