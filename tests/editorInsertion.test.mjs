@@ -14,6 +14,13 @@ test('toolbar inserts special Bash characters at cursor rather than at end',()=>
   assert.equal(condition.cursor,16);
 });
 
+test('mobile || shortcut inserts OR fallback at caret',()=>{
+  const line='test -f missing test -f backup';
+  const insert=insertAtSelection(line,'||',15,15,WORKSHOP_MAX_CHARS);
+  assert.equal(insert.value,'test -f missing|| test -f backup');
+  assert.equal(insert.cursor,17);
+});
+
 test('toolbar replaces selected text and leaves surrounding script untouched',()=>{
   const source='for FILE in ...; do ...; done';
   const start=source.indexOf('...');
