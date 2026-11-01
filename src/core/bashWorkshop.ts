@@ -1,5 +1,6 @@
 import {createAcademyState} from './commandAcademy.ts';
 import {recoveryFixture} from './pathRecovery.ts';
+import {modeOf} from './permissions.ts';
 import {executeLinux,type CommandResult,type LinuxState} from './linux.ts';
 import {parseConditionals} from './conditionals.ts';
 import {parseForLoop} from './forLoop.ts';
@@ -17,6 +18,7 @@ const MISSING_LOG='/home/player/practice/missing.log';
 const LOCKED_LOG='/home/player/practice/checks/locked.log';
 const BLOCKED_FILE=recoveryFixture('intro').file;
 const BLOCKED_DIR=recoveryFixture('intro').directory;
+const BLOCKED_CONTENT=recoveryFixture('intro').content;
 const AUDIT_DAILY_LOG='/home/player/practice/audit-daily.log';
 const ALERTS_LOG='/home/player/practice/alerts.log';
 const diagnostics={
@@ -76,7 +78,7 @@ const wordsOnly=(raw:string):string[]|null=>{
   return tokens.map(t=>t.kind==='word'?t.value:'');
 };
 
-/** Strict preflight: only assignment, one bounded for/cp and test predicates.
+/** Strict preflight: permit only scenario-approved virtual commands.
  * The entire program is checked before executing ANY file-changing command.
  */
 function preflight(lines:readonly SourceLine[],seed:LinuxState,scenario:WorkshopId):{feedback:string;line:number}|null{
@@ -97,7 +99,7 @@ function preflight(lines:readonly SourceLine[],seed:LinuxState,scenario:Workshop
     const segments=parseConditionals(line);
     if(segments===null)return fail('niepełny warunek && lub ||.');
     if(segments){
-      if(scenario==='pathblock')return fail('w tej diagnozie sprawdź jeden test, jego kod, a następnie ścieżkę.');
+      if(scenario==='pathblock'||scenario==='repair')return fail('tu wykonuj pojedyncze polecenia, bez && i ||.');
       if(segments.some(part=>{
         const w=wordsOnly(part.raw);
         return !w||w.length!==3||w[0]!=='test'||
@@ -117,8 +119,20 @@ function preflight(lines:readonly SourceLine[],seed:LinuxState,scenario:Workshop
       (scenario==='permissions'?['-f','-r'].includes(words[1]):
         scenario==='pathblock'?words[1]==='-r':words[1]==='-f'))continue;
     if(scenario==='pathblock'&&words.length===3&&words[0]==='namei'&&words[1]==='-l')continue;
+    if(scenario==='repair'){
+      // Whole-script allowlist BEFORE executing any chmod. These are source
+      // spellings, NOT completion checks (completion uses executed state).
+      const filePaths=['$BASE/diagnostics/service.log','${BASE}/diagnostics/service.log',
+        '~/practice/diagnostics/service.log'];
+      const dirPaths=['$BASE/diagnostics','${BASE}/diagnostics','~/practice/diagnostics'];
+      if(words.length===3&&words[0]==='namei'&&words[1]==='-l'&&filePaths.includes(words[2]))continue;
+      if(words.length===3&&words[0]==='chmod'&&['u+x','700','0700'].includes(words[1])&&
+        dirPaths.includes(words[2]))continue;
+      if(words.length===2&&words[0]==='cat'&&filePaths.includes(words[1]))continue;
+    }
     if(scenario!=='backup'&&/^echo\s+\$\?$/u.test(line))continue;
-    return fail(scenario==='pathblock'?'dozwolone są przypisania, test -r, echo $? oraz namei -l.':
+    return fail(scenario==='repair'?'dozwolone są: BASE, namei -l, minimalny chmod i cat wskazanego pliku.':
+      scenario==='pathblock'?'dozwolone są przypisania, test -r, echo $? oraz namei -l.':
       scenario==='permissions'?'dozwolone są przypisania, test -f, test -r i echo $?.':'dozwolone są przypisania, for z cp i test -f.');
   }
   return null;
@@ -149,7 +163,7 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup'):Workshop
     const changedFiles=Object.keys(state.files).filter(path=>before.files[path]!==state.files[path]);
     steps.push({
       line:lines[index].line,command:result.command,exitCode:result.exitCode??(result.ok?0:1),
-      output:result.output.slice(0,scenario==='pathblock'?600:250),
+      output:result.output.slice(0,scenario==='pathblock'||scenario==='repair'?600:250),
       variables:Object.keys(state.variables??{}).filter(key=>
         before.variables?.[key]!==state.variables?.[key]).slice(0,5)
         .map(key=>key+'='+state.variables?.[key]),
@@ -175,6 +189,38 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup'):Workshop
     return error(scenario==='transfer'?'Brakuje poprawnego wskazania katalogu za pomocą zmiennej BASE.':
       'Ustaw BASE=~/practice. Ta zmienna określa katalog logów.',state,steps,
       lines.find(x=>/^BASE=/.test(x.raw))?.line);
+  if(scenario==='repair'){
+    const inspect=events[1],fix=events[2],read=events[3];
+    if(events.length!==4||events[0]?.command!=='variable'||
+      state.variables?.BASE!=='~/practice'||inspect?.command!=='namei'||
+      !inspect.ok||inspect.target!==BLOCKED_FILE||inspect.blockedAt!==BLOCKED_DIR)
+      return error('Najpierw ustal blokujący katalog na podstawie rzeczywistej diagnozy namei.',
+        state,steps,lines[1]?.line);
+    if(fix?.command!=='chmod'||!fix.ok||fix.target!==BLOCKED_DIR||
+      modeOf(fix.state,BLOCKED_DIR)!==0o700||modeOf(initial,BLOCKED_DIR)!==0o600)
+      return error('Popraw tylko brakujące prawo przejścia (x) dla właściciela katalogu.',
+        state,steps,lines[2]?.line);
+    if(read?.command!=='cat'||!read.ok||read.target!==BLOCKED_FILE||
+      read.output!==BLOCKED_CONTENT)
+      return error('Po naprawie odczytaj wcześniej niedostępny plik, aby potwierdzić skutek.',
+        state,steps,lines[3]?.line);
+    const sameRecords=(a:Record<string,unknown>,b:Record<string,unknown>)=>
+      Object.keys(a).length===Object.keys(b).length&&
+      Object.keys(a).every(path=>Object.hasOwn(b,path)&&a[path]===b[path]);
+    const beforePerm=initial.permissions??{},afterPerm=state.permissions??{};
+    const untouchedPerms=Object.keys(beforePerm).length===Object.keys(afterPerm).length&&
+      Object.keys(beforePerm).every(path=>path===BLOCKED_DIR?
+        afterPerm[path]===0o700:afterPerm[path]===beforePerm[path]);
+    if(!sameRecords(state.files,initial.files)||!untouchedPerms||
+      !sameRecords(state.ownership??{},initial.ownership??{})||
+      state.dirs.length!==initial.dirs.length||
+      state.dirs.some((path,i)=>path!==initial.dirs[i]))
+      return error('Naprawa zmieniła inne dane lub prawa. Obowiązuje zasada najmniejszych uprawnień.',
+        state,steps);
+    return {completed:true,
+      feedback:'Zaliczone: namei wskazało katalog bez x; przywrócono tylko owner-x (600 → 700), a odczyt service.log potwierdził naprawę. Pozostałe dane i prawa bez zmian.',
+      steps,state};
+  }
   if(scenario==='pathblock') {
     const test=events[1],status=events[2],inspect=events[3];
     // Inspect actual virtual operations rather than accepting a printed "permission denied".
