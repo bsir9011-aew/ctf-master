@@ -12,7 +12,7 @@ export interface ExitPredictionFeedback {
 export function compareExitPrediction(
   scenario:WorkshopId,prediction:ExitPrediction,result:Pick<WorkshopResult,'steps'>
 ):ExitPredictionFeedback|null {
-  if(scenario==='backup'||prediction===''||prediction==='2')return null;
+  if(scenario==='backup'||scenario==='repair'||prediction===''||prediction==='2')return null;
   const last=result.steps.at(-1);
   const observed=last?.command==='echo'&&/^[01]$/.test(last.output)
     ?last.output as '0'|'1':null;
