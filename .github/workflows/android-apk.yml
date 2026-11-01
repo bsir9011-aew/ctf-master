@@ -1,12 +1,16 @@
 name: Android APK (debug)
 
-# APK builds are opt-in while development continues in the repository.
-# Run manually when preparing a real device test, not on every web PR.
+# Manually dispatched builds; changing this workflow on main also creates
+# a device-test APK. Ordinary application commits do not trigger APK builds.
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/android-apk.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-debug-apk:
@@ -59,9 +63,9 @@ jobs:
       - name: Prepare downloadable APK and checksum
         run: |
           mkdir -p android-output
-          cp android/app/build/outputs/apk/debug/app-debug.apk android-output/CTF-Master-RC35-debug.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk android-output/CTF-Master-RC51-debug.apk
           cd android-output
-          sha256sum CTF-Master-RC35-debug.apk > SHA256SUMS.txt
+          sha256sum CTF-Master-RC51-debug.apk > SHA256SUMS.txt
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
@@ -70,3 +74,18 @@ jobs:
           path: android-output/
           retention-days: 14
           if-no-files-found: error
+
+      # One direct APK link on GitHub Releases, easier to install on Android
+      # than an Actions ZIP. Keep it marked as prerelease: debug signed.
+      - name: Publish RC51 Android test APK
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create android-rc51-20261101 \
+            android-output/CTF-Master-RC51-debug.apk \
+            android-output/SHA256SUMS.txt \
+            --target "$GITHUB_SHA" \
+            --title "CTF Master RC.51 - Android test APK" \
+            --notes "Debug APK generated from RC.51 for offline phone testing. Android runner uses a temporary debug signing key; upgrades from older debug builds may require uninstalling the old package, which can erase its local progress. No real device QA has been performed." \
+            --prerelease
