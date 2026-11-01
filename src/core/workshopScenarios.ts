@@ -1,22 +1,26 @@
-export type WorkshopId='backup'|'diagnosis'|'permissions'|'fallback'|'transfer';
+export type WorkshopId='backup'|'diagnosis'|'permissions'|'fallback'|'transfer'|'pathblock';
 export const WORKSHOP_DEFAULT='BASE=~/practice\nfor FILE in ...; do ...; done\ntest -f ... && test -f ...';
 export const DIAGNOSIS_DEFAULT='BASE=~/practice\ntest -f ... && test -f ...\necho $?';
 export const PERMISSIONS_DEFAULT='BASE=~/practice\ntest -f ... && test -r ...\necho $?';
 export const FALLBACK_DEFAULT='BASE=~/practice\ntest -f ... || test -f ...\necho $?';
+export const PATHBLOCK_DEFAULT='BASE=~/practice\ntest -r ...\necho $?\nnamei -l ...';
 export const workshopScenarios=[
   {id:'backup',label:'01 · Kopie logów',title:'Zabezpiecz dwa logi'},
   {id:'diagnosis',label:'02 · Brakujący log',title:'Znajdź brakujący log'},
   {id:'permissions',label:'03 · Uprawnienia',title:'Plik istnieje, ale nie można go czytać'},
   {id:'fallback',label:'04 · Plan awaryjny',title:'Znajdź działający log zastępczy'},
-  {id:'transfer',label:'05 · Sprawdzian',title:'Samodzielnie: awaria logowania'}
+  {id:'transfer',label:'05 · Sprawdzian',title:'Samodzielnie: awaria logowania'},
+  {id:'pathblock',label:'06 · Katalog',title:'Dlaczego nie można odczytać pliku?'}
 ] as const;
 export const workshopInitialScript=(id:WorkshopId)=>
+  id==='pathblock'?PATHBLOCK_DEFAULT:
   id==='transfer'?'':
   id==='fallback'?FALLBACK_DEFAULT:
   id==='permissions'?PERMISSIONS_DEFAULT:
   id==='diagnosis'?DIAGNOSIS_DEFAULT:WORKSHOP_DEFAULT;
-/** Keep all RC.38-46 draft keys 100% backwards compatible. */
+/** Preserve all RC.38-47 draft keys. */
 export const workshopDraftKey=(id:WorkshopId)=>
+  id==='pathblock'?'ctf-master:bash-workshop-pathblock-draft-v1':
   id==='transfer'?'ctf-master:bash-workshop-transfer-draft-v1':
   id==='fallback'?'ctf-master:bash-workshop-fallback-draft-v1':
   id==='permissions'?'ctf-master:bash-workshop-permissions-draft-v1':

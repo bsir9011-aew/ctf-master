@@ -368,3 +368,12 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Wpisz próbę, przejdź do zadania 04 i wróć do 05: osobny szkic nie może się zgubić ani nadpisać.
 - [ ] Wykonaj diagnozę `audit-daily.log` / `alerts.log` i odczyt statusu. Sprawdź, że wcześniejszy skrypt z 04 nie zalicza zadania 05.
 - [ ] Otwórz i zamknij klawiaturę Androida, przewiń ekran dotykając edytora, sprawdź Cofnij i poprawianie linii. Status fizycznego QA: PENDING, dopóki nie wykonano tego na urządzeniu.
+
+
+## RC.48 - katalog bez x (mobile QA)
+
+- [ ] Bash → 06 · Katalog na fizycznym Androidzie w orientacji pionowej.
+- [ ] Sprawdź wynik `test -r`, `echo $?` i `namei -l` na `~/practice/diagnostics/service.log`; oczekiwany zablokowany katalog to `~/practice/diagnostics`.
+- [ ] Rozwiń i zwiń Przebieg, sprawdź czy widać brak `x`, bez odsłaniania treści chronionego pliku.
+- [ ] Przy otwartej klawiaturze sprawdź przewijanie dotykiem edytora, Cofnij, wybór scenariusza i osobny szkic.
+- [ ] Fizyczne QA: PENDING, dopóki nie wykona się powyższych kroków na telefonie.

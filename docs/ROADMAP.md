@@ -126,3 +126,6 @@
 
 - [x] RC.47 - piąta pozycja w tym samym menu: samodzielny transfer Bash, nowe pliki audit-daily.log / alerts.log, pusty edytor, ocena wykonania i osobny szkic.
 - [ ] RC.47 sprawdzić na telefonie menu 5 pozycji, klawiaturę i brak dodatkowego przewijania; fizyczny Android QA pending.
+
+- [x] RC.48 - diagnoza błędnego prawa x katalogu, mimo istnienia pliku; test -r i namei -l w tym samym mobilnym edytorze oraz realny ślad blockedAt.
+- [ ] RC.48 fizyczne QA Android: 06 · Katalog, klawiatura, zwijany ślad i brak dodatkowych ekranów.

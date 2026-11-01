@@ -1,4 +1,5 @@
 import {createAcademyState} from './commandAcademy.ts';
+import {recoveryFixture} from './pathRecovery.ts';
 import {executeLinux,type CommandResult,type LinuxState} from './linux.ts';
 import {parseConditionals} from './conditionals.ts';
 import {parseForLoop} from './forLoop.ts';
@@ -14,6 +15,8 @@ const COPIES=SOURCES.map(path=>path+'.copy');
 const EXPECTED_LOG='/home/player/practice/manual.log';
 const MISSING_LOG='/home/player/practice/missing.log';
 const LOCKED_LOG='/home/player/practice/checks/locked.log';
+const BLOCKED_FILE=recoveryFixture('intro').file;
+const BLOCKED_DIR=recoveryFixture('intro').directory;
 const AUDIT_DAILY_LOG='/home/player/practice/audit-daily.log';
 const ALERTS_LOG='/home/player/practice/alerts.log';
 const diagnostics={
@@ -53,6 +56,7 @@ export interface WorkshopStep {
   iterations:number;
   skipped:number;
   checks:{command:string;operator?:'&&'|'||';executed:boolean;exitCode?:number}[];
+  blockedAt?:string;
 }
 export interface WorkshopResult {
   completed:boolean;
@@ -82,7 +86,7 @@ function preflight(lines:readonly SourceLine[],seed:LinuxState,scenario:Workshop
     const fail=(feedback:string)=>({feedback:'Linia '+number+': '+feedback,line:number});
     if(line.length>240)return fail('za długa (limit 240 znaków).');
     if(/^for(?:\s|$)/u.test(line)){
-      if(scenario!=='backup')return fail('w diagnozie użyj test -f / test -r i echo $?, nie pętli.');
+      if(scenario!=='backup')return fail('w diagnostyce nie używaj pętli for.');
       const loop=parseForLoop(simulated,line);
       if(!loop)return fail('sprawdź składnię for ...; do cp ...; done.');
       const body=wordsOnly(loop.body);
@@ -93,6 +97,7 @@ function preflight(lines:readonly SourceLine[],seed:LinuxState,scenario:Workshop
     const segments=parseConditionals(line);
     if(segments===null)return fail('niepełny warunek && lub ||.');
     if(segments){
+      if(scenario==='pathblock')return fail('w tej diagnozie sprawdź jeden test, jego kod, a następnie ścieżkę.');
       if(segments.some(part=>{
         const w=wordsOnly(part.raw);
         return !w||w.length!==3||w[0]!=='test'||
@@ -109,9 +114,12 @@ function preflight(lines:readonly SourceLine[],seed:LinuxState,scenario:Workshop
       continue;
     }
     if(words.length===3&&words[0]==='test'&&
-      (scenario==='permissions'?['-f','-r'].includes(words[1]):words[1]==='-f'))continue;
+      (scenario==='permissions'?['-f','-r'].includes(words[1]):
+        scenario==='pathblock'?words[1]==='-r':words[1]==='-f'))continue;
+    if(scenario==='pathblock'&&words.length===3&&words[0]==='namei'&&words[1]==='-l')continue;
     if(scenario!=='backup'&&/^echo\s+\$\?$/u.test(line))continue;
-    return fail(scenario==='permissions'?'dozwolone są przypisania, test -f, test -r i echo $?.':'dozwolone są przypisania, for z cp i test -f.');
+    return fail(scenario==='pathblock'?'dozwolone są przypisania, test -r, echo $? oraz namei -l.':
+      scenario==='permissions'?'dozwolone są przypisania, test -f, test -r i echo $?.':'dozwolone są przypisania, for z cp i test -f.');
   }
   return null;
 }
@@ -141,13 +149,14 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup'):Workshop
     const changedFiles=Object.keys(state.files).filter(path=>before.files[path]!==state.files[path]);
     steps.push({
       line:lines[index].line,command:result.command,exitCode:result.exitCode??(result.ok?0:1),
-      output:result.output.slice(0,250),
+      output:result.output.slice(0,scenario==='pathblock'?600:250),
       variables:Object.keys(state.variables??{}).filter(key=>
         before.variables?.[key]!==state.variables?.[key]).slice(0,5)
         .map(key=>key+'='+state.variables?.[key]),
       changedFiles:changedFiles.slice(0,5).map(path=>path.replace('/home/player/','~/')),
       iterations:result.loopTrace?.length??0,
       skipped:result.conditionalTrace?.filter(s=>!s.executed).length??0,
+      blockedAt:result.blockedAt?.replace('/home/player/','~/'),
       checks:(result.conditionalTrace??[]).map(part=>({
         command:part.raw.slice(0,120),operator:part.operator,executed:part.executed,
         exitCode:part.exitCode
@@ -155,9 +164,10 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup'):Workshop
     });
     // A non-zero test is the evidence to observe in scenario 02, not
     // automatically a script failure. Still reject any other failed command.
-    const diagnosticTest=scenario!=='backup'&&result.command==='conditional'&&
+    const diagnosticTest=(scenario!=='backup'&&result.command==='conditional'&&
       result.conditionalTrace?.every(part=>part.command==='test'&&
-        (scenario==='permissions'?['-f','-r'].includes(part.testFlag??''):part.testFlag==='-f'));
+        (scenario==='permissions'?['-f','-r'].includes(part.testFlag??''):part.testFlag==='-f'))) ||
+      (scenario==='pathblock'&&result.command==='test'&&result.testFlag==='-r'&&result.target===BLOCKED_FILE);
     if(!result.ok&&!diagnosticTest)return error('Linia '+lines[index].line+': '+(result.output||'polecenie zakończyło się błędem.'),state,steps,lines[index].line);
   }
 
@@ -165,6 +175,29 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup'):Workshop
     return error(scenario==='transfer'?'Brakuje poprawnego wskazania katalogu za pomocą zmiennej BASE.':
       'Ustaw BASE=~/practice. Ta zmienna określa katalog logów.',state,steps,
       lines.find(x=>/^BASE=/.test(x.raw))?.line);
+  if(scenario==='pathblock') {
+    const test=events[1],status=events[2],inspect=events[3];
+    // Inspect actual virtual operations rather than accepting a printed "permission denied".
+    const validTest=events.length===4&&events[0].command==='variable'&&
+      test?.command==='test'&&test.testFlag==='-r'&&
+      test.target===BLOCKED_FILE&&test.exitCode===1&&
+      /\$\{?BASE\}?/.test(lines[1]?.raw??'');
+    if(!validTest)return error('Sprawdź odczyt pliku we wskazanej ścieżce przed analizą katalogów.',state,steps,lines[1]?.line);
+    if(status?.command!=='echo'||status.target!=='previous-exit'||status.output!=='1')
+      return error('Odczytaj wynik nieudanego testu, zanim uruchomisz analizę ścieżki.',state,steps,lines[2]?.line);
+    if(inspect?.command!=='namei'||!inspect.ok||inspect.target!==BLOCKED_FILE||
+      inspect.blockedAt!==BLOCKED_DIR||!/\$\{?BASE\}?/.test(lines[3]?.raw??''))
+      return error('Ustal, który katalog blokuje przejście do pliku, wykorzystując rzeczywisty wynik namei.',state,steps,lines[3]?.line);
+    if(Object.keys(state.files).some(path=>state.files[path]!==initial.files[path])||
+      Object.keys(initial.files).some(path=>state.files[path]!==initial.files[path])||
+      Object.keys(state.permissions??{}).some(path=>state.permissions?.[path]!==initial.permissions?.[path])||
+      Object.keys(initial.permissions??{}).some(path=>state.permissions?.[path]!==initial.permissions?.[path])||
+      !state.dirs.every(path=>initial.dirs.includes(path))||state.dirs.length!==initial.dirs.length)
+      return error('Diagnoza musi pozostawić system plików i uprawnienia bez zmian.',state,steps);
+    return {completed:true,
+      feedback:'Zaliczone: test -r zwrócił 1, mimo że plik istnieje. namei -l wykazało brak prawa x na katalogu diagnostics. Nie zmieniono plików ani uprawnień.',
+      steps,state};
+  }
   if(scenario!=='backup'){
     const config=diagnostics[scenario];
     const position=events.findIndex(e=>e.command==='conditional');

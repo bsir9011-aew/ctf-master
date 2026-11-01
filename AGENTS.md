@@ -106,3 +106,9 @@ Next priority: have the user run physical PWA QA per docs/MOBILE_QA.md and perfo
 - New task is different evidence: missing `~/practice/audit-daily.log`, existing `~/practice/alerts.log`; learner must infer and execute fallback (`||`), inspect real status via `echo $?`, and use BASE from earlier learning. Blank starter, no ready-made script or syntax hints in task/help.
 - The strict evaluator checks the *actual* two predicates, target paths, executed order, operator, statuses, immediate echo and no file changes. Reject old scenario's solution, skipped branch, forged echo, unsafe commands before execution. Start from fresh virtual academy state per attempt.
 - Do not create another screen, panel, wizard or progress schema. Transfer draft is separately stored under `ctf-master:bash-workshop-transfer-draft-v1`. Keep up to four nonblank script lines and avoid APK production. Physical phone QA pending.
+
+## RC.48: one-screen blocked-directory access diagnosis
+- Append short `pathblock` workshop option in the existing select (no separate panel or mission) using the preexisting `recoveryFixture('intro')`: `~/practice/diagnostics/service.log` exists but its parent directory is mode 600 (missing x).
+- Allow exactly bounded assignment, standalone `test -r`, real `echo $?` and read-only `namei -l` in this scenario. The expected execution is read test (exit 1) -> immediate echo showing 1 -> namei identifying the blocked directory. Require BASE references and real event targets, exit codes, `blockedAt`, and unchanged files, directories, permissions.
+- Do not run `chmod`, repair permissions, shell code, host processes, network, or mutations. Reject unsafe commands at whole-script preflight. Keep four nonblank lines max, all older scenario IDs/draft keys intact and a distinct new draft.
+- No new UI section, APK, changed mission/academy/progress schemas. Physical Android QA pending.

@@ -24,7 +24,7 @@ const shortcuts=[
 function restoreScenario():WorkshopId{
   try{
     const saved=localStorage.getItem(SELECTION_KEY);
-    return saved==='diagnosis'||saved==='permissions'||saved==='fallback'||saved==='transfer'?saved:'backup';
+    return saved==='diagnosis'||saved==='permissions'||saved==='fallback'||saved==='transfer'||saved==='pathblock'?saved:'backup';
   }
   catch{return 'backup';}
 }
@@ -153,7 +153,11 @@ export default function BashWorkshop(){
       </label>
     </div>
     <h2>{workshopScenarios.find(item=>item.id===scenario)?.title}</h2>
-    {scenario==='transfer'?<p className="workshop-task">Zgłoszenie z dyżuru: w katalogu
+    {scenario==='pathblock'?<p className="workshop-task">Wirtualny plik <code>~/practice/diagnostics/service.log</code>
+      istnieje, ale aplikacja nie może go odczytać. Sprawdź dostęp przez <code>test -r</code>,
+      odczytaj kod przez <code>echo $?</code> i znajdź blokujący element ścieżki poleceniem <code>namei -l</code>.
+      Nie zmieniaj uprawnień ani danych.</p>
+    :scenario==='transfer'?<p className="workshop-task">Zgłoszenie z dyżuru: w katalogu
       <code> ~/practice</code> nie pojawił się <code>audit-daily.log</code>.
       Dostępny jest <code>alerts.log</code>. Samodzielnie sprawdź działanie planu awaryjnego
       i odczytaj końcowy kod wyjścia. Nie zmieniaj plików.</p>
@@ -242,6 +246,7 @@ export default function BashWorkshop(){
           {result.steps.map(step=><li key={step.line}>
             <strong>Linia {step.line}: {step.command}</strong> · kod {step.exitCode}
             {step.iterations>0&&<span> · {step.iterations} iteracje</span>}
+            {step.blockedAt&&<small>Katalog bez prawa przejścia (x): {step.blockedAt}</small>}
             {step.variables.length>0&&<small>Zmienne: {step.variables.join(', ')}</small>}
             {step.changedFiles.length>0&&<small>Pliki: {step.changedFiles.join(', ')}</small>}
             {step.checks.length>0&&<ul className="workshop-conditional-steps" aria-label="Warunki wykonania">
@@ -260,7 +265,11 @@ export default function BashWorkshop(){
     </div>}
     <details className="workshop-help">
       <summary>Składnia i rozpoczęcie od nowa</summary>
-      {scenario==='transfer'?<p>Brak gotowego skryptu i instrukcji składni.
+      {scenario==='pathblock'?<p>Zacznij od <code>BASE=~/practice</code>. Wykonaj
+        <code> test -r</code> na ścieżce przez <code>$BASE</code>, natychmiast odczytaj
+        <code> echo $?</code>, a następnie użyj <code>namei -l</code> do sprawdzenia katalogów.
+        Prawa <code>r</code> samego pliku nie wystarczą, gdy katalog nadrzędny nie ma <code>x</code>.</p>
+       :scenario==='transfer'?<p>Brak gotowego skryptu i instrukcji składni.
         Jeśli utkniesz, wróć do zadania 04, a potem spróbuj tu ponownie.</p>
        :scenario==='backup'?<p>W pierwszej linii przypisz katalog do zmiennej <code>BASE</code>.
         W drugiej użyj <code>for FILE in ...; do cp ...; done</code>.

@@ -87,8 +87,8 @@ test('draft keys preserve old scenario 01 drafts and isolate scenario 02',()=>{
   assert.notEqual(workshopDraftKey('backup'),workshopDraftKey('diagnosis'));
   assert.equal(workshopInitialScript('backup'),WORKSHOP_DEFAULT);
   assert.equal(workshopInitialScript('diagnosis'),DIAGNOSIS_DEFAULT);
-  assert.equal(workshopScenarios.length,5);
-  assert.deepEqual(workshopScenarios.map(x=>x.id),['backup','diagnosis','permissions','fallback','transfer']);
+  assert.equal(workshopScenarios.length,6);
+  assert.deepEqual(workshopScenarios.map(x=>x.id),['backup','diagnosis','permissions','fallback','transfer','pathblock']);
 });
 
 test('diagnosis respects line numbers and does not reuse stale copied files',()=>{
