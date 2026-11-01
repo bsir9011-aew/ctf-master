@@ -482,3 +482,10 @@ Piąta pozycja w tym samym mobilnym wyborze: **Samodzielnie: awaria logowania**.
 Szósta pozycja w istniejącym mobilnym menu Bash: **06 · Katalog**. Wirtualny `~/practice/diagnostics/service.log` istnieje, ale katalog `diagnostics` ma tryb `600` i nie pozwala przejść do pliku (brak prawa `x`). Użytkownik sprawdza `test -r`, odczytuje status przez `echo $?`, a następnie używa `namei -l`, które identyfikuje blokujący katalog.
 
 Ocena wymaga rzeczywistych operacji, ich kolejności, poprawnego kodu i rzeczywistego `blockedAt`. Zakaz zmiany uprawnień, wykonywania komend hosta, sieci i modyfikacji plików. Bez nowego ekranu, misji, zmiany starych szkiców lub APK. Fizyczne QA Androida: PENDING.
+
+
+## RC.49 - minimalna naprawa katalogu
+
+W zadaniu `07 · Naprawa` w tym samym Bash Workshop katalog `~/practice/diagnostics` ma tryb 600 i blokuje dostęp do istniejącego `service.log`. Cztery krótkie linie: przypisanie katalogu, diagnoza `namei -l`, minimalne `chmod u+x` (lub dokładnie 700) i końcowy odczyt `cat`.
+
+Zaliczenie wymaga prawdziwych zdarzeń: wykrytej blokady, zmiany jedynie owner-x na 700 i odczytania treści bez zmiany innych praw, własności i danych. `chmod 777`, niewłaściwe ścieżki i niebezpieczne komendy są blokowane w preflight. Osobny szkic, sześć starszych wariantów bez zmian, bez dodatkowego ekranu i APK. Fizyczne QA Androida nadal pending.
