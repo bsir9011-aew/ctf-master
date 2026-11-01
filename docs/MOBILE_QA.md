@@ -386,3 +386,11 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Wpisz chmod 777: powinno zostać odrzucone całe wykonanie, bez jakichkolwiek zmian.
 - [ ] Przy otwartej klawiaturze sprawdź nawigację, wybór scenariusza, Cofnij, fokus, przewijanie i zachowanie osobnego szkicu.
 - [ ] Fizyczne QA: PENDING.
+
+## RC.50 - przełączenie samodzielnego przypadku naprawy (fizyczny Android)
+
+- [ ] Otwórz Bash → 07 · Naprawa; kliknij Samodzielny przypadek. Sprawdź, że jest pusty edytor z nowym zgłoszeniem dotyczącym health.log, bez ósmego zadania w menu.
+- [ ] Wpisz część rozwiązania, przejdź do wariantu z pomocą i wróć: oba szkice muszą pozostać osobne; wynik i Cofnij wyzerowane po przełączeniu.
+- [ ] Zdiagnozuj katalog logs/locked bez x, dokonaj tylko owner-x, sprawdź odczyt; po błędnej/niebezpiecznej komendzie nie może dojść do zmiany świata.
+- [ ] Przy otwartej klawiaturze sprawdź dotykiem przewijanie, focus, reset, pozycję przycisku i kontrast.
+- [ ] Fizyczny Android QA: PENDING.
