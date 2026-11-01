@@ -62,7 +62,7 @@ test('all dangerous commands are rejected before any execution',()=>{
 });
 
 test('earlier scenarios retain original draft keys and fallback uses an isolated draft',()=>{
-  assert.deepEqual(workshopScenarios.map(x=>x.id),['backup','diagnosis','permissions','fallback','transfer','pathblock']);
+  assert.deepEqual(workshopScenarios.map(x=>x.id),['backup','diagnosis','permissions','fallback','transfer','pathblock','repair']);
   assert.equal(workshopDraftKey('backup'),'ctf-master:bash-workshop-draft-v1');
   assert.equal(workshopDraftKey('diagnosis'),'ctf-master:bash-workshop-diagnosis-draft-v1');
   assert.equal(workshopDraftKey('permissions'),'ctf-master:bash-workshop-permissions-draft-v1');
