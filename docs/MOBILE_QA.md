@@ -394,3 +394,11 @@ Podaj: model telefonu, Android/iOS, przeglądarkę, szerokość/orientację ekra
 - [ ] Zdiagnozuj katalog logs/locked bez x, dokonaj tylko owner-x, sprawdź odczyt; po błędnej/niebezpiecznej komendzie nie może dojść do zmiany świata.
 - [ ] Przy otwartej klawiaturze sprawdź dotykiem przewijanie, focus, reset, pozycję przycisku i kontrast.
 - [ ] Fizyczny Android QA: PENDING.
+
+## RC.51 - fizyczne QA przewijania na telefonie
+- [ ] Pociągnięcie palcem pionowo na polu skryptu przewija całą stronę, bez drugiego obszaru przewijania.
+- [ ] Wpisz cztery długie linie, potem je usuń. Wysokość pola powinna zwiększać się i zmniejszać.
+- [ ] Obróć telefon: zawijanie i wysokość pola aktualizują się po zmianie szerokości.
+- [ ] Na pasku skrótów sprawdź gest pionowy (strona) i poziomy (pasek); `||` wstawia się w miejscu kursora.
+- [ ] Otwórz klawiaturę, przetestuj Cofnij, Popraw linię i osobne szkice z obu wariantów Naprawy.
+- [ ] Android QA: PENDING, do testu na prawdziwym urządzeniu.

@@ -126,3 +126,8 @@ Next priority: have the user run physical PWA QA per docs/MOBILE_QA.md and perfo
 - Transfer has a blank initial editor and no ready-made commands in task or help. Separate draft key `ctf-master:bash-workshop-repair-transfer-draft-v1` and variant selection key `ctf-master:bash-workshop-repair-case-v1`. Switching cases or scenarios clears stale result, prediction, undo and caret while retaining each draft.
 - Preserve the whole-script preflight allowlist with only scoped namei, minimal chmod and cat; reject broad permissions, wrong targets, extra commands and any host/network invocation BEFORE edits. Grade on real `namei` blockedAt, exact owner-x delta 0600→0700, successful cat readback and unchanged unrelated files, directories, ownership and modes. No mastery storage change.
 - Keep four nonblank lines and existing same-screen mobile design; no APK. Physical Android QA still pending.
+
+## RC.51: phone-first editor scroll without extra screens
+- The Bash textarea grows and shrinks to content after edits, variant changes and viewport resize. It must not become a nested vertical scroller; gestures started over it should scroll the page.
+- Toolbar retains horizontal swiping but allows vertical page gestures, and adds the `||` shortcut beside `&&`.
+- Preserve all old scenario IDs and draft keys, undo, caret, selection, progress, interpreter and safety. No APK, extra screen, host execution or new dependencies. Physical Android keyboard QA remains PENDING.
