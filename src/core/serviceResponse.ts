@@ -36,7 +36,7 @@ const failure='Najpierw ustal, co stało się z usługą. Restart i kill nie są
 export function gradeServiceResponse(
   result:Pick<WorkshopResult,'steps'|'state'|'completed'>,
   id:ServiceTicketId,
-  diagnosis:Parameters<typeof observedServiceDiagnosis>[1] extends never ? never : 'crash'|'startup'|'healthy'|'',
+  diagnosis:'crash'|'startup'|'healthy'|'',
   choice:ServiceResponseChoice
 ):ServiceResponseAssessment|null {
   if(!choice)return null;
