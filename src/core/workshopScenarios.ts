@@ -31,12 +31,14 @@ export const workshopDraftKey=(id:WorkshopId)=>
   id==='diagnosis'?'ctf-master:bash-workshop-diagnosis-draft-v1':
     'ctf-master:bash-workshop-draft-v1';
 
-/** Separate transfer draft, without changing the existing repair ID or legacy key. */
-export const repairWorkshopDraftKey=(variant:'intro'|'transfer')=>
+/** All three repairs live within one short mobile challenge. */
+export type RepairWorkshopVariant='intro'|'transfer'|'file';
+export const repairWorkshopDraftKey=(variant:RepairWorkshopVariant)=>
+  variant==='file'?'ctf-master:bash-workshop-repair-file-draft-v1':
   variant==='transfer'?'ctf-master:bash-workshop-repair-transfer-draft-v1':
     workshopDraftKey('repair');
-export const repairWorkshopStarter=(variant:'intro'|'transfer')=>
-  variant==='transfer'?'':REPAIR_DEFAULT;
+export const repairWorkshopStarter=(variant:RepairWorkshopVariant)=>
+  variant==='intro'?REPAIR_DEFAULT:'';
 
 /** Independent file-read denial reuses Academy's locked.log and preserves guided draft. */
 export const pathblockWorkshopDraftKey=(variant:'intro'|'transfer')=>
