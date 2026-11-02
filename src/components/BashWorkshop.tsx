@@ -7,7 +7,7 @@ import {sourceLineRange} from '../core/workshopSourceLines';
 import {compareExitPrediction,compareCausePrediction,type CausePrediction,type ExitPrediction} from '../core/workshopPrediction';
 import {gradeRemediation,type RemediationChoice} from '../core/workshopRemediation';
 import {verifyRecoveryPreview,type RecoveryVerification} from '../core/workshopRecoveryVerify';
-import {gradeRecoveryEvidence,recoveryEvidenceOptions,type EvidenceChoice} from '../core/workshopEvidence';
+import {concreteRecoveryEvidence,gradeConcreteEvidence,type EvidenceInterpretation} from '../core/workshopConcreteEvidence';
 import {workshopScenarios,workshopInitialScript,workshopDraftKey,
   repairWorkshopDraftKey,repairWorkshopStarter,
   pathblockWorkshopDraftKey,pathblockWorkshopStarter,
@@ -83,8 +83,8 @@ export default function BashWorkshop(){
   const [remediation,setRemediation]=useState<RemediationChoice>('');
   const [submittedRemediation,setSubmittedRemediation]=useState<RemediationChoice>('');
   const [recoveryCheck,setRecoveryCheck]=useState<RecoveryVerification|null>(null);
-  const [selectedEvidence,setSelectedEvidence]=useState<EvidenceChoice[]>([]);
-  const [submittedEvidence,setSubmittedEvidence]=useState<EvidenceChoice[]|null>(null);
+  const [selectedConclusion,setSelectedConclusion]=useState<EvidenceInterpretation|''>('');
+  const [submittedConclusion,setSubmittedConclusion]=useState<EvidenceInterpretation|''>('');
   const [submittedPrediction,setSubmittedPrediction]=useState<ExitPrediction>('');
   const [result,setResult]=useState<WorkshopResult|null>(null);
   const [editorNotice,setEditorNotice]=useState('');
@@ -119,8 +119,8 @@ export default function BashWorkshop(){
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
-    setSelectedEvidence([]);
-    setSubmittedEvidence(null);
+    setSelectedConclusion('');
+    setSubmittedConclusion('');
     setEditorNotice('');
     setDraft(next);
     setResult(null);
@@ -137,8 +137,8 @@ export default function BashWorkshop(){
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
-    setSelectedEvidence([]);
-    setSubmittedEvidence(null);
+    setSelectedConclusion('');
+    setSubmittedConclusion('');
     setResult(null);
     setEditorNotice('');
     undoHistory.current=emptyUndoHistory();
@@ -158,8 +158,8 @@ export default function BashWorkshop(){
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
-    setSelectedEvidence([]);
-    setSubmittedEvidence(null);
+    setSelectedConclusion('');
+    setSubmittedConclusion('');
     setResult(null);
     setEditorNotice('');
     undoHistory.current=emptyUndoHistory();
@@ -180,8 +180,8 @@ export default function BashWorkshop(){
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
-    setSelectedEvidence([]);
-    setSubmittedEvidence(null);
+    setSelectedConclusion('');
+    setSubmittedConclusion('');
     setResult(null);
     setEditorNotice('');
     undoHistory.current=emptyUndoHistory();
@@ -197,8 +197,8 @@ export default function BashWorkshop(){
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
-    setSelectedEvidence([]);
-    setSubmittedEvidence(null);
+    setSelectedConclusion('');
+    setSubmittedConclusion('');
     setPrediction('');
     setSubmittedPrediction('');
     setResult(null);
@@ -258,8 +258,8 @@ export default function BashWorkshop(){
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
-    setSelectedEvidence([]);
-    setSubmittedEvidence(null);
+    setSelectedConclusion('');
+    setSubmittedConclusion('');
     setResult(runWorkshop(draft,scenario,
       scenario==='pathblock'?(pathCase==='blind'?'intro':pathCase):repairCase,
       scenario==='pathblock'&&pathCase==='blind'?blindCause:null));
@@ -283,8 +283,10 @@ export default function BashWorkshop(){
   const blindDecision=scenario==='pathblock'&&pathCase==='blind';
   const decisionFeedback=blindDecision&&result&&submittedRemediation?
     gradeRemediation(submittedRemediation,result):null;
-  const evidenceFeedback=submittedEvidence!==null?
-    gradeRecoveryEvidence(recoveryCheck,submittedEvidence):null;
+  const concreteEvidence=blindDecision&&result&&recoveryCheck?
+    concreteRecoveryEvidence(result,recoveryCheck):null;
+  const evidenceFeedback=submittedConclusion?
+    gradeConcreteEvidence(concreteEvidence,submittedConclusion):null;
   const verifiedBlind=!!recoveryCheck?.verified&&evidenceFeedback?.matched===true;
   return <section className="bash-workshop" aria-label="Mobilny warsztat Bash">
     <div className="workshop-heading">
@@ -403,8 +405,8 @@ export default function BashWorkshop(){
           setCausePrediction(e.target.value as CausePrediction);
           setSubmittedCause('');
           setRecoveryCheck(null);
-          setSelectedEvidence([]);
-          setSubmittedEvidence(null);
+          setSelectedConclusion('');
+          setSubmittedConclusion('');
         }}>
         <option value="">Bez hipotezy</option>
         <option value="directory">Brak x w katalogu</option>
@@ -440,7 +442,7 @@ export default function BashWorkshop(){
         :'Sprawdź i popraw'}</strong>
       <p>{blindDecision&&result.completed&&!verifiedBlind?
         recoveryCheck?
-          'Symulacja wykonana. Wskaż dowody potwierdzające bezpieczną naprawę.':
+          'Symulacja wykonana. Porównaj konkretne wyniki przed i po naprawie.':
           decisionFeedback?.matched?
             'Decyzja przyjęta. Zweryfikuj jej skutki w odizolowanym symulatorze.':
             'Sprawdź przebieg i zdecyduj, jaka minimalna interwencja wynika z dowodów.':
@@ -479,8 +481,8 @@ export default function BashWorkshop(){
               setRemediation(e.target.value as RemediationChoice);
               setSubmittedRemediation('');
               setRecoveryCheck(null);
-              setSelectedEvidence([]);
-              setSubmittedEvidence(null);
+              setSelectedConclusion('');
+              setSubmittedConclusion('');
             }}>
             <option value="">Wybierz minimalne działanie</option>
             <option value="directory-x">Przywróć właścicielowi x na katalogu</option>
@@ -492,8 +494,8 @@ export default function BashWorkshop(){
             onClick={()=>{
               setSubmittedRemediation(remediation);
               setRecoveryCheck(null);
-              setSelectedEvidence([]);
-              setSubmittedEvidence(null);
+              setSelectedConclusion('');
+              setSubmittedConclusion('');
             }}>
             Sprawdź
           </button>
@@ -513,24 +515,33 @@ export default function BashWorkshop(){
               W symulacji wykorzystano zweryfikowaną kopię treningową.
               To nie dowodzi, że taka kopia istnieje w prawdziwym środowisku.
             </small>}
-            <fieldset className="workshop-evidence-choices">
-              <legend>Jakie trzy niezależne kontrole są potrzebne?
-                Zaznacz dowody, nie sam fakt uruchomienia komendy.</legend>
-              {recoveryEvidenceOptions.map(option=><label key={option.id}>
-                <input type="checkbox" checked={selectedEvidence.includes(option.id)}
-                  onChange={e=>{
-                    setSelectedEvidence(previous=>e.target.checked?
-                      [...previous,option.id]:previous.filter(id=>id!==option.id));
-                    setSubmittedEvidence(null);
-                  }}/>
-                <span>{option.label}</span>
-              </label>)}
-            </fieldset>
-            <button type="button" className="workshop-evidence-submit"
-              disabled={selectedEvidence.length===0}
-              onClick={()=>setSubmittedEvidence([...selectedEvidence])}>
-              Oceń dowody
-            </button>
+            {concreteEvidence&&<div className="workshop-concrete-evidence">
+              <table aria-label="Wyniki przed i po naprawie">
+                <thead><tr><th scope="col">Dowód</th><th scope="col">Przed</th>
+                  <th scope="col">Po</th></tr></thead>
+                <tbody>{concreteEvidence.rows.map(row=><tr key={row.label}>
+                  <th scope="row">{row.label}</th>
+                  <td>{row.before}</td><td>{row.after}</td>
+                </tr>)}</tbody>
+              </table>
+              <label htmlFor="workshop-evidence-conclusion">
+                {concreteEvidence.question}
+              </label>
+              <select id="workshop-evidence-conclusion" value={selectedConclusion}
+                onChange={e=>{
+                  setSelectedConclusion(e.target.value as EvidenceInterpretation|'');
+                  setSubmittedConclusion('');
+                }}>
+                <option value="">Wybierz wniosek z danych</option>
+                {concreteEvidence.options.map(option=><option key={option.id}
+                  value={option.id}>{option.label}</option>)}
+              </select>
+              <button type="button" className="workshop-evidence-submit"
+                disabled={!selectedConclusion}
+                onClick={()=>setSubmittedConclusion(selectedConclusion)}>
+                Oceń wniosek
+              </button>
+            </div>}
             {evidenceFeedback&&<p role="status" className="workshop-evidence-feedback">
               {evidenceFeedback.message}
             </p>}
