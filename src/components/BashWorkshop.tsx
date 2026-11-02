@@ -5,11 +5,10 @@ import {emptyUndoHistory,recordEditorEdit,undoEditorEdit,
   type EditKind} from '../core/editorUndo';
 import {sourceLineRange} from '../core/workshopSourceLines';
 import {compareExitPrediction,compareCausePrediction,type CausePrediction,type ExitPrediction} from '../core/workshopPrediction';
-import type {RecoveryVariant} from '../core/pathRecovery';
 import {workshopScenarios,workshopInitialScript,workshopDraftKey,
   repairWorkshopDraftKey,repairWorkshopStarter,
   pathblockWorkshopDraftKey,pathblockWorkshopStarter,
-  type WorkshopId,type RepairWorkshopVariant} from '../core/workshopScenarios';
+  type WorkshopId,type RepairWorkshopVariant,type PathWorkshopVariant,type BlindCause} from '../core/workshopScenarios';
 import {
   WORKSHOP_MAX_CHARS,runWorkshop,
   type WorkshopResult
@@ -42,19 +41,24 @@ function restoreRepairCase():RepairWorkshopVariant {
   }
   catch{return 'intro';}
 }
-function restorePathCase():RecoveryVariant {
-  try{return localStorage.getItem(PATH_CASE_KEY)==='transfer'?'transfer':'intro';}
-  catch{return 'intro';}
+function restorePathCase():PathWorkshopVariant {
+  try{
+    const value=localStorage.getItem(PATH_CASE_KEY);
+    return value==='transfer'||value==='blind'?value:'intro';
+  }catch{return 'intro';}
 }
-function initialDraft(id:WorkshopId,repairCase:RepairWorkshopVariant,pathCase:RecoveryVariant):string{
+function randomBlindCause():BlindCause {
+  return Math.random()<0.5?'directory':'file';
+}
+function initialDraft(id:WorkshopId,repairCase:RepairWorkshopVariant,pathCase:PathWorkshopVariant):string{
   return id==='repair'?repairWorkshopStarter(repairCase):
     id==='pathblock'?pathblockWorkshopStarter(pathCase):workshopInitialScript(id);
 }
-function draftKey(id:WorkshopId,repairCase:RepairWorkshopVariant,pathCase:RecoveryVariant):string{
+function draftKey(id:WorkshopId,repairCase:RepairWorkshopVariant,pathCase:PathWorkshopVariant):string{
   return id==='repair'?repairWorkshopDraftKey(repairCase):
     id==='pathblock'?pathblockWorkshopDraftKey(pathCase):workshopDraftKey(id);
 }
-function restoreDraft(id:WorkshopId,repairCase:RepairWorkshopVariant,pathCase:RecoveryVariant):string{
+function restoreDraft(id:WorkshopId,repairCase:RepairWorkshopVariant,pathCase:PathWorkshopVariant):string{
   const starter=initialDraft(id,repairCase,pathCase);
   try{
     const saved=localStorage.getItem(draftKey(id,repairCase,pathCase));
@@ -66,7 +70,8 @@ function restoreDraft(id:WorkshopId,repairCase:RepairWorkshopVariant,pathCase:Re
 export default function BashWorkshop(){
   const [scenario,setScenario]=useState<WorkshopId>(restoreScenario);
   const [repairCase,setRepairCase]=useState<RepairWorkshopVariant>(restoreRepairCase);
-  const [pathCase,setPathCase]=useState<RecoveryVariant>(restorePathCase);
+  const [pathCase,setPathCase]=useState<PathWorkshopVariant>(restorePathCase);
+  const [blindCause,setBlindCause]=useState<BlindCause>(randomBlindCause);
   const [draft,setDraft]=useState(()=>restoreDraft(restoreScenario(),restoreRepairCase(),restorePathCase()));
   const [prediction,setPrediction]=useState<ExitPrediction>('');
   const [causePrediction,setCausePrediction]=useState<CausePrediction>('');
@@ -86,7 +91,7 @@ export default function BashWorkshop(){
     fit();
     window.addEventListener('resize',fit);
     return ()=>window.removeEventListener('resize',fit);
-  },[draft,scenario,repairCase]);
+  },[draft,scenario,repairCase,pathCase]);
   useLayoutEffect(()=>{
     if(pendingCursor.current===null)return;
     const selection=pendingCursor.current;
@@ -139,9 +144,10 @@ export default function BashWorkshop(){
     pendingCursor.current=null;
     try{localStorage.setItem(REPAIR_CASE_KEY,next);}catch{/* private browsing */}
   };
-  const togglePathCase=()=>{
-    const next:RecoveryVariant=pathCase==='intro'?'transfer':'intro';
+  const selectPathCase=(next:PathWorkshopVariant)=>{
+    if(next===pathCase)return;
     setPathCase(next);
+    if(next==='blind')setBlindCause(randomBlindCause());
     setDraft(restoreDraft('pathblock',repairCase,next));
     setPrediction('');
     setSubmittedPrediction('');
@@ -154,6 +160,22 @@ export default function BashWorkshop(){
     cursor.current=null;
     pendingCursor.current=null;
     try{localStorage.setItem(PATH_CASE_KEY,next);}catch{/* private browsing */}
+  };
+  const nextBlindIncident=()=>{
+    setBlindCause(randomBlindCause());
+    setCausePrediction('');
+    setSubmittedCause('');
+    setPrediction('');
+    setSubmittedPrediction('');
+    setResult(null);
+    setEditorNotice('');
+    // A fresh case requires a fresh recall attempt, not replaying old text.
+    setDraft('');
+    try{localStorage.setItem(pathblockWorkshopDraftKey('blind'),'');}catch{/* private browsing */}
+    undoHistory.current=emptyUndoHistory();
+    setCanUndo(false);
+    cursor.current=null;
+    pendingCursor.current=null;
   };
   const recordEdit=(next:string,kind:EditKind,
     before:{start:number;end:number},after:{start:number;end:number})=>{
@@ -199,7 +221,9 @@ export default function BashWorkshop(){
     // Freeze the answer at run time; edits or post-result selections cannot backfill it.
     setSubmittedPrediction(prediction);
     setSubmittedCause(scenario==='pathblock'?causePrediction:'');
-    setResult(runWorkshop(draft,scenario,scenario==='pathblock'?pathCase:repairCase));
+    setResult(runWorkshop(draft,scenario,
+      scenario==='pathblock'?(pathCase==='blind'?'intro':pathCase):repairCase,
+      scenario==='pathblock'&&pathCase==='blind'?blindCause:null));
   };
   const focusErrorLine=()=>{
     const element=editor.current;
@@ -238,16 +262,28 @@ export default function BashWorkshop(){
         <option value="file">Plik · samodzielnie</option>
       </select>
     </label>}
-    {scenario==='pathblock'&&<button type="button" className="workshop-repair-variant"
-      onClick={togglePathCase} aria-label={pathCase==='intro'?
-        'Przejdź do samodzielnej diagnozy odmowy odczytu':'Powróć do diagnozy katalogu z pomocą'}>
-      {pathCase==='intro'?'Samodzielna diagnoza →':'← Wariant z pomocą'}
-    </button>}
+    {scenario==='pathblock'&&<label className="workshop-repair-case-picker" htmlFor="workshop-path-case">
+      <span>Przypadek</span>
+      <select id="workshop-path-case" value={pathCase}
+        onChange={e=>selectPathCase(e.target.value as PathWorkshopVariant)}>
+        <option value="intro">Katalog · z pomocą</option>
+        <option value="transfer">Plik · samodzielnie</option>
+        <option value="blind">Ślepy incydent · bez podpowiedzi</option>
+      </select>
+    </label>}
+    {scenario==='pathblock'&&pathCase==='blind'&&
+      <button type="button" className="workshop-repair-variant" onClick={nextBlindIncident}>
+        Nowy incydent
+      </button>}
     {scenario==='repair'&&repairCase==='file'?<p className="workshop-task">
       Dyżur SOC: wirtualny <code>~/practice/checks/locked.log</code> istnieje,
       ale aplikacja nie może go odczytać. Rozpoznaj przyczynę, przywróć
       wyłącznie niezbędne prawo i zweryfikuj odczyt, nie modyfikując
       treści ani innych uprawnień.</p>
+    :scenario==='pathblock'&&pathCase==='blind'?<p className="workshop-task">
+      Dyżur: plik <code>~/practice/diagnostics/service.log</code> nie daje się odczytać.
+      Przyczyna jest ukryta. Najpierw postaw hipotezę, następnie zbierz dowody
+      i rozstrzygnij problem bez zmieniania plików ani praw.</p>
     :scenario==='pathblock'&&pathCase==='transfer'?<p className="workshop-task">
       Incydent: plik <code>~/practice/checks/locked.log</code> istnieje,
       lecz odczyt kończy się odmową dostępu. Zbierz dowód nieudanego testu
@@ -336,7 +372,12 @@ export default function BashWorkshop(){
           {scenario==='backup'&&<option value="2">2 kopie</option>}
         </select>
       </label>}
-      <button type="button" onClick={run}>Uruchom <span aria-hidden="true">▶</span></button>
+      <button type="button" onClick={run}
+        disabled={scenario==='pathblock'&&pathCase==='blind'&&causePrediction===''}
+        title={scenario==='pathblock'&&pathCase==='blind'&&causePrediction===''?
+          'Najpierw postaw hipotezę':'Uruchom wirtualny skrypt'}>
+        Uruchom <span aria-hidden="true">▶</span>
+      </button>
     </div>
     <p className="workshop-limit" id="workshop-editor-help">Tylko wirtualny Linux · bez poleceń hosta i sieci.</p>
     {result&&<div className={'workshop-result '+(result.completed?'completed':'incomplete')}
@@ -401,6 +442,9 @@ export default function BashWorkshop(){
         <code> namei -l</code>, minimalnego <code>chmod u+x</code> i końcowego
         <code> cat</code>. Możesz też ustawić dokładny tryb <code>700</code>.
         Nie stosuj praw dla grupy lub pozostałych.</p>
+       :scenario==='pathblock'&&pathCase==='blind'?<p>Bez gotowego skryptu.
+         Sprawdź odmowę dostępu, kod zakończenia i poszczególne elementy ścieżki.
+         Rozróżnij brak przejścia przez katalog od braku odczytu pliku.</p>
        :scenario==='pathblock'&&pathCase==='transfer'?<p>Bez gotowego skryptu.
         Porównaj zachowanie z wariantem katalogowym. Zwróć uwagę, co naprawdę
         pokazuje wynik polecenia badającego każdy składnik ścieżki.</p>

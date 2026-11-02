@@ -28,11 +28,13 @@ export type CausePrediction=''|'directory'|'file';
 export function compareCausePrediction(predicted:CausePrediction,result:Pick<WorkshopResult,'steps'>) {
   if(!predicted)return null;
   const steps=result.steps;
-  const index=steps.findIndex(step=>step.command==='test'&&step.exitCode===1);
-  const echo=steps[index+1],inspect=steps[index+2];
+  const index=steps.findIndex(step=>
+    step.command==='test'&&step.testFlag==='-r'&&step.exitCode===1&&!!step.target);
+  const testStep=steps[index],echo=steps[index+1],inspect=steps[index+2];
   let observed:'directory'|'file'|null=null;
   if(index>=0&&echo?.command==='echo'&&echo.output==='1'&&
-     inspect?.command==='namei'&&inspect.exitCode===0&&inspect.output.startsWith('f: ')){
+     inspect?.command==='namei'&&inspect.target===testStep?.target&&
+     inspect.exitCode===0&&inspect.output.startsWith('f: '+testStep.target+'\n')){
     if(inspect.blockedAt)observed='directory';
     else if(inspect.output.trimEnd().split('\n').at(-1)?.startsWith('---------- '))observed='file';
   }
