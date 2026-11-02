@@ -9,7 +9,7 @@ import type {RecoveryVariant} from '../core/pathRecovery';
 import {workshopScenarios,workshopInitialScript,workshopDraftKey,
   repairWorkshopDraftKey,repairWorkshopStarter,
   pathblockWorkshopDraftKey,pathblockWorkshopStarter,
-  type WorkshopId} from '../core/workshopScenarios';
+  type WorkshopId,type RepairWorkshopVariant} from '../core/workshopScenarios';
 import {
   WORKSHOP_MAX_CHARS,runWorkshop,
   type WorkshopResult
@@ -35,23 +35,26 @@ function restoreScenario():WorkshopId{
   }
   catch{return 'backup';}
 }
-function restoreRepairCase():RecoveryVariant {
-  try{return localStorage.getItem(REPAIR_CASE_KEY)==='transfer'?'transfer':'intro';}
+function restoreRepairCase():RepairWorkshopVariant {
+  try{
+    const saved=localStorage.getItem(REPAIR_CASE_KEY);
+    return saved==='file'||saved==='transfer'?saved:'intro';
+  }
   catch{return 'intro';}
 }
 function restorePathCase():RecoveryVariant {
   try{return localStorage.getItem(PATH_CASE_KEY)==='transfer'?'transfer':'intro';}
   catch{return 'intro';}
 }
-function initialDraft(id:WorkshopId,repairCase:RecoveryVariant,pathCase:RecoveryVariant):string{
+function initialDraft(id:WorkshopId,repairCase:RepairWorkshopVariant,pathCase:RecoveryVariant):string{
   return id==='repair'?repairWorkshopStarter(repairCase):
     id==='pathblock'?pathblockWorkshopStarter(pathCase):workshopInitialScript(id);
 }
-function draftKey(id:WorkshopId,repairCase:RecoveryVariant,pathCase:RecoveryVariant):string{
+function draftKey(id:WorkshopId,repairCase:RepairWorkshopVariant,pathCase:RecoveryVariant):string{
   return id==='repair'?repairWorkshopDraftKey(repairCase):
     id==='pathblock'?pathblockWorkshopDraftKey(pathCase):workshopDraftKey(id);
 }
-function restoreDraft(id:WorkshopId,repairCase:RecoveryVariant,pathCase:RecoveryVariant):string{
+function restoreDraft(id:WorkshopId,repairCase:RepairWorkshopVariant,pathCase:RecoveryVariant):string{
   const starter=initialDraft(id,repairCase,pathCase);
   try{
     const saved=localStorage.getItem(draftKey(id,repairCase,pathCase));
@@ -62,7 +65,7 @@ function restoreDraft(id:WorkshopId,repairCase:RecoveryVariant,pathCase:Recovery
 /** One compact mobile screen, one task, one run; no multi-panel wizard. */
 export default function BashWorkshop(){
   const [scenario,setScenario]=useState<WorkshopId>(restoreScenario);
-  const [repairCase,setRepairCase]=useState<RecoveryVariant>(restoreRepairCase);
+  const [repairCase,setRepairCase]=useState<RepairWorkshopVariant>(restoreRepairCase);
   const [pathCase,setPathCase]=useState<RecoveryVariant>(restorePathCase);
   const [draft,setDraft]=useState(()=>restoreDraft(restoreScenario(),restoreRepairCase(),restorePathCase()));
   const [prediction,setPrediction]=useState<ExitPrediction>('');
@@ -115,8 +118,8 @@ export default function BashWorkshop(){
     pendingCursor.current=null;
     try{localStorage.setItem(SELECTION_KEY,next);}catch{/* private browsing */}
   };
-  const toggleRepairCase=()=>{
-    const next:RecoveryVariant=repairCase==='intro'?'transfer':'intro';
+  const selectRepairCase=(next:RepairWorkshopVariant)=>{
+    if(next===repairCase)return;
     setRepairCase(next);
     setDraft(restoreDraft('repair',next,pathCase));
     setPrediction('');
@@ -215,17 +218,26 @@ export default function BashWorkshop(){
       </label>
     </div>
     <h2>{workshopScenarios.find(item=>item.id===scenario)?.title}</h2>
-    {scenario==='repair'&&<button type="button" className="workshop-repair-variant"
-      onClick={toggleRepairCase} aria-label={repairCase==='intro'?
-        'Przejdź do samodzielnego przypadku naprawy':'Powróć do wariantu naprawy z pomocą'}>
-      {repairCase==='intro'?'Samodzielny przypadek →':'← Wariant z pomocą'}
-    </button>}
+    {scenario==='repair'&&<label className="workshop-repair-case-picker" htmlFor="workshop-repair-case">
+      <span>Przypadek</span>
+      <select id="workshop-repair-case" value={repairCase}
+        onChange={e=>selectRepairCase(e.target.value as RepairWorkshopVariant)}>
+        <option value="intro">Katalog · z pomocą</option>
+        <option value="transfer">Katalog · samodzielnie</option>
+        <option value="file">Plik · samodzielnie</option>
+      </select>
+    </label>}
     {scenario==='pathblock'&&<button type="button" className="workshop-repair-variant"
       onClick={togglePathCase} aria-label={pathCase==='intro'?
         'Przejdź do samodzielnej diagnozy odmowy odczytu':'Powróć do diagnozy katalogu z pomocą'}>
       {pathCase==='intro'?'Samodzielna diagnoza →':'← Wariant z pomocą'}
     </button>}
-    {scenario==='pathblock'&&pathCase==='transfer'?<p className="workshop-task">
+    {scenario==='repair'&&repairCase==='file'?<p className="workshop-task">
+      Dyżur SOC: wirtualny <code>~/practice/checks/locked.log</code> istnieje,
+      ale aplikacja nie może go odczytać. Rozpoznaj przyczynę, przywróć
+      wyłącznie niezbędne prawo i zweryfikuj odczyt, nie modyfikując
+      treści ani innych uprawnień.</p>
+    :scenario==='pathblock'&&pathCase==='transfer'?<p className="workshop-task">
       Incydent: plik <code>~/practice/checks/locked.log</code> istnieje,
       lecz odczyt kończy się odmową dostępu. Zbierz dowód nieudanego testu
       i ustal, czy przeszkoda leży w katalogu, czy w prawach pliku.
@@ -352,7 +364,10 @@ export default function BashWorkshop(){
     </div>}
     <details className="workshop-help">
       <summary>Składnia i rozpoczęcie od nowa</summary>
-      {scenario==='repair'&&repairCase==='transfer'?<p>Bez gotowego szablonu.
+      {scenario==='repair'&&repairCase==='file'?<p>Bez gotowego szablonu.
+        Zidentyfikuj właściwy element ścieżki i przywróć jedynie to uprawnienie,
+        którego brak powoduje incydent. Unikaj chmod 777 i nie zmieniaj danych.</p>
+       :scenario==='repair'&&repairCase==='transfer'?<p>Bez gotowego szablonu.
         Rozwiąż incydent na podstawie zgłoszenia. Jeśli utkniesz,
         możesz wrócić do wariantu z pomocą i ponownie spróbować samodzielnie.</p>
        :scenario==='repair'?<p>W czterech liniach użyj <code>BASE=~/practice</code>,
@@ -390,7 +405,7 @@ export default function BashWorkshop(){
         cursor.current=null;
         pendingCursor.current=null;
         change(template);setPrediction('');
-      }}>{scenario==='transfer'||(scenario==='repair'&&repairCase==='transfer')||
+      }}>{scenario==='transfer'||(scenario==='repair'&&repairCase!=='intro')||
         (scenario==='pathblock'&&pathCase==='transfer')?
         'Wyczyść skrypt':'Wstaw pusty szablon'}</button>
     </details>

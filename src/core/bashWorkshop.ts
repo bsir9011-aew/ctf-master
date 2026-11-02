@@ -1,12 +1,12 @@
 import {createAcademyState} from './commandAcademy.ts';
-import {recoveryFixture,type RecoveryVariant} from './pathRecovery.ts';
+import {recoveryFixture} from './pathRecovery.ts';
 import {modeOf} from './permissions.ts';
 import {executeLinux,type CommandResult,type LinuxState} from './linux.ts';
 import {parseConditionals} from './conditionals.ts';
 import {parseForLoop} from './forLoop.ts';
 import {scanShell} from './shellSyntax.ts';
 import {workshopSourceLines,type SourceLine} from './workshopSourceLines.ts';
-import {type WorkshopId} from './workshopScenarios.ts';
+import {type WorkshopId,type RepairWorkshopVariant} from './workshopScenarios.ts';
 export {WORKSHOP_DEFAULT} from './workshopScenarios.ts';
 
 export const WORKSHOP_MAX_LINES=4;
@@ -83,7 +83,7 @@ const wordsOnly=(raw:string):string[]|null=>{
  * The entire program is checked before executing ANY file-changing command.
  */
 function preflight(lines:readonly SourceLine[],seed:LinuxState,scenario:WorkshopId,
-  repairVariant:RecoveryVariant):{feedback:string;line:number}|null{
+  repairVariant:RepairWorkshopVariant):{feedback:string;line:number}|null{
   let simulated=seed;
   for(let i=0;i<lines.length;i++){
     const {raw:line,line:number}=lines[i];
@@ -124,15 +124,22 @@ function preflight(lines:readonly SourceLine[],seed:LinuxState,scenario:Workshop
     if(scenario==='repair'){
       // Whole-script allowlist BEFORE executing any chmod. These are source
       // spellings, NOT completion checks (completion uses executed state).
-      const fix=recoveryFixture(repairVariant);
-      const suffixFile=fix.file.slice(PRACTICE.length);
-      const suffixDir=fix.directory.slice(PRACTICE.length);
+      const file=repairVariant==='file'?UNREADABLE_FILE:
+        recoveryFixture(repairVariant).file;
+      const suffixFile=file.slice(PRACTICE.length);
       const filePaths=['$BASE'+suffixFile,'${BASE}'+suffixFile,'~/practice'+suffixFile];
-      const dirPaths=['$BASE'+suffixDir,'${BASE}'+suffixDir,'~/practice'+suffixDir];
       if(words.length===3&&words[0]==='namei'&&words[1]==='-l'&&filePaths.includes(words[2]))continue;
-      if(words.length===3&&words[0]==='chmod'&&['u+x','700','0700'].includes(words[1])&&
-        dirPaths.includes(words[2]))continue;
       if(words.length===2&&words[0]==='cat'&&filePaths.includes(words[1]))continue;
+      if(repairVariant==='file'){
+        if(words.length===3&&words[0]==='chmod'&&['u+r','400','0400'].includes(words[1])&&
+          filePaths.includes(words[2]))continue;
+      } else {
+        const fix=recoveryFixture(repairVariant);
+        const suffixDir=fix.directory.slice(PRACTICE.length);
+        const dirPaths=['$BASE'+suffixDir,'${BASE}'+suffixDir,'~/practice'+suffixDir];
+        if(words.length===3&&words[0]==='chmod'&&['u+x','700','0700'].includes(words[1])&&
+          dirPaths.includes(words[2]))continue;
+      }
     }
     if(scenario!=='backup'&&/^echo\s+\$\?$/u.test(line))continue;
     return fail(scenario==='repair'?(repairVariant==='transfer'?
@@ -148,9 +155,9 @@ function preflight(lines:readonly SourceLine[],seed:LinuxState,scenario:Workshop
  * script appear successful. Never accept scripts, paths, or shell on the host.
  */
 export function runWorkshop(script:string,scenario:WorkshopId='backup',
-  repairVariant:RecoveryVariant='intro'):WorkshopResult {
+  repairVariant:RepairWorkshopVariant='intro'):WorkshopResult {
   const academy=createAcademyState();
-  const fixture=recoveryFixture(repairVariant);
+  const fixture=recoveryFixture(repairVariant==='file'?'intro':repairVariant);
   const pathblockFile=repairVariant==='transfer'?UNREADABLE_FILE:BLOCKED_FILE;
   // The alternate incident lives ONLY in this fresh virtual run. No changes
   // to Academy seeds, persisted user data or the guided repair fixture.
@@ -207,6 +214,40 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup',
       'Ustaw BASE=~/practice. Ta zmienna określa katalog logów.',state,steps,
       lines.find(x=>/^BASE=/.test(x.raw))?.line);
   if(scenario==='repair'){
+    if(repairVariant==='file'){
+      const file=UNREADABLE_FILE;
+      const inspect=events[1],fix=events[2],read=events[3];
+      if(events.length!==4||events[0]?.command!=='variable'||
+        inspect?.command!=='namei'||!inspect.ok||
+        inspect.target!==file||inspect.blockedAt!==undefined||
+        modeOf(initial,file)!==0o000)
+        return error('Brakuje potwierdzenia przyczyny odmowy dostępu do wskazanego pliku.',
+          state,steps,lines[1]?.line);
+      if(fix?.command!=='chmod'||!fix.ok||fix.target!==file||
+        modeOf(fix.state,file)!==0o400)
+        return error('Zmiana nie przywróciła minimalnego odczytu wyłącznie właścicielowi pliku.',
+          state,steps,lines[2]?.line);
+      if(read?.command!=='cat'||!read.ok||read.target!==file||
+        read.output!==initial.files[file])
+        return error('Brakuje potwierdzenia odczytu właściwego pliku po naprawie.',
+          state,steps,lines[3]?.line);
+      const sameRecords=(a:Record<string,unknown>,b:Record<string,unknown>)=>
+        Object.keys(a).length===Object.keys(b).length&&
+        Object.keys(a).every(key=>Object.hasOwn(b,key)&&a[key]===b[key]);
+      const before=initial.permissions??{},after=state.permissions??{};
+      const minimallyChanged=Object.keys(before).length===Object.keys(after).length&&
+        Object.keys(before).every(path=>after[path]===(path===file?0o400:before[path]));
+      if(!minimallyChanged||!sameRecords(state.files,initial.files)||
+        !sameRecords(state.ownership??{},initial.ownership??{})||
+        !sameRecords(state.variables??{}, {...(initial.variables??{}),BASE:'~/practice'})||
+        state.dirs.length!==initial.dirs.length||
+        state.dirs.some((path,i)=>path!==initial.dirs[i]))
+        return error('Zmieniono inne dane, zmienne lub uprawnienia - wymagana minimalna naprawa.',
+          state,steps);
+      return {completed:true,
+        feedback:'Plik odzyskany: namei wskazało brak r na pliku (000); przywrócono tylko odczyt właścicielowi (400) i potwierdzono jego zawartość. Pozostałe prawa i dane bez zmian.',
+        steps,state};
+    }
     const blockedFile=fixture.file,blockedDir=fixture.directory;
     const expectedContent=fixture.content;
     const notice=(guided:string,independent:string)=>
