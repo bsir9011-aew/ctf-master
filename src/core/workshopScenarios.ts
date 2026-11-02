@@ -42,7 +42,7 @@ export const repairWorkshopStarter=(variant:RepairWorkshopVariant)=>
 
 /** Existing guided/independent drafts are kept; blind cases share one new draft. */
 export type PathWorkshopVariant='intro'|'transfer'|'blind';
-export type BlindCause='directory'|'file';
+export type BlindCause='directory'|'file'|'missing';
 export const pathblockWorkshopDraftKey=(variant:PathWorkshopVariant)=>
   variant==='blind'?'ctf-master:bash-workshop-pathblock-blind-draft-v1':
   variant==='transfer'?'ctf-master:bash-workshop-pathblock-transfer-draft-v1':
