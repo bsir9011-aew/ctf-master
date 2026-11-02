@@ -40,19 +40,37 @@ export function serviceWorldForTicket(id:ServiceTicketId):LinuxState{
   } as const;
   if(id!=='reporter'&&id!=='scheduler'&&id!=='gateway')return state;
   const seed=cases[id];
-  return {...state,
-    processes:[...(state.processes??[]),{
-      pid:seed.pid,name:seed.name,running:false,service:id
-    }],
-    services:{...state.services,[id]:{
-      pid:seed.pid,status:'failed' as const,journal:[...seed.journal]
-    }}
-  };
+  const processes=[...(state.processes??[]),{
+    pid:seed.pid,name:seed.name,running:false,service:id
+  }];
+  const services={...state.services,[id]:{
+    pid:seed.pid,status:'failed' as const,journal:[...seed.journal]
+  }};
+  if(id==='scheduler'){
+    // Dependency really is down in the virtual system. No external Redis.
+    processes.push({pid:620,name:'redis-server',running:false,service:'redis'});
+    services.redis={pid:620,status:'failed',journal:[
+      '09:11 redis: startup failed: data directory unavailable',
+      '09:11 systemd: redis.service failed'
+    ]};
+  }
+  if(id==='gateway'){
+    // A different *running* process owns port 8080, as ss -ltnp will show.
+    processes.push({pid:615,name:'legacy-proxy',running:true,
+      service:'legacy-proxy',listeningPort:8080});
+    services['legacy-proxy']={pid:615,status:'active',
+      journal:['09:00 legacy-proxy: listening on 0.0.0.0:8080']};
+  }
+  return {...state,processes,services};
 }
 const blank=(state:LinuxState,feedback:string,line?:number):WorkshopResult=>({
   completed:false,feedback,state,steps:[],errorLine:line
 });
-const inputAllowed=(input:string,service:string)=>{
+const inputAllowed=(input:string,service:string,id:ServiceTicketId)=>{
+  if(id==='scheduler'&&
+     (input==='systemctl status redis'||input==='systemctl status redis.service'))
+    return 'dependency';
+  if(id==='gateway'&&input==='ss -ltnp')return 'socket';
   if(input==='ps'||input==='ps aux')return 'ps';
   if(input===`systemctl status ${service}`||
      input===`systemctl status ${service}.service`)return 'status';
@@ -64,17 +82,23 @@ export function runServiceWorkshop(script:string,id:ServiceTicketId='web'):Works
   const initial=serviceWorldForTicket(id),ticket=serviceTicket(id);
   if(script.length>700)return blank(initial,'Skrypt jest za długi (maksymalnie 700 znaków).');
   const lines=workshopSourceLines(script);
-  if(lines.length!==3)
-    return blank(initial,'Do tego zgłoszenia użyj dokładnie trzech krótkich poleceń diagnostycznych (ps, systemctl status, journalctl -u).');
+  const extra=id==='scheduler'?'dependency':id==='gateway'?'socket':null;
+  const expectedLength=extra?4:3;
+  if(lines.length!==expectedLength)return blank(initial,extra?
+    'Zbierz cztery dowody: ps, status usługi, jej journal oraz '+(
+      extra==='dependency'?'status redis.service.':'listę portów ss -ltnp.') :
+    'Do tego zgłoszenia użyj dokładnie trzech krótkich poleceń diagnostycznych (ps, systemctl status, journalctl -u).');
   // Full preflight BEFORE executing any command, blocking kill/restart/stop,
   // redirection, shell chaining and all host/network commands.
-  const categories=lines.map(line=>inputAllowed(line.raw,ticket.service));
+  const categories=lines.map(line=>inputAllowed(line.raw,ticket.service,id));
   if(categories.some(item=>item===null)){
     const index=categories.indexOf(null);
     return blank(initial,'Polecenie spoza bezpiecznej diagnostyki właściwej usługi. Użyj tylko ps, systemctl status i journalctl -u.',lines[index].line);
   }
-  if(new Set(categories).size!==3)
-    return blank(initial,'Potrzebujesz trzech różnych obserwacji: procesu, statusu i dziennika usługi.');
+  const required=['ps','status','journal',...(extra?[extra]:[])];
+  if(new Set(categories).size!==expectedLength||
+     !required.every(category=>categories.includes(category)))
+    return blank(initial,'Potrzebujesz różnych dowodów dla tej usługi i wskazanego zasobu pomocniczego.');
   const steps:WorkshopStep[]=[];
   let state=initial;
   for(const line of lines){
@@ -111,11 +135,17 @@ export function observedServiceDiagnosis(
   result:Pick<WorkshopResult,'steps'|'state'>,id:ServiceTicketId
 ):Exclude<ServiceDiagnosis,''>|null{
   const ticket=serviceTicket(id),steps=result.steps;
-  if(steps.length!==3)return null;
-  const status=steps.find(s=>s.command==='systemctl');
+  const extra=id==='scheduler'?'dependency':id==='gateway'?'socket':null;
+  if(steps.length!==(extra?4:3))return null;
+  const status=steps.find(s=>s.command==='systemctl'&&
+    s.target===ticket.service+'.service');
   const journal=steps.find(s=>s.command==='journalctl');
   const ps=steps.find(s=>s.command==='ps');
+  const auxiliary=extra?steps.find(s=>extra==='dependency'?
+    s.command==='systemctl'&&s.target==='redis.service':
+    s.command==='ss'&&s.target==='tcp-listeners'):undefined;
   if(!status||!journal||!ps||
+     (extra&&!auxiliary)||
      status.exitCode!==0||journal.exitCode!==0||ps.exitCode!==0||
      status.target!==ticket.service+'.service'||
      journal.target!==status.target||ps.target!==undefined)return null;
@@ -129,6 +159,25 @@ export function observedServiceDiagnosis(
   if(!actualStatus.ok||!actualJournal.ok||!actualProcesses.ok||
      status.output!==actualStatus.output||journal.output!==actualJournal.output||
      ps.output!==actualProcesses.output)return null;
+  if(extra==='dependency'){
+    const redis=executeLinux(result.state,'systemctl status redis.service');
+    const redisState=result.state.services?.redis;
+    const redisProcess=result.state.processes?.find(p=>p.service==='redis');
+    if(!auxiliary||auxiliary.exitCode!==0||auxiliary.output!==redis.output||
+       auxiliary.target!==redis.target||!redis.ok||
+       redisState?.status!=='failed'||redisProcess?.running!==false||
+       !redis.output.includes(' Active: failed\n'))return null;
+  }
+  if(extra==='socket'){
+    const socket=executeLinux(result.state,'ss -ltnp');
+    const owner=result.state.processes?.find(p=>p.listeningPort===8080&&p.running);
+    const ownerService=owner?.service&&result.state.services?.[owner.service];
+    if(!auxiliary||auxiliary.exitCode!==0||!socket.ok||
+       auxiliary.output!==socket.output||auxiliary.target!==socket.target||
+       !owner||ownerService?.status!=='active'||owner.service==='gateway'||
+       !socket.output.includes('0.0.0.0:8080')||
+       !socket.output.includes('"'+owner.name+'",pid='+owner.pid+',fd=3'))return null;
+  }
   const service=result.state.services?.[ticket.service];
   const proc=result.state.processes?.find(p=>p.service===ticket.service);
   if(!service||!proc||proc.pid!==service.pid)return null;
