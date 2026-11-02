@@ -399,9 +399,13 @@ export default function BashWorkshop(){
     {scenario==='pathblock'&&<label className="workshop-editor-label" htmlFor="workshop-cause-prediction">
       Hipoteza przed uruchomieniem
       <select id="workshop-cause-prediction" value={causePrediction}
-        onChange={e=>{setCausePrediction(e.target.value as CausePrediction);setSubmittedCause('');setRecoveryCheck(null);
-    setSelectedEvidence([]);
-    setSubmittedEvidence(null);}}>
+        onChange={e=>{
+          setCausePrediction(e.target.value as CausePrediction);
+          setSubmittedCause('');
+          setRecoveryCheck(null);
+          setSelectedEvidence([]);
+          setSubmittedEvidence(null);
+        }}>
         <option value="">Bez hipotezy</option>
         <option value="directory">Brak x w katalogu</option>
         <option value="file">Brak r w pliku</option>
@@ -485,9 +489,12 @@ export default function BashWorkshop(){
             <option value="chmod-777">Nadaj 777 wszystkim</option>
           </select>
           <button type="button" disabled={!remediation}
-            onClick={()=>{setSubmittedRemediation(remediation);setRecoveryCheck(null);
-    setSelectedEvidence([]);
-    setSubmittedEvidence(null);}}>
+            onClick={()=>{
+              setSubmittedRemediation(remediation);
+              setRecoveryCheck(null);
+              setSelectedEvidence([]);
+              setSubmittedEvidence(null);
+            }}>
             Sprawdź
           </button>
         </div>
@@ -507,8 +514,8 @@ export default function BashWorkshop(){
               To nie dowodzi, że taka kopia istnieje w prawdziwym środowisku.
             </small>}
             <fieldset className="workshop-evidence-choices">
-              <legend>Co potwierdza skuteczną i bezpieczną naprawę?
-                Wybierz wszystkie potrzebne dowody.</legend>
+              <legend>Jakie trzy niezależne kontrole są potrzebne?
+                Zaznacz dowody, nie sam fakt uruchomienia komendy.</legend>
               {recoveryEvidenceOptions.map(option=><label key={option.id}>
                 <input type="checkbox" checked={selectedEvidence.includes(option.id)}
                   onChange={e=>{
