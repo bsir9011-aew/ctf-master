@@ -62,7 +62,7 @@ test('missing, foreign or incomplete evidence never yields a right answer',()=>{
   }
 });
 
-test('source of truth is trace, not the user's initial cause hypothesis or result feedback',()=>{
+test('source of truth is trace, not the initial cause hypothesis or result feedback',()=>{
   const result=runWorkshop(script,'pathblock','intro','missing');
   const altered={...result,feedback:'Directory x error'};
   assert.equal(gradeRemediation('restore-backup',altered).matched,true);
