@@ -131,3 +131,10 @@ Next priority: have the user run physical PWA QA per docs/MOBILE_QA.md and perfo
 - The Bash textarea grows and shrinks to content after edits, variant changes and viewport resize. It must not become a nested vertical scroller; gestures started over it should scroll the page.
 - Toolbar retains horizontal swiping but allows vertical page gestures, and adds the `||` shortcut beside `&&`.
 - Preserve all old scenario IDs and draft keys, undo, caret, selection, progress, interpreter and safety. No APK, extra screen, host execution or new dependencies. Physical Android keyboard QA remains PENDING.
+
+## RC.52: two causes of read denial in the existing mobile diagnosis
+- Within menu option `06 · Katalog`, add a compact guided/independent toggle; no eighth option, new screen or persistent panel.
+- Existing guided diagnosis keeps `diagnostics/service.log` and its draft. Independent reuses Academy's `checks/locked.log` (mode 000, traversable parents), without modifying global fixtures.
+- Independent draft is blank under `ctf-master:bash-workshop-pathblock-transfer-draft-v1`. Its selection uses a separate key. Switching clears result, prediction, caret and undo, but preserves each draft and the repair-case selection.
+- Grade real test -r failure, immediately observed echo $?, and namei -l evidence on the correct file. Guided requires blockedAt = diagnostics; independent requires namei reach the mode-000 file without blocked directory. No spoofed output, host commands or file mutations.
+- Predict status using the last actually executed echo even when subsequent namei follows. No fabricated verdict without echo. Preserve other achievements, seven menu choices, and simulated-only safety. Physical Android QA remains pending; no APK.
