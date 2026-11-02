@@ -1,5 +1,6 @@
 import {createAcademyState} from './commandAcademy.ts';
 import {executeLinux,type LinuxState} from './linux.ts';
+import type {SimProcess,SimService} from './processes.ts';
 import {workshopSourceLines} from './workshopSourceLines.ts';
 import type {WorkshopResult,WorkshopStep} from './bashWorkshop.ts';
 
@@ -40,10 +41,10 @@ export function serviceWorldForTicket(id:ServiceTicketId):LinuxState{
   } as const;
   if(id!=='reporter'&&id!=='scheduler'&&id!=='gateway')return state;
   const seed=cases[id];
-  const processes=[...(state.processes??[]),{
+  const processes:SimProcess[]=[...(state.processes??[]),{
     pid:seed.pid,name:seed.name,running:false,service:id
   }];
-  const services={...state.services,[id]:{
+  const services:Record<string,SimService>={...state.services,[id]:{
     pid:seed.pid,status:'failed' as const,journal:[...seed.journal]
   }};
   if(id==='scheduler'){
