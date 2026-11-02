@@ -385,12 +385,13 @@ export default function BashWorkshop(){
         Przewidź, czy wynik drugiego testu zmieni ostatni kod zakończenia.</p>}
       <button type="button" className="workshop-reset" onClick={()=>{
         const selected=cursor.current??{start:draft.length,end:draft.length};
-        const template=initialDraft(scenario,repairCase);
+        const template=initialDraft(scenario,repairCase,pathCase);
         recordEdit(template,'reset',selected,{start:template.length,end:template.length});
         cursor.current=null;
         pendingCursor.current=null;
         change(template);setPrediction('');
-      }}>{scenario==='transfer'||(scenario==='repair'&&repairCase==='transfer')?
+      }}>{scenario==='transfer'||(scenario==='repair'&&repairCase==='transfer')||
+        (scenario==='pathblock'&&pathCase==='transfer')?
         'Wyczyść skrypt':'Wstaw pusty szablon'}</button>
     </details>
   </section>;
