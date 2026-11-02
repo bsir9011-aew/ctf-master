@@ -24,19 +24,24 @@ export function compareExitPrediction(
   };
 }
 
-export type CausePrediction=''|'directory'|'file';
+export type CausePrediction=''|'directory'|'file'|'missing';
 export function compareCausePrediction(predicted:CausePrediction,result:Pick<WorkshopResult,'steps'>) {
   if(!predicted)return null;
   const steps=result.steps;
   const index=steps.findIndex(step=>
     step.command==='test'&&step.testFlag==='-r'&&step.exitCode===1&&!!step.target);
   const testStep=steps[index],echo=steps[index+1],inspect=steps[index+2];
-  let observed:'directory'|'file'|null=null;
+  let observed:'directory'|'file'|'missing'|null=null;
   if(index>=0&&echo?.command==='echo'&&echo.output==='1'&&
      inspect?.command==='namei'&&inspect.target===testStep?.target&&
-     inspect.exitCode===0&&inspect.output.startsWith('f: '+testStep.target+'\n')){
-    if(inspect.blockedAt)observed='directory';
-    else if(inspect.output.trimEnd().split('\n').at(-1)?.startsWith('---------- '))observed='file';
+     inspect.output.startsWith('f: '+testStep.target+'\n')){
+    const last=inspect.output.trimEnd().split('\n').at(-1);
+    const basename=testStep.target?.split('/').at(-1);
+    if(inspect.exitCode===0&&inspect.blockedAt)observed='directory';
+    else if(inspect.exitCode===0&&last?.startsWith('---------- '))observed='file';
+    else if(inspect.exitCode===1&&!inspect.blockedAt&&
+      last==='??? '+basename+' (No such file or directory)'&&
+      inspect.output.split('\n').length>2)observed='missing';
   }
   return {predicted,observed,matched:observed===null?null:predicted===observed};
 }
