@@ -108,7 +108,7 @@ test('unfinished template cannot pass; old diagnosis cannot pass repair',()=>{
 
 test('new scenario has separate draft and preserves old identifiers',()=>{
   assert.deepEqual(workshopScenarios.map(x=>x.id),[
-    'backup','diagnosis','permissions','fallback','transfer','pathblock','repair'
+    'backup','diagnosis','permissions','fallback','transfer','pathblock','repair','service'
   ]);
   assert.equal(workshopInitialScript('repair'),REPAIR_DEFAULT);
   assert.equal(workshopDraftKey('repair'),'ctf-master:bash-workshop-repair-draft-v1');
