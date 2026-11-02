@@ -8,6 +8,7 @@ import {compareExitPrediction,compareCausePrediction,type CausePrediction,type E
 import {gradeRemediation,type RemediationChoice} from '../core/workshopRemediation';
 import {verifyRecoveryPreview,type RecoveryVerification} from '../core/workshopRecoveryVerify';
 import {blindTicket,blindTicketIds,type BlindTicketId} from '../core/blindTickets';
+import {serviceTicket,serviceTicketIds,gradeServiceDiagnosis,type ServiceTicketId,type ServiceDiagnosis} from '../core/serviceWorkshop';
 import {concreteRecoveryEvidence,gradeConcreteEvidence,type EvidenceInterpretation} from '../core/workshopConcreteEvidence';
 import {workshopScenarios,workshopInitialScript,workshopDraftKey,
   repairWorkshopDraftKey,repairWorkshopStarter,
@@ -34,7 +35,7 @@ const shortcuts=[
 function restoreScenario():WorkshopId{
   try{
     const saved=localStorage.getItem(SELECTION_KEY);
-    return saved==='diagnosis'||saved==='permissions'||saved==='fallback'||saved==='transfer'||saved==='pathblock'||saved==='repair'?saved:'backup';
+    return saved==='diagnosis'||saved==='permissions'||saved==='fallback'||saved==='transfer'||saved==='pathblock'||saved==='repair'||saved==='service'?saved:'backup';
   }
   catch{return 'backup';}
 }
@@ -57,6 +58,10 @@ function randomBlindCause():BlindCause {
 }
 function randomBlindTicket(except?:BlindTicketId):BlindTicketId{
   const choices=blindTicketIds.filter(id=>id!==except);
+  return choices[Math.floor(Math.random()*choices.length)];
+}
+function randomServiceTicket(except?:ServiceTicketId):ServiceTicketId{
+  const choices=serviceTicketIds.filter(id=>id!==except);
   return choices[Math.floor(Math.random()*choices.length)];
 }
 function initialDraft(id:WorkshopId,repairCase:RepairWorkshopVariant,pathCase:PathWorkshopVariant):string{
@@ -82,6 +87,9 @@ export default function BashWorkshop(){
   const [pathCase,setPathCase]=useState<PathWorkshopVariant>(restorePathCase);
   const [blindCause,setBlindCause]=useState<BlindCause>(randomBlindCause);
   const [blindTicketId,setBlindTicketId]=useState<BlindTicketId>(randomBlindTicket);
+  const [serviceTicketId,setServiceTicketId]=useState<ServiceTicketId>(randomServiceTicket);
+  const [serviceAnswer,setServiceAnswer]=useState<ServiceDiagnosis>('');
+  const [submittedServiceAnswer,setSubmittedServiceAnswer]=useState<ServiceDiagnosis>('');
   const [draft,setDraft]=useState(()=>restoreDraft(restoreScenario(),restoreRepairCase(),restorePathCase()));
   const [prediction,setPrediction]=useState<ExitPrediction>('');
   const [causePrediction,setCausePrediction]=useState<CausePrediction>('');
@@ -122,6 +130,8 @@ export default function BashWorkshop(){
     setPrediction('');
     setSubmittedPrediction('');
     setSubmittedCause('');
+    setServiceAnswer('');
+    setSubmittedServiceAnswer('');
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -135,11 +145,14 @@ export default function BashWorkshop(){
   const selectScenario=(next:WorkshopId)=>{
     if(next===scenario)return;
     setScenario(next);
+    if(next==='service')setServiceTicketId(randomServiceTicket());
     setDraft(restoreDraft(next,repairCase,pathCase));
     setPrediction('');
     setSubmittedPrediction('');
     setCausePrediction('');
     setSubmittedCause('');
+    setServiceAnswer('');
+    setSubmittedServiceAnswer('');
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -161,6 +174,8 @@ export default function BashWorkshop(){
     setSubmittedPrediction('');
     setCausePrediction('');
     setSubmittedCause('');
+    setServiceAnswer('');
+    setSubmittedServiceAnswer('');
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -186,6 +201,8 @@ export default function BashWorkshop(){
     setSubmittedPrediction('');
     setCausePrediction('');
     setSubmittedCause('');
+    setServiceAnswer('');
+    setSubmittedServiceAnswer('');
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -199,11 +216,28 @@ export default function BashWorkshop(){
     pendingCursor.current=null;
     try{localStorage.setItem(PATH_CASE_KEY,next);}catch{/* private browsing */}
   };
+  const nextServiceIncident=()=>{
+    setServiceTicketId(randomServiceTicket(serviceTicketId));
+    setServiceAnswer('');
+    setSubmittedServiceAnswer('');
+    setPrediction('');
+    setSubmittedPrediction('');
+    setResult(null);
+    setEditorNotice('');
+    setDraft('');
+    try{localStorage.setItem(workshopDraftKey('service'),'');}catch{/* private browsing */}
+    undoHistory.current=emptyUndoHistory();
+    setCanUndo(false);
+    cursor.current=null;
+    pendingCursor.current=null;
+  };
   const nextBlindIncident=()=>{
     setBlindCause(randomBlindCause());
     setBlindTicketId(randomBlindTicket(blindTicketId));
     setCausePrediction('');
     setSubmittedCause('');
+    setServiceAnswer('');
+    setSubmittedServiceAnswer('');
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -265,6 +299,8 @@ export default function BashWorkshop(){
     // Freeze the answer at run time; edits or post-result selections cannot backfill it.
     setSubmittedPrediction(prediction);
     setSubmittedCause(scenario==='pathblock'?causePrediction:'');
+    setServiceAnswer('');
+    setSubmittedServiceAnswer('');
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -273,7 +309,8 @@ export default function BashWorkshop(){
     setResult(runWorkshop(draft,scenario,
       scenario==='pathblock'?(pathCase==='blind'?'intro':pathCase):repairCase,
       scenario==='pathblock'&&pathCase==='blind'?blindCause:null,
-      blindTicketId));
+      blindTicketId,
+      serviceTicketId));
   };
   const focusErrorLine=()=>{
     const element=editor.current;
@@ -293,6 +330,9 @@ export default function BashWorkshop(){
   const causeComparison=result&&scenario==='pathblock'?compareCausePrediction(submittedCause,result):null;
   const blindDecision=scenario==='pathblock'&&pathCase==='blind';
   const currentTicket=blindTicket(blindTicketId);
+  const currentServiceTicket=serviceTicket(serviceTicketId);
+  const serviceEvaluation=scenario==='service'&&result?.completed&&submittedServiceAnswer?
+    gradeServiceDiagnosis(result,serviceTicketId,submittedServiceAnswer):null;
   const decisionFeedback=blindDecision&&result&&submittedRemediation?
     gradeRemediation(submittedRemediation,result):null;
   const concreteEvidence=blindDecision&&result&&recoveryCheck?
@@ -334,7 +374,17 @@ export default function BashWorkshop(){
       <button type="button" className="workshop-repair-variant" onClick={nextBlindIncident}>
         Nowy incydent
       </button>}
-    {scenario==='repair'&&repairCase==='file'?<p className="workshop-task">
+    {scenario==='service'&&
+      <button type="button" className="workshop-repair-variant" onClick={nextServiceIncident}>
+        Nowe zgłoszenie
+      </button>}
+    {scenario==='service'?<p className="workshop-task">
+      <strong>{currentServiceTicket.title}.</strong> {currentServiceTicket.symptom}
+      Sprawdź <code>{currentServiceTicket.service}.service</code> za pomocą
+      <code> ps</code>, <code>systemctl status</code> i <code>journalctl -u</code>.
+      Trzy krótkie polecenia, dowolna kolejność. Nie restartuj ani nie kończ procesów.
+    </p>
+    :scenario==='repair'&&repairCase==='file'?<p className="workshop-task">
       Dyżur SOC: wirtualny <code>~/practice/checks/locked.log</code> istnieje,
       ale aplikacja nie może go odczytać. Rozpoznaj przyczynę, przywróć
       wyłącznie niezbędne prawo i zweryfikuj odczyt, nie modyfikując
@@ -381,7 +431,9 @@ export default function BashWorkshop(){
       Ustaw <code>BASE=~/practice</code>. Sprawdź najpierw brakujący log przez <code>test -f</code>,
       a potem przez <code>||</code> przejdź do testu zapasowego pliku.
       Użyj <code>echo $?</code>, aby potwierdzić końcowy kod. Nie zmieniaj plików.</p>}
-    <label htmlFor="bash-workshop-editor" className="workshop-editor-label">Twój skrypt (maks. 4 linie)</label>
+    <label htmlFor="bash-workshop-editor" className="workshop-editor-label">
+      Twój skrypt ({scenario==='service'?'3 polecenia':'maks. 4 linie'})
+    </label>
     <textarea id="bash-workshop-editor" ref={editor} value={draft} rows={4}
       spellCheck={false} autoCapitalize="none" autoCorrect="off"
       maxLength={WORKSHOP_MAX_CHARS}
@@ -426,7 +478,7 @@ export default function BashWorkshop(){
       </select>
     </label>}
     <div className={'workshop-controls '+(scenario==='repair'?'repair':scenario!=='backup'?'diagnosis':'')}>
-      {scenario!=='repair'&&<label htmlFor="workshop-prediction">{scenario==='backup'?'Przewidź kopie':'Przewidź kod'}
+      {scenario!=='repair'&&scenario!=='service'&&<label htmlFor="workshop-prediction">{scenario==='backup'?'Przewidź kopie':'Przewidź kod'}
         <select id="workshop-prediction" value={prediction}
           onChange={e=>{
             setPrediction(e.target.value as ExitPrediction);
@@ -449,7 +501,9 @@ export default function BashWorkshop(){
     {result&&<div className={'workshop-result '+(result.completed?'completed':'incomplete')}
       role="status" aria-live="polite">
       <strong>{result.completed?
-        blindDecision&&!verifiedBlind?'✓ Diagnoza wykonana':'✓ Zadanie wykonane'
+        blindDecision&&!verifiedBlind?'✓ Diagnoza wykonana':
+        scenario==='service'&&serviceEvaluation?.matched!==true?'✓ Dowody zebrane':
+        '✓ Zadanie wykonane'
         :'Sprawdź i popraw'}</strong>
       <p>{blindDecision&&result.completed&&!verifiedBlind?
         recoveryCheck?
@@ -458,6 +512,28 @@ export default function BashWorkshop(){
             'Decyzja przyjęta. Zweryfikuj jej skutki w odizolowanym symulatorze.':
             'Sprawdź przebieg i zdecyduj, jaka minimalna interwencja wynika z dowodów.':
         result.feedback}</p>
+      {scenario==='service'&&result.completed&&<div className="workshop-service-interpret">
+        <label htmlFor="workshop-service-conclusion">
+          Co potwierdzają status, journal i lista procesów?
+        </label>
+        <div className="workshop-remediation-controls">
+          <select id="workshop-service-conclusion" value={serviceAnswer}
+            onChange={e=>{
+              setServiceAnswer(e.target.value as ServiceDiagnosis);
+              setSubmittedServiceAnswer('');
+            }}>
+            <option value="">Wybierz wniosek z dowodów</option>
+            <option value="crash">Proces uległ awarii podczas działania</option>
+            <option value="startup">Usługa nie wystartowała poprawnie</option>
+            <option value="healthy">Usługa działa - alert był fałszywy</option>
+          </select>
+          <button type="button" disabled={!serviceAnswer}
+            onClick={()=>setSubmittedServiceAnswer(serviceAnswer)}>Sprawdź</button>
+        </div>
+        {serviceEvaluation&&<p role="status" className="workshop-decision-feedback">
+          {serviceEvaluation.message}
+        </p>}
+      </div>}
       {!result.completed&&result.errorLine!==undefined&&<button type="button"
         className="workshop-fix-line" onClick={focusErrorLine}
         aria-label={'Przejdź do poprawienia linii '+result.errorLine}>
