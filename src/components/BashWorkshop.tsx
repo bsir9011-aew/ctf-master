@@ -381,7 +381,7 @@ export default function BashWorkshop(){
     {scenario==='pathblock'&&<label className="workshop-editor-label" htmlFor="workshop-cause-prediction">
       Hipoteza przed uruchomieniem
       <select id="workshop-cause-prediction" value={causePrediction}
-        onChange={e=>{setCausePrediction(e.target.value as CausePrediction);setSubmittedCause('');}}>
+        onChange={e=>{setCausePrediction(e.target.value as CausePrediction);setSubmittedCause('');setRecoveryCheck(null);}}>
         <option value="">Bez hipotezy</option>
         <option value="directory">Brak x w katalogu</option>
         <option value="file">Brak r w pliku</option>
