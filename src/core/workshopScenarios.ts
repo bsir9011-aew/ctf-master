@@ -40,9 +40,12 @@ export const repairWorkshopDraftKey=(variant:RepairWorkshopVariant)=>
 export const repairWorkshopStarter=(variant:RepairWorkshopVariant)=>
   variant==='intro'?REPAIR_DEFAULT:'';
 
-/** Independent file-read denial reuses Academy's locked.log and preserves guided draft. */
-export const pathblockWorkshopDraftKey=(variant:'intro'|'transfer')=>
+/** Existing guided/independent drafts are kept; blind cases share one new draft. */
+export type PathWorkshopVariant='intro'|'transfer'|'blind';
+export type BlindCause='directory'|'file';
+export const pathblockWorkshopDraftKey=(variant:PathWorkshopVariant)=>
+  variant==='blind'?'ctf-master:bash-workshop-pathblock-blind-draft-v1':
   variant==='transfer'?'ctf-master:bash-workshop-pathblock-transfer-draft-v1':
     workshopDraftKey('pathblock');
-export const pathblockWorkshopStarter=(variant:'intro'|'transfer')=>
-  variant==='transfer'?'':PATHBLOCK_DEFAULT;
+export const pathblockWorkshopStarter=(variant:PathWorkshopVariant)=>
+  variant==='intro'?PATHBLOCK_DEFAULT:'';
