@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
 const workerSource=readFileSync(new URL('../public/sw.js',import.meta.url),'utf8');
-const cacheName='ctf-master-'+JSON.parse(readFileSync(new URL('../package.json',import.meta.url),'utf8')).version.replace(/-rc\.(\d+)$/, '-rc$1');
+const cacheName='ctf-master-v'+JSON.parse(readFileSync(new URL('../package.json',import.meta.url),'utf8')).version.replace(/-rc\.(\d+)$/, '-rc$1');
 
 function mockWorker() {
   const handlers={};
