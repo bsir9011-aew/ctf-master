@@ -108,7 +108,7 @@ test('no file is ever added or changed on the host; only a disposable virtual st
 
 test('legacy guided variants keep their original paths and exercise count',async()=>{
   const {workshopScenarios}=await import('../src/core/workshopScenarios.ts');
-  assert.equal(workshopScenarios.length,7);
+  assert.equal(workshopScenarios.length,8);
   const old=['BASE=~/practice','test -r "$BASE/diagnostics/service.log"',
     'echo $?','namei -l "$BASE/diagnostics/service.log"'].join('\n');
   assert.equal(runWorkshop(old,'pathblock','intro').completed,true);

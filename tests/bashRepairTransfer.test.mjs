@@ -107,13 +107,13 @@ test('preflight blocks broad chmod, foreign targets, shell operators and network
   }
 });
 
-test('separate draft keys and blank starter; still seven menu options',()=>{
+test('separate draft keys and blank starter; still eight menu options',()=>{
   assert.equal(repairWorkshopStarter('transfer'),'');
   assert.equal(repairWorkshopDraftKey('intro'),workshopDraftKey('repair'));
   assert.equal(repairWorkshopDraftKey('transfer'),
     'ctf-master:bash-workshop-repair-transfer-draft-v1');
   assert.notEqual(repairWorkshopDraftKey('transfer'),repairWorkshopDraftKey('intro'));
-  assert.equal(workshopScenarios.length,7);
-  assert.equal(workshopScenarios.at(-1).id,'repair');
+  assert.equal(workshopScenarios.length,8);
+  assert.equal(workshopScenarios.at(-2).id,'repair');
   assert.equal(runWorkshop(repairWorkshopStarter('transfer'),'repair','transfer').completed,false);
 });

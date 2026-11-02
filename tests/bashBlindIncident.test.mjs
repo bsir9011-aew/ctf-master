@@ -113,7 +113,7 @@ test('blind option has blank independent draft and preserves old progress keys',
   assert.equal(pathblockWorkshopStarter('blind'),'');
   assert.equal(pathblockWorkshopStarter('transfer'),'');
   assert.equal(WORKSHOP_MAX_LINES,4);
-  assert.equal(workshopScenarios.length,7);
+  assert.equal(workshopScenarios.length,8);
 });
 
 
