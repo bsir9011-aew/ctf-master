@@ -22,7 +22,7 @@ test('minimal owner-only file repair restores read without altering other data',
   assert.equal(r.completed,true,r.feedback);
   assert.deepEqual(r.steps.map(s=>s.command),['variable','namei','chmod','cat']);
   assert.equal(r.steps[1].blockedAt,undefined);
-  assert.match(r.steps[1].output,/---------- .*locked\\.log/);
+  assert.match(r.steps[1].output,/---------- .*locked\.log/);
   assert.equal(r.steps[2].exitCode,0);
   assert.equal(r.steps[3].output,base.files[FILE]);
   assert.equal(r.state.permissions[FILE],0o400);
