@@ -6,7 +6,7 @@ import {parseConditionals} from './conditionals.ts';
 import {parseForLoop} from './forLoop.ts';
 import {scanShell} from './shellSyntax.ts';
 import {workshopSourceLines,type SourceLine} from './workshopSourceLines.ts';
-import {type WorkshopId,type RepairWorkshopVariant} from './workshopScenarios.ts';
+import {type WorkshopId,type RepairWorkshopVariant,type BlindCause} from './workshopScenarios.ts';
 export {WORKSHOP_DEFAULT} from './workshopScenarios.ts';
 
 export const WORKSHOP_MAX_LINES=4;
@@ -52,6 +52,9 @@ const diagnostics={
 export interface WorkshopStep {
   line:number;
   command:string;
+  /** Resolved virtual path for evidence provenance (never source text). */
+  target?:string;
+  testFlag?:string;
   exitCode:number;
   output:string;
   variables:string[];
@@ -155,13 +158,17 @@ function preflight(lines:readonly SourceLine[],seed:LinuxState,scenario:Workshop
  * script appear successful. Never accept scripts, paths, or shell on the host.
  */
 export function runWorkshop(script:string,scenario:WorkshopId='backup',
-  repairVariant:RepairWorkshopVariant='intro'):WorkshopResult {
+  repairVariant:RepairWorkshopVariant='intro',blindCause:BlindCause|null=null):WorkshopResult {
   const academy=createAcademyState();
   const fixture=recoveryFixture(repairVariant==='file'?'intro':repairVariant);
-  const pathblockFile=repairVariant==='transfer'?UNREADABLE_FILE:BLOCKED_FILE;
+  const isBlind=scenario==='pathblock'&&blindCause!==null;
+  const pathblockFile=isBlind||repairVariant!=='transfer'?BLOCKED_FILE:UNREADABLE_FILE;
   // The alternate incident lives ONLY in this fresh virtual run. No changes
   // to Academy seeds, persisted user data or the guided repair fixture.
-  const initial:LinuxState=scenario==='repair'&&repairVariant==='transfer'?{
+  const initial:LinuxState=isBlind&&blindCause==='file'?{
+    ...academy,
+    permissions:{...academy.permissions,[BLOCKED_DIR]:0o700,[BLOCKED_FILE]:0o000}
+  }:scenario==='repair'&&repairVariant==='transfer'?{
     ...academy,
     dirs:[...academy.dirs,fixture.directory],
     files:{...academy.files,[fixture.file]:fixture.content},
@@ -186,7 +193,9 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup',
     events.push(result);
     const changedFiles=Object.keys(state.files).filter(path=>before.files[path]!==state.files[path]);
     steps.push({
-      line:lines[index].line,command:result.command,exitCode:result.exitCode??(result.ok?0:1),
+      line:lines[index].line,command:result.command,
+      target:result.target,testFlag:result.testFlag,
+      exitCode:result.exitCode??(result.ok?0:1),
       output:result.output.slice(0,scenario==='pathblock'||scenario==='repair'?600:250),
       variables:Object.keys(state.variables??{}).filter(key=>
         before.variables?.[key]!==state.variables?.[key]).slice(0,5)
@@ -290,8 +299,10 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup',
   if(scenario==='pathblock') {
     const test=events[1],status=events[2],inspect=events[3];
     const file=pathblockFile;
-    // Independent: traversable parents, but file has no read permission.
-    const blockedAt=repairVariant==='transfer'?undefined:BLOCKED_DIR;
+    // Blind variant uses the SAME path for both root causes.
+    const expectedFileDenial=(isBlind&&blindCause==='file')||
+      (!isBlind&&repairVariant==='transfer');
+    const blockedAt=expectedFileDenial?undefined:BLOCKED_DIR;
     // Inspect actual virtual operations rather than accepting a printed "permission denied".
     const validTest=events.length===4&&events[0].command==='variable'&&
       test?.command==='test'&&test.testFlag==='-r'&&
@@ -302,9 +313,9 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup',
       return error('Odczytaj wynik nieudanego testu, zanim uruchomisz analizę ścieżki.',state,steps,lines[2]?.line);
     if(inspect?.command!=='namei'||!inspect.ok||inspect.target!==file||
       inspect.blockedAt!==blockedAt||
-      (repairVariant==='transfer'&&modeOf(initial,file)!==0o000)||
+      (expectedFileDenial&&modeOf(initial,file)!==0o000)||
       !/\$\{?BASE\}?/.test(lines[3]?.raw??''))
-      return error('Ustal, który katalog blokuje przejście do pliku, wykorzystując rzeczywisty wynik namei.',state,steps,lines[3]?.line);
+      return error('Porównaj test i namei -l dla tego samego pliku, aby rozstrzygnąć przyczynę odmowy dostępu.',state,steps,lines[3]?.line);
     if(Object.keys(state.files).some(path=>state.files[path]!==initial.files[path])||
       Object.keys(initial.files).some(path=>state.files[path]!==initial.files[path])||
       Object.keys(state.permissions??{}).some(path=>state.permissions?.[path]!==initial.permissions?.[path])||
@@ -312,9 +323,13 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup',
       !state.dirs.every(path=>initial.dirs.includes(path))||state.dirs.length!==initial.dirs.length)
       return error('Diagnoza musi pozostawić system plików i uprawnienia bez zmian.',state,steps);
     return {completed:true,
-      feedback:repairVariant==='transfer'?
-        'Samodzielna diagnoza zaliczona: test -r dał 1; namei -l przeszło przez katalogi i pokazało plik bez prawa odczytu (000). To inny mechanizm niż brak x na katalogu. Nie zmieniono uprawnień ani danych.':
-        'Zaliczone: test -r zwrócił 1, mimo że plik istnieje. namei -l wykazało brak prawa x na katalogu diagnostics. Nie zmieniono plików ani uprawnień.',
+      feedback:isBlind?
+        (blindCause==='file'?
+          'Ślepy incydent rozwiązany: namei przeszło przez katalog i wykazało brak r na samym pliku (000). Żadnych zmian danych ani uprawnień.':
+          'Ślepy incydent rozwiązany: namei wskazało brak x w katalogu diagnostics. Sam plik pozostał nienaruszony.'):
+        repairVariant==='transfer'?
+          'Samodzielna diagnoza zaliczona: test -r dał 1; namei -l przeszło przez katalogi i pokazało plik bez prawa odczytu (000). To inny mechanizm niż brak x na katalogu. Nie zmieniono uprawnień ani danych.':
+          'Zaliczone: test -r zwrócił 1, mimo że plik istnieje. namei -l wykazało brak prawa x na katalogu diagnostics. Nie zmieniono plików ani uprawnień.',
       steps,state};
   }
   if(scenario!=='backup'){
