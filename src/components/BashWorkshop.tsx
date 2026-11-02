@@ -237,6 +237,9 @@ export default function BashWorkshop(){
     setServiceTicketId(randomServiceTicket(serviceTicketId));
     setServiceAnswer('');
     setSubmittedServiceAnswer('');
+    setServiceAction('');
+    setSubmittedServiceAction('');
+    setServiceVerification(null);
     setPrediction('');
     setSubmittedPrediction('');
     setResult(null);
