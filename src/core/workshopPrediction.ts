@@ -25,8 +25,11 @@ export function compareExitPrediction(
 }
 
 export type CausePrediction=''|'directory'|'file'|'missing';
-export function compareCausePrediction(predicted:CausePrediction,result:Pick<WorkshopResult,'steps'>) {
-  if(!predicted)return null;
+/** Only executed evidence can establish a cause. This helper is deliberately
+ * unaware of scenario IDs, hidden seeds, expected answers and feedback text.
+ */
+export function observedAccessCause(result:Pick<WorkshopResult,'steps'>):
+  Exclude<CausePrediction,''>|null {
   const steps=result.steps;
   const index=steps.findIndex(step=>
     step.command==='test'&&step.testFlag==='-r'&&step.exitCode===1&&!!step.target);
@@ -43,5 +46,10 @@ export function compareCausePrediction(predicted:CausePrediction,result:Pick<Wor
       last==='??? '+basename+' (No such file or directory)'&&
       inspect.output.split('\n').length>2)observed='missing';
   }
+  return observed;
+}
+export function compareCausePrediction(predicted:CausePrediction,result:Pick<WorkshopResult,'steps'>) {
+  if(!predicted)return null;
+  const observed=observedAccessCause(result);
   return {predicted,observed,matched:observed===null?null:predicted===observed};
 }

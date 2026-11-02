@@ -5,6 +5,7 @@ import {emptyUndoHistory,recordEditorEdit,undoEditorEdit,
   type EditKind} from '../core/editorUndo';
 import {sourceLineRange} from '../core/workshopSourceLines';
 import {compareExitPrediction,compareCausePrediction,type CausePrediction,type ExitPrediction} from '../core/workshopPrediction';
+import {gradeRemediation,type RemediationChoice} from '../core/workshopRemediation';
 import {workshopScenarios,workshopInitialScript,workshopDraftKey,
   repairWorkshopDraftKey,repairWorkshopStarter,
   pathblockWorkshopDraftKey,pathblockWorkshopStarter,
@@ -77,6 +78,8 @@ export default function BashWorkshop(){
   const [prediction,setPrediction]=useState<ExitPrediction>('');
   const [causePrediction,setCausePrediction]=useState<CausePrediction>('');
   const [submittedCause,setSubmittedCause]=useState<CausePrediction>('');
+  const [remediation,setRemediation]=useState<RemediationChoice>('');
+  const [submittedRemediation,setSubmittedRemediation]=useState<RemediationChoice>('');
   const [submittedPrediction,setSubmittedPrediction]=useState<ExitPrediction>('');
   const [result,setResult]=useState<WorkshopResult|null>(null);
   const [editorNotice,setEditorNotice]=useState('');
@@ -108,6 +111,8 @@ export default function BashWorkshop(){
     setPrediction('');
     setSubmittedPrediction('');
     setSubmittedCause('');
+    setRemediation('');
+    setSubmittedRemediation('');
     setEditorNotice('');
     setDraft(next);
     setResult(null);
@@ -121,6 +126,8 @@ export default function BashWorkshop(){
     setSubmittedPrediction('');
     setCausePrediction('');
     setSubmittedCause('');
+    setRemediation('');
+    setSubmittedRemediation('');
     setResult(null);
     setEditorNotice('');
     undoHistory.current=emptyUndoHistory();
@@ -137,6 +144,8 @@ export default function BashWorkshop(){
     setSubmittedPrediction('');
     setCausePrediction('');
     setSubmittedCause('');
+    setRemediation('');
+    setSubmittedRemediation('');
     setResult(null);
     setEditorNotice('');
     undoHistory.current=emptyUndoHistory();
@@ -154,6 +163,8 @@ export default function BashWorkshop(){
     setSubmittedPrediction('');
     setCausePrediction('');
     setSubmittedCause('');
+    setRemediation('');
+    setSubmittedRemediation('');
     setResult(null);
     setEditorNotice('');
     undoHistory.current=emptyUndoHistory();
@@ -166,6 +177,8 @@ export default function BashWorkshop(){
     setBlindCause(randomBlindCause());
     setCausePrediction('');
     setSubmittedCause('');
+    setRemediation('');
+    setSubmittedRemediation('');
     setPrediction('');
     setSubmittedPrediction('');
     setResult(null);
@@ -222,6 +235,8 @@ export default function BashWorkshop(){
     // Freeze the answer at run time; edits or post-result selections cannot backfill it.
     setSubmittedPrediction(prediction);
     setSubmittedCause(scenario==='pathblock'?causePrediction:'');
+    setRemediation('');
+    setSubmittedRemediation('');
     setResult(runWorkshop(draft,scenario,
       scenario==='pathblock'?(pathCase==='blind'?'intro':pathCase):repairCase,
       scenario==='pathblock'&&pathCase==='blind'?blindCause:null));
@@ -242,6 +257,9 @@ export default function BashWorkshop(){
     .filter(path=>path.endsWith('.copy')).length??0;
   const exitComparison=result?compareExitPrediction(scenario,submittedPrediction,result):null;
   const causeComparison=result&&scenario==='pathblock'?compareCausePrediction(submittedCause,result):null;
+  const blindDecision=scenario==='pathblock'&&pathCase==='blind';
+  const decisionFeedback=blindDecision&&result&&submittedRemediation?
+    gradeRemediation(submittedRemediation,result):null;
   return <section className="bash-workshop" aria-label="Mobilny warsztat Bash">
     <div className="workshop-heading">
       <span className="eyebrow">BASH WORKSHOP</span>
@@ -385,8 +403,12 @@ export default function BashWorkshop(){
     <p className="workshop-limit" id="workshop-editor-help">Tylko wirtualny Linux · bez poleceń hosta i sieci.</p>
     {result&&<div className={'workshop-result '+(result.completed?'completed':'incomplete')}
       role="status" aria-live="polite">
-      <strong>{result.completed?'✓ Zadanie wykonane':'Sprawdź i popraw'}</strong>
-      <p>{result.feedback}</p>
+      <strong>{result.completed?
+        blindDecision&&!decisionFeedback?.matched?'✓ Diagnoza wykonana':'✓ Zadanie wykonane'
+        :'Sprawdź i popraw'}</strong>
+      <p>{blindDecision&&result.completed&&!decisionFeedback?.matched?
+        'Sprawdź przebieg i zdecyduj, jaka minimalna interwencja wynika z dowodów.':
+        result.feedback}</p>
       {!result.completed&&result.errorLine!==undefined&&<button type="button"
         className="workshop-fix-line" onClick={focusErrorLine}
         aria-label={'Przejdź do poprawienia linii '+result.errorLine}>
@@ -394,7 +416,8 @@ export default function BashWorkshop(){
       </button>}
       {scenario==='backup'&&submittedPrediction&&<p className="workshop-prediction">Przewidywanie: {submittedPrediction} · kopie utworzone: {copies}.
         {Number(submittedPrediction)===copies?' Zgadza się.':' Porównaj to z wykonanymi krokami.'}</p>}
-      {causeComparison&&<p className="workshop-prediction">
+      {causeComparison&&(!blindDecision||decisionFeedback?.matched===true)&&
+        <p className="workshop-prediction">
         Hipoteza: {causeComparison.predicted==='directory'?'katalog bez x':
           causeComparison.predicted==='file'?'plik bez r':'brak pliku'}.
         {causeComparison.observed===null?' Brak wystarczających dowodów namei.'
@@ -412,6 +435,29 @@ export default function BashWorkshop(){
             {!result.completed&&' Sam kod nie oznacza zaliczenia zadania.'}
           </>}
       </p>}
+      {blindDecision&&result.completed&&<div className="workshop-remediation">
+        <label htmlFor="workshop-remediation">Decyzja po analizie dowodów</label>
+        <div className="workshop-remediation-controls">
+          <select id="workshop-remediation" value={remediation}
+            onChange={e=>{
+              setRemediation(e.target.value as RemediationChoice);
+              setSubmittedRemediation('');
+            }}>
+            <option value="">Wybierz minimalne działanie</option>
+            <option value="directory-x">Przywróć właścicielowi x na katalogu</option>
+            <option value="file-r">Przywróć właścicielowi r na pliku</option>
+            <option value="restore-backup">Odzyskaj plik ze sprawdzonej kopii</option>
+            <option value="chmod-777">Nadaj 777 wszystkim</option>
+          </select>
+          <button type="button" disabled={!remediation}
+            onClick={()=>setSubmittedRemediation(remediation)}>
+            Sprawdź
+          </button>
+        </div>
+        {decisionFeedback&&<p className="workshop-decision-feedback" role="status">
+          {decisionFeedback.message}
+        </p>}
+      </div>}
       {result.steps.length>0&&<details className="workshop-trace">
         <summary>Przebieg · {result.steps.length} {result.steps.length===1?'linia':'linie'}</summary>
         <ol>

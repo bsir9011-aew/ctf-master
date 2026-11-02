@@ -162,3 +162,10 @@ Next priority: have the user run physical PWA QA per docs/MOBILE_QA.md and perfo
 - In the third case, \`namei -l\` correctly returns ENOENT and exit code 1. Treat this as valid diagnostic evidence only for the exact missing target; do not treat an unrelated failed command as success.
 - Require a pre-run cause prediction for blind tasks; compare it against the actual failed \`test -r\`, immediate \`echo $?\`, and \`namei\` output, all on the same resolved path. The missing-file conclusion requires a missing leaf rather than a blocked ancestor.
 - Preserve guided and transfer task behavior, legacy draft storage, safe preflight, and simulated-only execution. Physical Android keyboard and scrolling QA remains pending.
+
+## RC.57: evidence to minimal response in existing mobile blind incident
+- Keep the same seven Bash scenarios, path cases and four-line editor. Add one compact **post-run** response choice inside option 06 blind case only, with no new route or persistent pane.
+- Player predicts cause before Run; after a completed diagnosis reviews the actual trace and chooses the least-privilege next action: restore owner x on blocked directory, restore owner r on unreadable file, or recover missing file from a verified backup. `chmod 777` is explicitly unsafe.
+- Grade selected response from the **actual validated trace** (failed test -r, adjacent echo 1, namei for same target), not from the hidden seed, scenario label, submitted prediction, or string in incident feedback. Incomplete/foreign evidence is indeterminate.
+- Feedback for blind completed diagnosis stays neutral until response is correct; after correct response reveal the original diagnosis summary. A wrong choice provides a non-spoiler correction prompt. No filesystem mutation on choosing an action.
+- Run, edited scripts, scenario/variant switches and New incident clear previous response; selection changes invalidate submitted response. No new persistence keys, no change to mastery, simulated Linux only, no APK. Physical Android QA remains pending.
