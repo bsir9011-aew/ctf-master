@@ -144,3 +144,8 @@ Next priority: have the user run physical PWA QA per docs/MOBILE_QA.md and perfo
 - Preserve all old keys; add only `ctf-master:bash-workshop-repair-file-draft-v1` with blank starter. Preserve existing selected repair-case key and migrate its old values intact.
 - File incident reuses the Academy fixture `~/practice/checks/locked.log` (mode 000). No new fixture or global seed mutation. Require actual `namei -l` on the file (no blocked parent), minimally scoped `chmod u+r` or exact owner-only octal 400, then actual `cat` output matching the unchanged original bytes. Only the target file's mode may change from 000 to 400; reject all unrelated changes.
 - Whole-script preflight blocks network, host execution, broad chmod 777, unrelated files and other filesystem changes before execution. Retain four-line editor, all prior repair and pathblock variants, draft/undo/selection safety, seven menu options and local-only simulated interpreter. Physical Android QA remains pending.
+
+## RC.54: predict cause before executing Bash diagnosis
+- In existing option 06 only, add an optional, compact cause prediction (directory missing x vs file missing r).
+- Capture at Run and compare exclusively with actually executed failed test -r, immediate echo 1 and namei trace. Do not infer from selected variant. Missing evidence means undecidable.
+- Predictions never affect completion; edits/case switches clear stale comparisons. Preserve existing drafts, undo, seven menu items, simulated-only execution, progress and four-line limit. No APK. Mobile physical QA pending.
