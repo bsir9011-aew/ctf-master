@@ -7,6 +7,7 @@ import {sourceLineRange} from '../core/workshopSourceLines';
 import {compareExitPrediction,compareCausePrediction,type CausePrediction,type ExitPrediction} from '../core/workshopPrediction';
 import {gradeRemediation,type RemediationChoice} from '../core/workshopRemediation';
 import {verifyRecoveryPreview,type RecoveryVerification} from '../core/workshopRecoveryVerify';
+import {blindTicket,blindTicketIds,type BlindTicketId} from '../core/blindTickets';
 import {concreteRecoveryEvidence,gradeConcreteEvidence,type EvidenceInterpretation} from '../core/workshopConcreteEvidence';
 import {workshopScenarios,workshopInitialScript,workshopDraftKey,
   repairWorkshopDraftKey,repairWorkshopStarter,
@@ -54,6 +55,10 @@ function randomBlindCause():BlindCause {
   const choices:BlindCause[]=['directory','file','missing'];
   return choices[Math.floor(Math.random()*choices.length)];
 }
+function randomBlindTicket(except?:BlindTicketId):BlindTicketId{
+  const choices=blindTicketIds.filter(id=>id!==except);
+  return choices[Math.floor(Math.random()*choices.length)];
+}
 function initialDraft(id:WorkshopId,repairCase:RepairWorkshopVariant,pathCase:PathWorkshopVariant):string{
   return id==='repair'?repairWorkshopStarter(repairCase):
     id==='pathblock'?pathblockWorkshopStarter(pathCase):workshopInitialScript(id);
@@ -76,6 +81,7 @@ export default function BashWorkshop(){
   const [repairCase,setRepairCase]=useState<RepairWorkshopVariant>(restoreRepairCase);
   const [pathCase,setPathCase]=useState<PathWorkshopVariant>(restorePathCase);
   const [blindCause,setBlindCause]=useState<BlindCause>(randomBlindCause);
+  const [blindTicketId,setBlindTicketId]=useState<BlindTicketId>(randomBlindTicket);
   const [draft,setDraft]=useState(()=>restoreDraft(restoreScenario(),restoreRepairCase(),restorePathCase()));
   const [prediction,setPrediction]=useState<ExitPrediction>('');
   const [causePrediction,setCausePrediction]=useState<CausePrediction>('');
@@ -171,7 +177,10 @@ export default function BashWorkshop(){
   const selectPathCase=(next:PathWorkshopVariant)=>{
     if(next===pathCase)return;
     setPathCase(next);
-    if(next==='blind')setBlindCause(randomBlindCause());
+    if(next==='blind'){
+      setBlindCause(randomBlindCause());
+      setBlindTicketId(randomBlindTicket());
+    }
     setDraft(restoreDraft('pathblock',repairCase,next));
     setPrediction('');
     setSubmittedPrediction('');
@@ -192,6 +201,7 @@ export default function BashWorkshop(){
   };
   const nextBlindIncident=()=>{
     setBlindCause(randomBlindCause());
+    setBlindTicketId(randomBlindTicket(blindTicketId));
     setCausePrediction('');
     setSubmittedCause('');
     setRemediation('');
@@ -262,7 +272,8 @@ export default function BashWorkshop(){
     setSubmittedConclusion('');
     setResult(runWorkshop(draft,scenario,
       scenario==='pathblock'?(pathCase==='blind'?'intro':pathCase):repairCase,
-      scenario==='pathblock'&&pathCase==='blind'?blindCause:null));
+      scenario==='pathblock'&&pathCase==='blind'?blindCause:null,
+      blindTicketId));
   };
   const focusErrorLine=()=>{
     const element=editor.current;
@@ -281,10 +292,11 @@ export default function BashWorkshop(){
   const exitComparison=result?compareExitPrediction(scenario,submittedPrediction,result):null;
   const causeComparison=result&&scenario==='pathblock'?compareCausePrediction(submittedCause,result):null;
   const blindDecision=scenario==='pathblock'&&pathCase==='blind';
+  const currentTicket=blindTicket(blindTicketId);
   const decisionFeedback=blindDecision&&result&&submittedRemediation?
     gradeRemediation(submittedRemediation,result):null;
   const concreteEvidence=blindDecision&&result&&recoveryCheck?
-    concreteRecoveryEvidence(result,recoveryCheck):null;
+    concreteRecoveryEvidence(result,recoveryCheck,blindTicketId):null;
   const evidenceFeedback=submittedConclusion?
     gradeConcreteEvidence(concreteEvidence,submittedConclusion):null;
   const verifiedBlind=!!recoveryCheck?.verified&&evidenceFeedback?.matched===true;
@@ -328,10 +340,9 @@ export default function BashWorkshop(){
       wyłącznie niezbędne prawo i zweryfikuj odczyt, nie modyfikując
       treści ani innych uprawnień.</p>
     :scenario==='pathblock'&&pathCase==='blind'?<p className="workshop-task">
-      Dyżur: plik <code>~/practice/diagnostics/service.log</code> nie daje się odczytać.
-      Przyczyna jest ukryta: prawa katalogu, prawa pliku lub brak pliku.
-      Postaw hipotezę, następnie zbierz dowody i rozstrzygnij problem
-      bez zmieniania plików ani praw.</p>
+      <strong>{currentTicket.title}.</strong> {currentTicket.symptom}
+      <code> ~/practice/diagnostics/{currentTicket.name}</code>.
+      Nie znasz przyczyny. Postaw hipotezę i zbierz dowody, nie zmieniając plików ani praw.</p>
     :scenario==='pathblock'&&pathCase==='transfer'?<p className="workshop-task">
       Incydent: plik <code>~/practice/checks/locked.log</code> istnieje,
       lecz odczyt kończy się odmową dostępu. Zbierz dowód nieudanego testu
@@ -506,7 +517,7 @@ export default function BashWorkshop(){
         {decisionFeedback?.matched===true&&<div className="workshop-recovery-check">
           <button type="button" className="workshop-recovery-run"
             disabled={recoveryCheck!==null}
-            onClick={()=>setRecoveryCheck(verifyRecoveryPreview(result,submittedRemediation))}>
+            onClick={()=>setRecoveryCheck(verifyRecoveryPreview(result,submittedRemediation,blindTicketId))}>
             {recoveryCheck?'Weryfikacja wykonana':'Zasymuluj i sprawdź skutki'}
           </button>
           {recoveryCheck&&<div className="workshop-recovery-report">
