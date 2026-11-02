@@ -39,3 +39,23 @@ test('even on an incomplete task, compare only the actual echoed result',()=>{
   assert.equal(badOrder.completed,false);
   assert.deepEqual(compareExitPrediction('fallback','0',badOrder),{predicted:'0',observed:'0',matched:true});
 });
+
+test('pathblock compares prediction to observed echo even when namei follows',()=>{
+  for(const [path,variant] of [
+    ['diagnostics/service.log','intro'],
+    ['checks/locked.log','transfer']
+  ]){
+    const result=runWorkshop([
+      'BASE=~/practice',
+      'test -r "$BASE/'+path+'"',
+      'echo $?',
+      'namei -l "$BASE/'+path+'"'
+    ].join('\n'),'pathblock',variant);
+    assert.equal(result.completed,true,result.feedback);
+    assert.equal(result.steps.at(-1).command,'namei');
+    assert.deepEqual(compareExitPrediction('pathblock','1',result),
+      {predicted:'1',observed:'1',matched:true});
+    assert.deepEqual(compareExitPrediction('pathblock','0',result),
+      {predicted:'0',observed:'1',matched:false});
+  }
+});

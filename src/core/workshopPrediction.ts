@@ -13,9 +13,10 @@ export function compareExitPrediction(
   scenario:WorkshopId,prediction:ExitPrediction,result:Pick<WorkshopResult,'steps'>
 ):ExitPredictionFeedback|null {
   if(scenario==='backup'||scenario==='repair'||prediction===''||prediction==='2')return null;
-  const last=result.steps.at(-1);
-  const observed=last?.command==='echo'&&/^[01]$/.test(last.output)
-    ?last.output as '0'|'1':null;
+  // Path diagnosis runs namei after echo $?; use the last actual echo.
+  const lastEcho=[...result.steps].reverse().find(step=>step.command==='echo');
+  const observed=lastEcho&&/^[01]$/.test(lastEcho.output)
+    ?lastEcho.output as '0'|'1':null;
   return {
     predicted:prediction,
     observed,

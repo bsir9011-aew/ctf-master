@@ -4,6 +4,8 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
 const workerSource=readFileSync(new URL('../public/sw.js',import.meta.url),'utf8');
+const cacheName='ctf-master-v'+JSON.parse(readFileSync(new URL('../package.json',import.meta.url),'utf8')).version.replace(/-rc\.(\d+)$/, '-rc$1');
+
 function mockWorker() {
   const handlers={};
   const data=new Map();
@@ -55,7 +57,7 @@ test('worker precaches the hashed JS/CSS and standalone shell',async()=>{
   const sw=mockWorker();
   await sw.dispatch('install');
   const names=await sw.caches.keys();
-  assert.deepEqual(names,['ctf-master-v1.0.0-rc51']);
+  assert.deepEqual(names,[cacheName]);
   const cache=await sw.caches.open(names[0]);
   for(const path of ['/','/assets/index-a.js','/assets/index-a.css','/manifest.webmanifest','/icon-192.png']) {
     assert.ok(await cache.match(path),path);
@@ -82,6 +84,6 @@ test('activation deletes only stale CTF Master caches, not other apps caches',as
   await sw.dispatch('activate');
   const names=await sw.caches.keys();
   assert.equal(names.includes('ctf-master-v0.1.0'),false);
-  assert.equal(names.includes('ctf-master-v1.0.0-rc51'),true);
+  assert.equal(names.includes(cacheName),true);
   assert.equal(names.includes('another-pwa'),true);
 });

@@ -18,6 +18,7 @@ const MISSING_LOG='/home/player/practice/missing.log';
 const LOCKED_LOG='/home/player/practice/checks/locked.log';
 const BLOCKED_FILE=recoveryFixture('intro').file;
 const BLOCKED_DIR=recoveryFixture('intro').directory;
+const UNREADABLE_FILE='/home/player/practice/checks/locked.log';
 const PRACTICE='/home/player/practice';
 const AUDIT_DAILY_LOG='/home/player/practice/audit-daily.log';
 const ALERTS_LOG='/home/player/practice/alerts.log';
@@ -150,6 +151,7 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup',
   repairVariant:RecoveryVariant='intro'):WorkshopResult {
   const academy=createAcademyState();
   const fixture=recoveryFixture(repairVariant);
+  const pathblockFile=repairVariant==='transfer'?UNREADABLE_FILE:BLOCKED_FILE;
   // The alternate incident lives ONLY in this fresh virtual run. No changes
   // to Academy seeds, persisted user data or the guided repair fixture.
   const initial:LinuxState=scenario==='repair'&&repairVariant==='transfer'?{
@@ -196,7 +198,7 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup',
     const diagnosticTest=(scenario!=='backup'&&result.command==='conditional'&&
       result.conditionalTrace?.every(part=>part.command==='test'&&
         (scenario==='permissions'?['-f','-r'].includes(part.testFlag??''):part.testFlag==='-f'))) ||
-      (scenario==='pathblock'&&result.command==='test'&&result.testFlag==='-r'&&result.target===BLOCKED_FILE);
+      (scenario==='pathblock'&&result.command==='test'&&result.testFlag==='-r'&&result.target===pathblockFile);
     if(!result.ok&&!diagnosticTest)return error('Linia '+lines[index].line+': '+(result.output||'polecenie zakończyło się błędem.'),state,steps,lines[index].line);
   }
 
@@ -246,16 +248,21 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup',
   }
   if(scenario==='pathblock') {
     const test=events[1],status=events[2],inspect=events[3];
+    const file=pathblockFile;
+    // Independent: traversable parents, but file has no read permission.
+    const blockedAt=repairVariant==='transfer'?undefined:BLOCKED_DIR;
     // Inspect actual virtual operations rather than accepting a printed "permission denied".
     const validTest=events.length===4&&events[0].command==='variable'&&
       test?.command==='test'&&test.testFlag==='-r'&&
-      test.target===BLOCKED_FILE&&test.exitCode===1&&
+      test.target===file&&test.exitCode===1&&
       /\$\{?BASE\}?/.test(lines[1]?.raw??'');
     if(!validTest)return error('Sprawdź odczyt pliku we wskazanej ścieżce przed analizą katalogów.',state,steps,lines[1]?.line);
     if(status?.command!=='echo'||status.target!=='previous-exit'||status.output!=='1')
       return error('Odczytaj wynik nieudanego testu, zanim uruchomisz analizę ścieżki.',state,steps,lines[2]?.line);
-    if(inspect?.command!=='namei'||!inspect.ok||inspect.target!==BLOCKED_FILE||
-      inspect.blockedAt!==BLOCKED_DIR||!/\$\{?BASE\}?/.test(lines[3]?.raw??''))
+    if(inspect?.command!=='namei'||!inspect.ok||inspect.target!==file||
+      inspect.blockedAt!==blockedAt||
+      (repairVariant==='transfer'&&modeOf(initial,file)!==0o000)||
+      !/\$\{?BASE\}?/.test(lines[3]?.raw??''))
       return error('Ustal, który katalog blokuje przejście do pliku, wykorzystując rzeczywisty wynik namei.',state,steps,lines[3]?.line);
     if(Object.keys(state.files).some(path=>state.files[path]!==initial.files[path])||
       Object.keys(initial.files).some(path=>state.files[path]!==initial.files[path])||
@@ -264,7 +271,9 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup',
       !state.dirs.every(path=>initial.dirs.includes(path))||state.dirs.length!==initial.dirs.length)
       return error('Diagnoza musi pozostawić system plików i uprawnienia bez zmian.',state,steps);
     return {completed:true,
-      feedback:'Zaliczone: test -r zwrócił 1, mimo że plik istnieje. namei -l wykazało brak prawa x na katalogu diagnostics. Nie zmieniono plików ani uprawnień.',
+      feedback:repairVariant==='transfer'?
+        'Samodzielna diagnoza zaliczona: test -r dał 1; namei -l przeszło przez katalogi i pokazało plik bez prawa odczytu (000). To inny mechanizm niż brak x na katalogu. Nie zmieniono uprawnień ani danych.':
+        'Zaliczone: test -r zwrócił 1, mimo że plik istnieje. namei -l wykazało brak prawa x na katalogu diagnostics. Nie zmieniono plików ani uprawnień.',
       steps,state};
   }
   if(scenario!=='backup'){
