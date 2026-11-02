@@ -106,7 +106,8 @@ test('forged port owners, unavailable dependencies, missing and duplicate checks
     const altered={...good,state:{
       ...good.state,
       processes:good.state.processes.map(p=>
-        id==='gateway'&&p.pid===615?{...p,running:false}:p)
+        (id==='gateway'&&p.pid===615)||(id==='scheduler'&&p.service==='redis')?
+          {...p,running:!p.running}:p)
     }};
     assert.equal(observedServiceDiagnosis(altered,id),null);
     assert.equal(verifyServiceResponse(altered,id,cause,id==='gateway'?'inspect-port':'check-dependency'),null);
