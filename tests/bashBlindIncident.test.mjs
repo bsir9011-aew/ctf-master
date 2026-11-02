@@ -115,3 +115,66 @@ test('blind option has blank independent draft and preserves old progress keys',
   assert.equal(WORKSHOP_MAX_LINES,4);
   assert.equal(workshopScenarios.length,7);
 });
+
+
+test('third blind cause is an absent leaf, not an inaccessible directory',()=>{
+  const base=createAcademyState();
+  const result=runWorkshop(script,'pathblock','intro','missing');
+  assert.equal(result.completed,true,result.feedback);
+  assert.deepEqual(result.steps.map(s=>s.command),['variable','test','echo','namei']);
+  assert.equal(result.steps[1].target,FILE);
+  assert.equal(result.steps[1].exitCode,1);
+  assert.equal(result.steps[2].output,'1');
+  assert.equal(result.steps[3].target,FILE);
+  assert.equal(result.steps[3].exitCode,1);
+  assert.equal(result.steps[3].blockedAt,undefined);
+  assert.match(result.steps[3].output,/\?\?\? service\.log \(No such file or directory\)/);
+  assert.equal(Object.hasOwn(result.state.files,FILE),false);
+  assert.equal(Object.hasOwn(result.state.permissions,FILE),false);
+  assert.equal(result.state.permissions[DIR],0o700);
+  assert.deepEqual(result.state.dirs,base.dirs);
+  for(const [key,value] of Object.entries(base.files)){
+    if(key!==FILE)assert.equal(result.state.files[key],value,key);
+  }
+  assert.equal(Object.keys(result.state.files).length,Object.keys(base.files).length-1);
+  assert.deepEqual(compareCausePrediction('missing',result),
+    {predicted:'missing',observed:'missing',matched:true});
+  for(const wrong of ['file','directory']){
+    assert.deepEqual(compareCausePrediction(wrong,result),
+      {predicted:wrong,observed:'missing',matched:false});
+  }
+});
+
+test('missing-file diagnosis refuses unrelated paths and fabricated namei output',()=>{
+  const unrelated=runWorkshop(script.replace('namei -l '+target,
+    'namei -l "$BASE/diagnostics/absent.log"'),'pathblock','intro','missing');
+  assert.equal(unrelated.completed,false);
+  assert.deepEqual(compareCausePrediction('missing',unrelated),
+    {predicted:'missing',observed:null,matched:null});
+  const forged=runWorkshop(script.replace('namei -l '+target,
+    'echo "No such file or directory"'),'pathblock','intro','missing');
+  assert.equal(forged.completed,false);
+  assert.equal(forged.steps.length,0);
+  for(const unsafe of [
+    'BASE=~/practice\nchmod 777 '+target,
+    'BASE=~/practice\ntouch '+target,
+    'BASE=~/practice\nrm '+target,
+    'BASE=~/practice\ncat '+target+' > /tmp/x'
+  ]){
+    const r=runWorkshop(unsafe,'pathblock','intro','missing');
+    assert.equal(r.completed,false,unsafe);
+    assert.equal(r.steps.length,0,unsafe);
+    assert.equal(Object.hasOwn(r.state.files,FILE),false);
+  }
+});
+
+test('third-cause classification never changes guided and transfer validations',()=>{
+  const guided=runWorkshop(script,'pathblock','intro');
+  const transfer=runWorkshop(
+    script.replaceAll('diagnostics/service.log','checks/locked.log'),
+    'pathblock','transfer');
+  assert.equal(guided.completed,true,guided.feedback);
+  assert.equal(transfer.completed,true,transfer.feedback);
+  assert.equal(compareCausePrediction('missing',guided).observed,'directory');
+  assert.equal(compareCausePrediction('missing',transfer).observed,'file');
+});
