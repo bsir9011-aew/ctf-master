@@ -9,6 +9,8 @@ import {gradeRemediation,type RemediationChoice} from '../core/workshopRemediati
 import {verifyRecoveryPreview,type RecoveryVerification} from '../core/workshopRecoveryVerify';
 import {blindTicket,blindTicketIds,type BlindTicketId} from '../core/blindTickets';
 import {serviceTicket,serviceTicketIds,gradeServiceDiagnosis,type ServiceTicketId,type ServiceDiagnosis} from '../core/serviceWorkshop';
+import {gradeServiceResponse,verifyServiceResponse,
+  type ServiceResponseChoice,type ServiceResponseVerification} from '../core/serviceResponse';
 import {concreteRecoveryEvidence,gradeConcreteEvidence,type EvidenceInterpretation} from '../core/workshopConcreteEvidence';
 import {workshopScenarios,workshopInitialScript,workshopDraftKey,
   repairWorkshopDraftKey,repairWorkshopStarter,
@@ -90,6 +92,9 @@ export default function BashWorkshop(){
   const [serviceTicketId,setServiceTicketId]=useState<ServiceTicketId>(randomServiceTicket);
   const [serviceAnswer,setServiceAnswer]=useState<ServiceDiagnosis>('');
   const [submittedServiceAnswer,setSubmittedServiceAnswer]=useState<ServiceDiagnosis>('');
+  const [serviceAction,setServiceAction]=useState<ServiceResponseChoice>('');
+  const [submittedServiceAction,setSubmittedServiceAction]=useState<ServiceResponseChoice>('');
+  const [serviceVerification,setServiceVerification]=useState<ServiceResponseVerification|null>(null);
   const [draft,setDraft]=useState(()=>restoreDraft(restoreScenario(),restoreRepairCase(),restorePathCase()));
   const [prediction,setPrediction]=useState<ExitPrediction>('');
   const [causePrediction,setCausePrediction]=useState<CausePrediction>('');
@@ -132,6 +137,9 @@ export default function BashWorkshop(){
     setSubmittedCause('');
     setServiceAnswer('');
     setSubmittedServiceAnswer('');
+    setServiceAction('');
+    setSubmittedServiceAction('');
+    setServiceVerification(null);
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -153,6 +161,9 @@ export default function BashWorkshop(){
     setSubmittedCause('');
     setServiceAnswer('');
     setSubmittedServiceAnswer('');
+    setServiceAction('');
+    setSubmittedServiceAction('');
+    setServiceVerification(null);
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -176,6 +187,9 @@ export default function BashWorkshop(){
     setSubmittedCause('');
     setServiceAnswer('');
     setSubmittedServiceAnswer('');
+    setServiceAction('');
+    setSubmittedServiceAction('');
+    setServiceVerification(null);
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -203,6 +217,9 @@ export default function BashWorkshop(){
     setSubmittedCause('');
     setServiceAnswer('');
     setSubmittedServiceAnswer('');
+    setServiceAction('');
+    setSubmittedServiceAction('');
+    setServiceVerification(null);
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -220,6 +237,9 @@ export default function BashWorkshop(){
     setServiceTicketId(randomServiceTicket(serviceTicketId));
     setServiceAnswer('');
     setSubmittedServiceAnswer('');
+    setServiceAction('');
+    setSubmittedServiceAction('');
+    setServiceVerification(null);
     setPrediction('');
     setSubmittedPrediction('');
     setResult(null);
@@ -238,6 +258,9 @@ export default function BashWorkshop(){
     setSubmittedCause('');
     setServiceAnswer('');
     setSubmittedServiceAnswer('');
+    setServiceAction('');
+    setSubmittedServiceAction('');
+    setServiceVerification(null);
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -301,6 +324,9 @@ export default function BashWorkshop(){
     setSubmittedCause(scenario==='pathblock'?causePrediction:'');
     setServiceAnswer('');
     setSubmittedServiceAnswer('');
+    setServiceAction('');
+    setSubmittedServiceAction('');
+    setServiceVerification(null);
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -333,6 +359,9 @@ export default function BashWorkshop(){
   const currentServiceTicket=serviceTicket(serviceTicketId);
   const serviceEvaluation=scenario==='service'&&result?.completed&&submittedServiceAnswer?
     gradeServiceDiagnosis(result,serviceTicketId,submittedServiceAnswer):null;
+  const serviceDecision=scenario==='service'&&result?.completed&&
+    serviceEvaluation?.matched===true&&submittedServiceAction?
+    gradeServiceResponse(result,serviceTicketId,submittedServiceAnswer,submittedServiceAction):null;
   const decisionFeedback=blindDecision&&result&&submittedRemediation?
     gradeRemediation(submittedRemediation,result):null;
   const concreteEvidence=blindDecision&&result&&recoveryCheck?
@@ -502,7 +531,7 @@ export default function BashWorkshop(){
       role="status" aria-live="polite">
       <strong>{result.completed?
         blindDecision&&!verifiedBlind?'✓ Diagnoza wykonana':
-        scenario==='service'&&serviceEvaluation?.matched!==true?'✓ Dowody zebrane':
+        scenario==='service'&&!serviceVerification?.verified?'✓ Diagnoza wykonana':
         '✓ Zadanie wykonane'
         :'Sprawdź i popraw'}</strong>
       <p>{blindDecision&&result.completed&&!verifiedBlind?
@@ -521,6 +550,9 @@ export default function BashWorkshop(){
             onChange={e=>{
               setServiceAnswer(e.target.value as ServiceDiagnosis);
               setSubmittedServiceAnswer('');
+              setServiceAction('');
+              setSubmittedServiceAction('');
+              setServiceVerification(null);
             }}>
             <option value="">Wybierz wniosek z dowodów</option>
             <option value="crash">Proces uległ awarii podczas działania</option>
@@ -528,11 +560,70 @@ export default function BashWorkshop(){
             <option value="healthy">Usługa działa - alert był fałszywy</option>
           </select>
           <button type="button" disabled={!serviceAnswer}
-            onClick={()=>setSubmittedServiceAnswer(serviceAnswer)}>Sprawdź</button>
+            onClick={()=>{
+              setSubmittedServiceAnswer(serviceAnswer);
+              setServiceAction('');
+              setSubmittedServiceAction('');
+              setServiceVerification(null);
+            }}>Sprawdź</button>
         </div>
         {serviceEvaluation&&<p role="status" className="workshop-decision-feedback">
           {serviceEvaluation.message}
         </p>}
+        {serviceEvaluation?.matched===true&&<div className="workshop-service-response">
+          <label htmlFor="workshop-service-response">Co teraz zrobić z usługą?</label>
+          <div className="workshop-remediation-controls">
+            <select id="workshop-service-response" value={serviceAction}
+              onChange={e=>{
+                setServiceAction(e.target.value as ServiceResponseChoice);
+                setSubmittedServiceAction('');
+                setServiceVerification(null);
+              }}>
+              <option value="">Wybierz najbezpieczniejszą reakcję</option>
+              <option value="restart-target">Kontrolowany restart tylko tej usługi</option>
+              <option value="investigate-startup">Zbadaj błąd startu, bez pochopnego restartu</option>
+              <option value="verify-alert">Nie ingeruj w usługę; zweryfikuj monitoring</option>
+              <option value="kill-worker">Zakończ proces poleceniem kill</option>
+            </select>
+            <button type="button" disabled={!serviceAction}
+              onClick={()=>{
+                setSubmittedServiceAction(serviceAction);
+                setServiceVerification(null);
+              }}>Sprawdź</button>
+          </div>
+          {serviceDecision&&<p role="status" className="workshop-decision-feedback">
+            {serviceDecision.message}
+          </p>}
+          {serviceDecision?.matched===true&&<div className="workshop-service-preview">
+            <button type="button" className="workshop-recovery-run"
+              disabled={serviceVerification!==null}
+              onClick={()=>setServiceVerification(
+                verifyServiceResponse(result,serviceTicketId,submittedServiceAnswer,
+                  submittedServiceAction))}>
+              {serviceVerification?'Weryfikacja wykonana':'Zasymuluj i zweryfikuj reakcję'}
+            </button>
+            {serviceVerification&&<div className="workshop-recovery-report" role="status">
+              <table aria-label="Stan usługi przed i po reakcji">
+                <thead><tr><th>Dowód</th><th>Przed</th><th>Po</th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">systemctl</th>
+                    <td>{serviceVerification.beforeStatus}</td>
+                    <td>{serviceVerification.afterStatus}</td></tr>
+                  <tr><th scope="row">Proces PID</th>
+                    <td>{serviceVerification.beforePid}</td>
+                    <td>{serviceVerification.afterPid}</td></tr>
+                </tbody>
+              </table>
+              <ul>{serviceVerification.checks.map(check=><li key={check.id}>
+                <span aria-hidden="true">{check.passed?'✓':'✗'}</span> {check.label}
+              </li>)}</ul>
+              <p>{serviceVerification.message}</p>
+              <small>{serviceVerification.command?
+                <>Wirtualna operacja: <code>{serviceVerification.command}</code></>:
+                'Bez zmiany stanu usługi i procesów'}</small>
+            </div>}
+          </div>}
+        </div>}
       </div>}
       {!result.completed&&result.errorLine!==undefined&&<button type="button"
         className="workshop-fix-line" onClick={focusErrorLine}

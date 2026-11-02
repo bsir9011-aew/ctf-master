@@ -88,6 +88,14 @@ export function observedServiceDiagnosis(
      journal.target!==status.target||ps.target!==undefined)return null;
   if(!status.output.startsWith(ticket.service+'.service\n')||
      !ps.output.startsWith('PID COMMAND\n'))return null;
+  // Provenance: the actual command outputs must match the untouched virtual
+  // world, not merely contain a plausible substring or matching service name.
+  const actualStatus=executeLinux(result.state,'systemctl status '+ticket.service);
+  const actualJournal=executeLinux(result.state,'journalctl -u '+ticket.service);
+  const actualProcesses=executeLinux(result.state,'ps');
+  if(!actualStatus.ok||!actualJournal.ok||!actualProcesses.ok||
+     status.output!==actualStatus.output||journal.output!==actualJournal.output||
+     ps.output!==actualProcesses.output)return null;
   const service=result.state.services?.[ticket.service];
   const proc=result.state.processes?.find(p=>p.service===ticket.service);
   if(!service||!proc||proc.pid!==service.pid)return null;

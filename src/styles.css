@@ -683,3 +683,15 @@
 .workshop-service-interpret{border-top:1px solid #47605a;margin-top:10px;padding-top:10px}
 .workshop-service-interpret>label{display:block;margin:0 0 8px;font-size:12px;line-height:1.5;font-weight:750}
 .workshop-service-interpret .workshop-remediation-controls{margin-bottom:8px}
+
+/* RC.64 - service response and small before/after report in the same mobile card. */
+.workshop-service-response{margin-top:10px;border-top:1px solid #47605a;padding-top:9px}
+.workshop-service-response>label{display:block;margin-bottom:7px;font-size:12px;font-weight:750}
+.workshop-service-preview{margin-top:8px}
+.workshop-service-preview .workshop-recovery-report table{
+  width:100%;table-layout:fixed;border-collapse:collapse;font-size:12px;margin-bottom:8px}
+.workshop-service-preview .workshop-recovery-report th,
+.workshop-service-preview .workshop-recovery-report td{
+  text-align:left;overflow-wrap:anywhere;padding:6px 4px;
+  border-bottom:1px solid #446352}
+.workshop-service-preview .workshop-recovery-report th:first-child{width:36%}
