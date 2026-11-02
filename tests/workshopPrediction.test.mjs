@@ -59,3 +59,19 @@ test('pathblock compares prediction to observed echo even when namei follows',()
       {predicted:'0',observed:'1',matched:false});
   }
 });
+
+test('cause hypothesis is compared with actual executed namei evidence',async()=>{
+  const {compareCausePrediction}=await import('../src/core/workshopPrediction.ts');
+  for(const [path,variant,cause] of [
+    ['diagnostics/service.log','intro','directory'],
+    ['checks/locked.log','transfer','file']
+  ]){
+    const r=runWorkshop(['BASE=~/practice','test -r "$BASE/'+path+'"','echo $?','namei -l "$BASE/'+path+'"'].join('\n'),'pathblock',variant);
+    assert.equal(r.completed,true,r.feedback);
+    assert.deepEqual(compareCausePrediction(cause,r),{predicted:cause,observed:cause,matched:true});
+    const opposite=cause==='file'?'directory':'file';
+    assert.deepEqual(compareCausePrediction(opposite,r),{predicted:opposite,observed:cause,matched:false});
+    assert.equal(compareCausePrediction('',r),null);
+    assert.deepEqual(compareCausePrediction(cause,{steps:r.steps.slice(0,3)}),{predicted:cause,observed:null,matched:null});
+  }
+});
