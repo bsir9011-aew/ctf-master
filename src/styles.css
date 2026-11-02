@@ -662,3 +662,19 @@
 .workshop-evidence-submit:disabled{opacity:.5;cursor:default}
 .workshop-evidence-feedback{font-size:12px;line-height:1.5;margin:8px 0}
 .workshop-evidence-verified{border-top:1px solid #55786b;margin-top:8px;padding-top:6px}
+
+/* RC.60: one compact factual comparison instead of recurring four-checkbox quiz. */
+.workshop-concrete-evidence{margin-top:10px;min-width:0}
+.workshop-concrete-evidence table{width:100%;border-collapse:collapse;table-layout:fixed;
+  margin:0 0 11px;font-size:11px;line-height:1.4}
+.workshop-concrete-evidence th,.workshop-concrete-evidence td{
+  padding:7px 5px;text-align:left;vertical-align:top;overflow-wrap:anywhere;
+  border-bottom:1px solid #406050}
+.workshop-concrete-evidence th:first-child{width:41%}
+.workshop-concrete-evidence thead th{font-weight:750;color:#cceddc}
+.workshop-concrete-evidence label{display:block;margin:8px 0 6px;
+  font-size:12px;font-weight:750;line-height:1.5}
+.workshop-concrete-evidence select{width:100%;min-height:44px;max-width:100%;
+  padding:8px;border:1px solid #658574;background:#192e2e;
+  color:#f0fff2;border-radius:9px;font-size:12px}
+.workshop-concrete-evidence button{margin-top:7px}
