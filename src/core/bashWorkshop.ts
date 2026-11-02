@@ -1,5 +1,5 @@
 import {createAcademyState} from './commandAcademy.ts';
-import {recoveryFixture,type RecoveryVariant} from './pathRecovery.ts';
+import {recoveryFixture} from './pathRecovery.ts';
 import {modeOf} from './permissions.ts';
 import {executeLinux,type CommandResult,type LinuxState} from './linux.ts';
 import {parseConditionals} from './conditionals.ts';
