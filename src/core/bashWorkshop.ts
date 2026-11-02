@@ -7,6 +7,7 @@ import {parseForLoop} from './forLoop.ts';
 import {scanShell} from './shellSyntax.ts';
 import {workshopSourceLines,type SourceLine} from './workshopSourceLines.ts';
 import {type WorkshopId,type RepairWorkshopVariant,type BlindCause} from './workshopScenarios.ts';
+import {accessEvidencePlan} from './workshopPrediction.ts';
 import {blindTicket,type BlindTicketId} from './blindTickets.ts';
 export {WORKSHOP_DEFAULT} from './workshopScenarios.ts';
 
@@ -323,7 +324,10 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup',
       steps,state};
   }
   if(scenario==='pathblock') {
-    const test=events[1],status=events[2],inspect=events[3];
+    const plan=isBlind?accessEvidencePlan({steps}):null;
+    const testIndex=isBlind?(plan?.testIndex??-1):1;
+    const inspectIndex=isBlind?(plan?.inspectIndex??-1):3;
+    const test=events[testIndex],status=events[testIndex+1],inspect=events[inspectIndex];
     const file=pathblockFile;
     // All blind variants use the SAME resolved path.
     const missing=isBlind&&blindCause==='missing';
@@ -332,12 +336,17 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup',
     const blockedAt=expectedFileDenial||missing?undefined:pathblockDir;
     // Inspect actual virtual operations rather than accepting a printed "permission denied".
     const validTest=events.length===4&&events[0].command==='variable'&&
+      (!isBlind||plan!==null)&&
       test?.command==='test'&&test.testFlag==='-r'&&
       test.target===file&&test.exitCode===1&&
-      /\$\{?BASE\}?/.test(lines[1]?.raw??'');
-    if(!validTest)return error('Sprawdź odczyt pliku we wskazanej ścieżce przed analizą katalogów.',state,steps,lines[1]?.line);
+      /\$\{?BASE\}?/.test(lines[testIndex]?.raw??'');
+    if(!validTest)return error(isBlind?
+      'Zbierz trzy dowody tego samego pliku: nieudany test -r, echo $? bezpośrednio po nim oraz namei -l. Kolejność namei wybierasz sam.':
+      'Sprawdź odczyt pliku we wskazanej ścieżce przed analizą katalogów.',
+      state,steps,lines[Math.max(1,testIndex)]?.line);
     if(status?.command!=='echo'||status.target!=='previous-exit'||status.output!=='1')
-      return error('Odczytaj wynik nieudanego testu, zanim uruchomisz analizę ścieżki.',state,steps,lines[2]?.line);
+      return error('Odczytaj wynik nieudanego testu natychmiast po test -r.',state,steps,
+        lines[testIndex+1]?.line);
     const inspectedMissing=missing&&inspect?.ok===false&&
       inspect.output.split('\n').at(-1)==='??? '+ticket.name+' (No such file or directory)'&&
       !Object.hasOwn(initial.files,file)&&initial.dirs.includes(pathblockDir)&&
@@ -346,8 +355,9 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup',
       (missing?!inspectedMissing:!inspect.ok)||
       inspect.blockedAt!==blockedAt||
       (expectedFileDenial&&modeOf(initial,file)!==0o000)||
-      !/\$\{?BASE\}?/.test(lines[3]?.raw??''))
-      return error('Porównaj test i namei -l dla tego samego pliku, aby rozstrzygnąć przyczynę odmowy dostępu.',state,steps,lines[3]?.line);
+      !/\$\{?BASE\}?/.test(lines[inspectIndex]?.raw??''))
+      return error('Porównaj test i namei -l dla tego samego pliku, aby rozstrzygnąć przyczynę odmowy dostępu.',
+        state,steps,lines[inspectIndex]?.line);
     if(Object.keys(state.files).some(path=>state.files[path]!==initial.files[path])||
       Object.keys(initial.files).some(path=>state.files[path]!==initial.files[path])||
       Object.keys(state.permissions??{}).some(path=>state.permissions?.[path]!==initial.permissions?.[path])||

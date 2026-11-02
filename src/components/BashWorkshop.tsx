@@ -342,7 +342,7 @@ export default function BashWorkshop(){
     :scenario==='pathblock'&&pathCase==='blind'?<p className="workshop-task">
       <strong>{currentTicket.title}.</strong> {currentTicket.symptom}
       <code> ~/practice/diagnostics/{currentTicket.name}</code>.
-      Nie znasz przyczyny. Postaw hipotezę i zbierz dowody, nie zmieniając plików ani praw.</p>
+      Nie znasz przyczyny. Sam dobierz kolejność sprawdzeń i zbierz dowody bez zmiany plików ani praw.</p>
     :scenario==='pathblock'&&pathCase==='transfer'?<p className="workshop-task">
       Incydent: plik <code>~/practice/checks/locked.log</code> istnieje,
       lecz odczyt kończy się odmową dostępu. Zbierz dowód nieudanego testu
