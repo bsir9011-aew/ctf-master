@@ -678,3 +678,8 @@
   padding:8px;border:1px solid #658574;background:#192e2e;
   color:#f0fff2;border-radius:9px;font-size:12px}
 .workshop-concrete-evidence button{margin-top:7px}
+
+/* RC.63 - one touch-friendly conclusion in the existing workshop result. */
+.workshop-service-interpret{border-top:1px solid #47605a;margin-top:10px;padding-top:10px}
+.workshop-service-interpret>label{display:block;margin:0 0 8px;font-size:12px;line-height:1.5;font-weight:750}
+.workshop-service-interpret .workshop-remediation-controls{margin-bottom:8px}
