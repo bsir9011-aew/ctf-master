@@ -29,5 +29,6 @@ const ROOT='/home/player/practice/diagnostics';
 export function blindTicket(id:BlindTicketId='service'){
   const item=blindTickets[id];
   return {...item,id,directory:ROOT,file:ROOT+'/'+item.name,
-    backup:'/home/player/practice/.verified-'+id+'.backup'};
+    backup:id==='service'?'/home/player/practice/service.log.verified-backup':
+      '/home/player/practice/.verified-'+id+'.backup'};
 }
