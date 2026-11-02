@@ -169,3 +169,10 @@ Next priority: have the user run physical PWA QA per docs/MOBILE_QA.md and perfo
 - Grade selected response from the **actual validated trace** (failed test -r, adjacent echo 1, namei for same target), not from the hidden seed, scenario label, submitted prediction, or string in incident feedback. Incomplete/foreign evidence is indeterminate.
 - Feedback for blind completed diagnosis stays neutral until response is correct; after correct response reveal the original diagnosis summary. A wrong choice provides a non-spoiler correction prompt. No filesystem mutation on choosing an action.
 - Run, edited scripts, scenario/variant switches and New incident clear previous response; selection changes invalidate submitted response. No new persistence keys, no change to mastery, simulated Linux only, no APK. Physical Android QA remains pending.
+
+## RC.58: verify effects after choosing the minimal response
+- The existing mobile 06 blind task gets one post-decision button, not a new page, editor, wizard, achievement key or APK. A correct plan alone is not marked as fully verified.
+- The button executes a FIXED command via virtual `executeLinux` on a fresh cloned virtual state: owner-x on the directory, owner-r on the file, or cp from a known verified lab backup. Never execute a user's script in a host shell.
+- The training backup in the missing-file case is staged only inside this disposable preview from the established recovery fixture. Explicitly state it is a lab assumption, not proof that a production backup exists. No Academy seed or saved incident mutations.
+- Verify actual cat succeeds, effective target permissions are minimal, unrelated permissions/directories and contents/ownership are unchanged, and restored bytes match the verified training backup. Require all checks.
+- Incorrect intervention, incomplete or foreign evidence must not launch a successful preview. Clear preview on edits, new Run, hypothesis change, remedy change, scenario switch and new incident. Mobile physical QA pending.
