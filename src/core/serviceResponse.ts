@@ -4,7 +4,6 @@ import type {WorkshopResult} from './bashWorkshop.ts';
 import {observedServiceDiagnosis,serviceTicket,type ServiceTicketId} from './serviceWorkshop.ts';
 
 export type ServiceResponseChoice=''|'restart-target'|'investigate-startup'|'verify-alert'|'kill-worker';
-type RealChoice=Exclude<ServiceResponseChoice,''>;
 export interface ServiceResponseAssessment {
   matched:boolean|null;
   message:string;
