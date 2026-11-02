@@ -3,11 +3,8 @@ import type {RecoveryVerification} from './workshopRecoveryVerify.ts';
 import {executeLinux} from './linux.ts';
 import {modeOf} from './permissions.ts';
 import {observedAccessCause} from './workshopPrediction.ts';
-import {recoveryFixture} from './pathRecovery.ts';
+import {blindTicket,type BlindTicketId} from './blindTickets.ts';
 
-const FILE=recoveryFixture('intro').file;
-const DIR=recoveryFixture('intro').directory;
-const BACKUP='/home/player/practice/service.log.verified-backup';
 
 export type EvidenceInterpretation='directory-change'|'file-change'|'backup-restored'|'command-only';
 export interface EvidenceRow { label:string; before:string; after:string }
@@ -27,8 +24,11 @@ const sameRecord=(a:Record<string,unknown>,b:Record<string,unknown>)=>
  */
 export function concreteRecoveryEvidence(
   incident:Pick<WorkshopResult,'completed'|'steps'|'state'>,
-  preview:RecoveryVerification|null
+  preview:RecoveryVerification|null,
+  ticketId:BlindTicketId='service'
 ):ConcreteEvidence|null {
+  const ticket=blindTicket(ticketId);
+  const FILE=ticket.file,DIR=ticket.directory,BACKUP=ticket.backup;
   if(!incident.completed||!preview?.verified||
      preview.checks.length!==3||
      new Set(preview.checks.map(c=>c.id)).size!==3||
@@ -72,7 +72,7 @@ export function concreteRecoveryEvidence(
   const backupSame=preview.usedTrainingBackup&&
     !Object.hasOwn(before.files,BACKUP)&&
     after.files[FILE]===after.files[BACKUP]&&
-    after.files[BACKUP]===recoveryFixture('intro').content;
+    after.files[BACKUP]===ticket.content;
   const changedDirectory=traceCause==='directory'&&beforeExists&&
     !preview.usedTrainingBackup&&dirBefore===0o600&&dirAfter===0o700&&
     fileBefore===fileAfter&&contentSame;
@@ -84,10 +84,10 @@ export function concreteRecoveryEvidence(
   if([changedDirectory,changedFile,restored].filter(Boolean).length!==1)return null;
 
   const rows:EvidenceRow[]=[
-    {label:'cat service.log',before:'kod '+(readBefore.ok?'0':'1'),
+    {label:'cat '+ticket.name,before:'kod '+(readBefore.ok?'0':'1'),
       after:'kod '+(readAfter.ok?'0':'1')},
     {label:'Katalog diagnostics',before:octal(dirBefore),after:octal(dirAfter)},
-    {label:'Plik service.log',before:fileBefore===null?'brak':octal(fileBefore),
+    {label:'Plik '+ticket.name,before:fileBefore===null?'brak':octal(fileBefore),
       after:fileAfter===null?'brak':octal(fileAfter)},
     {label:'Zgodność danych',before:beforeExists?'plik był obecny':'plik był nieobecny',
       after:restored?'zgodne z kopią treningową':contentSame?'bez zmiany treści':'niepotwierdzona'}
