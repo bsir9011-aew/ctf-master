@@ -618,3 +618,20 @@
 .workshop-repair-case-picker{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0 12px;font-size:13px}
 .workshop-repair-case-picker select{min-width:0;max-width:100%;font:inherit;color:inherit;background:#192534;border:1px solid #617383;border-radius:8px;padding:7px 9px}
 .workshop-repair-case-picker select:focus-visible{outline:3px solid #a7edcd;outline-offset:2px}
+
+/* RC.57 - one compact post-diagnosis decision, no extra route or screen. */
+.workshop-remediation{margin-top:10px;padding-top:9px;border-top:1px solid #47605a}
+.workshop-remediation>label{display:block;font-size:12px;font-weight:750;margin-bottom:6px}
+.workshop-remediation-controls{display:flex;align-items:stretch;gap:8px}
+.workshop-remediation-controls select{flex:1;min-width:0;min-height:44px;
+  padding:8px;border:1px solid #55786b;background:#182e34;color:#e5f2eb;
+  border-radius:8px;font-size:13px}
+.workshop-remediation-controls button{flex:0 0 auto;min-height:44px;
+  border:1px solid #648e77;border-radius:8px;background:#214c3c;
+  color:#e2f4e9;font-size:12px;font-weight:750;padding:8px 11px}
+.workshop-remediation-controls button:disabled{opacity:.5;cursor:default}
+.workshop-result .workshop-decision-feedback{margin-top:7px;font-size:12px}
+@media(max-width:380px){
+  .workshop-remediation-controls{flex-direction:column}
+  .workshop-remediation-controls button{width:100%}
+}
