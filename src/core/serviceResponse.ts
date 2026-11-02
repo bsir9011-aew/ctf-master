@@ -1,9 +1,9 @@
-import {createAcademyState} from './commandAcademy.ts';
 import {executeLinux,type LinuxState} from './linux.ts';
 import type {WorkshopResult} from './bashWorkshop.ts';
-import {observedServiceDiagnosis,serviceTicket,type ServiceTicketId} from './serviceWorkshop.ts';
+import {observedServiceDiagnosis,serviceTicket,serviceWorldForTicket,type ServiceDiagnosis,type ServiceTicketId} from './serviceWorkshop.ts';
 
-export type ServiceResponseChoice=''|'restart-target'|'investigate-startup'|'verify-alert'|'kill-worker';
+export type ServiceResponseChoice=''|'restart-target'|'investigate-startup'|'verify-alert'|
+  'inspect-config'|'check-dependency'|'inspect-port'|'kill-worker';
 export interface ServiceResponseAssessment {
   matched:boolean|null;
   message:string;
@@ -28,14 +28,17 @@ export interface ServiceResponseVerification {
 const expected={
   crash:'restart-target',
   startup:'investigate-startup',
-  healthy:'verify-alert'
+  healthy:'verify-alert',
+  config:'inspect-config',
+  dependency:'check-dependency',
+  port:'inspect-port'
 } as const;
 const failure='Najpierw ustal, co stało się z usługą. Restart i kill nie są uniwersalną naprawą.';
 /** From the actual RC.63 read-only evidence and the selected incident only. */
 export function gradeServiceResponse(
   result:Pick<WorkshopResult,'steps'|'state'|'completed'>,
   id:ServiceTicketId,
-  diagnosis:'crash'|'startup'|'healthy'|'',
+  diagnosis:ServiceDiagnosis,
   choice:ServiceResponseChoice
 ):ServiceResponseAssessment|null {
   if(!choice)return null;
@@ -50,7 +53,10 @@ export function gradeServiceResponse(
   const messages={
     crash:'Restart pojedynczej usługi może przywrócić dostępność po awarii procesu. Nie dowodzi jednak usunięcia przyczyny źródłowej.',
     startup:'Błąd startu wymaga zbadania przyczyny (np. konfiguracji lub zależności). Nie udawaj, że kolejny restart już naprawił problem.',
-    healthy:'Usługa i proces działają. Nie ingeruj w nie - sprawdź konfigurację monitoringu i przyczynę alarmu.'
+    healthy:'Usługa i proces działają. Nie ingeruj w nie - sprawdź konfigurację monitoringu i przyczynę alarmu.',
+    config:'Sprawdź błędną dyrektywę konfiguracji i przygotuj kontrolowaną korektę. Nie restartuj bez usunięcia błędu.',
+    dependency:'Zweryfikuj dostępność redis.service i zależności przed jakąkolwiek próbą restartu.',
+    port:'Ustal proces nasłuchujący na porcie 8080. Nie zabijaj go ani nie zmieniaj portu bez oceny wpływu.'
   };
   return {matched:true,message:messages[observed]};
 }
@@ -66,11 +72,11 @@ const activePid=(output:string,pid:number,name:string)=>
 export function verifyServiceResponse(
   incident:Pick<WorkshopResult,'steps'|'state'|'completed'>,
   id:ServiceTicketId,
-  diagnosis:'crash'|'startup'|'healthy'|'',
+  diagnosis:ServiceDiagnosis,
   choice:ServiceResponseChoice
 ):ServiceResponseVerification|null {
   if(gradeServiceResponse(incident,id,diagnosis,choice)?.matched!==true||
-     !equal(incident.state,createAcademyState()))return null;
+     !equal(incident.state,serviceWorldForTicket(id)))return null;
   const name=serviceTicket(id).service,unit=name+'.service';
   const before=incident.state;
   const initial=before.services?.[name],process=before.processes?.find(p=>p.service===name);
@@ -129,9 +135,15 @@ export function verifyServiceResponse(
   const verified=checks.every(check=>check.passed);
   const message=verified?(choice==='restart-target'?
     'Symulator potwierdza przywrócenie usługi. To nie jest dowód trwałego usunięcia źródła awarii.':
-    choice==='investigate-startup'?
-      'Bez nieuzasadnionego restartu: usługa nadal failed. Kolejny krok to ustalenie przyczyny błędu uruchomienia.':
-      'Bez ingerencji: usługa nadal active. Trzeba wyjaśnić alarm monitoringu.') :
+    choice==='verify-alert'?
+      'Bez ingerencji: usługa nadal active. Trzeba wyjaśnić alarm monitoringu.':
+      choice==='inspect-config'?
+        'Wykryto błędną konfigurację. Usługa pozostaje failed do czasu poprawy i walidacji ustawień.':
+      choice==='check-dependency'?
+        'Zależność jest niedostępna. Usługa pozostaje failed do czasu sprawdzenia i przywrócenia zależności.':
+      choice==='inspect-port'?
+        'Port 8080 jest zajęty. Usługa pozostaje failed do czasu bezpiecznego rozwiązania konfliktu.':
+        'Bez nieuzasadnionego restartu: usługa nadal failed. Kolejny krok to ustalenie przyczyny błędu uruchomienia.') :
     'Kontrole nie potwierdziły bezpiecznej reakcji.';
   return {
     command:actionCommand,beforeStatus:initial.status,afterStatus:service.status,

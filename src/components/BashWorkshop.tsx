@@ -558,6 +558,9 @@ export default function BashWorkshop(){
             <option value="crash">Proces uległ awarii podczas działania</option>
             <option value="startup">Usługa nie wystartowała poprawnie</option>
             <option value="healthy">Usługa działa - alert był fałszywy</option>
+            <option value="config">Błąd konfiguracji usługi</option>
+            <option value="dependency">Niedostępna zależność usługi</option>
+            <option value="port">Konflikt portu nasłuchu</option>
           </select>
           <button type="button" disabled={!serviceAnswer}
             onClick={()=>{
@@ -583,6 +586,9 @@ export default function BashWorkshop(){
               <option value="restart-target">Kontrolowany restart tylko tej usługi</option>
               <option value="investigate-startup">Zbadaj błąd startu, bez pochopnego restartu</option>
               <option value="verify-alert">Nie ingeruj w usługę; zweryfikuj monitoring</option>
+              <option value="inspect-config">Sprawdź i skoryguj konfigurację po weryfikacji</option>
+              <option value="check-dependency">Sprawdź i przywróć brakującą zależność</option>
+              <option value="inspect-port">Ustal właściciela portu i oceń konflikt</option>
               <option value="kill-worker">Zakończ proces poleceniem kill</option>
             </select>
             <button type="button" disabled={!serviceAction}

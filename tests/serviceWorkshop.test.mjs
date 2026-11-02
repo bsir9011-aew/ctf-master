@@ -23,7 +23,8 @@ const commands=(service)=>[
 ];
 
 test('three process/service tickets support six independent inspection orders each',()=>{
-  assert.equal(serviceTicketIds.length,3);
+  assert.equal(serviceTicketIds.length,6);
+  assert.deepEqual(serviceTicketIds.slice(0,3),['web','api','queue']);
   assert.equal(WORKSHOP_MAX_LINES,4);
   for(const [id,cause] of tickets){
     const ticket=serviceTicket(id);

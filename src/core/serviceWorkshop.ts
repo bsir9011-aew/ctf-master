@@ -10,12 +10,45 @@ export const serviceTickets={
   api:{title:'INC-072 · Usługa API',service:'api',
     symptom:'Klient API zgłasza, że po wdrożeniu nie dostaje odpowiedzi.'},
   queue:{title:'INC-073 · Kolejka',service:'queue',
-    symptom:'Alert monitoringu twierdzi, że kolejka zadań jest niedostępna.'}
+    symptom:'Alert monitoringu twierdzi, że kolejka zadań jest niedostępna.'},
+  reporter:{title:'INC-074 · Generator raportów',service:'reporter',
+    symptom:'Po wdrożeniu generator raportów nie uruchamia się.'},
+  scheduler:{title:'INC-075 · Harmonogram',service:'scheduler',
+    symptom:'Zadania harmonogramu przestały się wykonywać.'},
+  gateway:{title:'INC-076 · Brama HTTP',service:'gateway',
+    symptom:'Nowa instancja bramy HTTP nie może wystartować.'}
 } as const;
 export type ServiceTicketId=keyof typeof serviceTickets;
-export type ServiceDiagnosis=''|'crash'|'startup'|'healthy';
+export type ServiceDiagnosis=''|'crash'|'startup'|'healthy'|'config'|'dependency'|'port';
 export const serviceTicketIds=Object.keys(serviceTickets) as ServiceTicketId[];
 export function serviceTicket(id:ServiceTicketId){return serviceTickets[id];}
+/** Additional scenarios are fresh virtual fixtures, never global Academy changes.
+ * The first three tickets keep their historical state bit-for-bit.
+ */
+export function serviceWorldForTicket(id:ServiceTicketId):LinuxState{
+  const state=createAcademyState();
+  const cases={
+    reporter:{pid:510,name:'reporterd',
+      journal:['09:10 reporter: config validation failed: unknown directive output_dir',
+        '09:10 systemd: reporter.service failed']},
+    scheduler:{pid:520,name:'scheduler-worker',
+      journal:['09:12 scheduler: dependency redis.service unavailable',
+        '09:12 systemd: scheduler.service failed']},
+    gateway:{pid:530,name:'gatewayd',
+      journal:['09:14 gateway: bind 0.0.0.0:8080 failed: Address already in use',
+        '09:14 systemd: gateway.service failed']}
+  } as const;
+  if(id!=='reporter'&&id!=='scheduler'&&id!=='gateway')return state;
+  const seed=cases[id];
+  return {...state,
+    processes:[...(state.processes??[]),{
+      pid:seed.pid,name:seed.name,running:false,service:id
+    }],
+    services:{...state.services,[id]:{
+      pid:seed.pid,status:'failed' as const,journal:[...seed.journal]
+    }}
+  };
+}
 const blank=(state:LinuxState,feedback:string,line?:number):WorkshopResult=>({
   completed:false,feedback,state,steps:[],errorLine:line
 });
@@ -28,7 +61,7 @@ const inputAllowed=(input:string,service:string)=>{
   return null;
 };
 export function runServiceWorkshop(script:string,id:ServiceTicketId='web'):WorkshopResult{
-  const initial=createAcademyState(),ticket=serviceTicket(id);
+  const initial=serviceWorldForTicket(id),ticket=serviceTicket(id);
   if(script.length>700)return blank(initial,'Skrypt jest za długi (maksymalnie 700 znaków).');
   const lines=workshopSourceLines(script);
   if(lines.length!==3)
@@ -111,6 +144,12 @@ export function observedServiceDiagnosis(
   if(service.status==='failed'&&!proc.running&&!running){
     if(journal.output.includes('transient worker crash (exit 1)'))return 'crash';
     if(journal.output.includes('startup failed (exit 1)'))return 'startup';
+    if(journal.output.includes('config validation failed: unknown directive output_dir'))
+      return 'config';
+    if(journal.output.includes('dependency redis.service unavailable'))
+      return 'dependency';
+    if(journal.output.includes('bind 0.0.0.0:8080 failed: Address already in use'))
+      return 'port';
   }
   return null;
 }
@@ -126,7 +165,10 @@ export function gradeServiceDiagnosis(
   const success={
     crash:'Trafnie: serwis wcześniej działał, ale jego proces zakończył się błędem. Dziennik wskazuje awarię procesu.',
     startup:'Trafnie: usługa nie wystartowała. Dziennik opisuje błąd startu, a proces nie pracuje.',
-    healthy:'Trafnie: status active, działający proces i wpis ready świadczą o fałszywym alarmie.'
+    healthy:'Trafnie: status active, działający proces i wpis ready świadczą o fałszywym alarmie.',
+    config:'Trafnie: journal wskazuje nieznaną dyrektywę konfiguracji. Sam restart niczego nie naprawi.',
+    dependency:'Trafnie: journal wskazuje niedostępną zależność redis.service. Sprawdź ją przed zmianą usługi.',
+    port:'Trafnie: Address already in use oznacza konflikt portu. Ustal, co go zajmuje.'
   };
   return {matched:true,message:success[observed]};
 }
