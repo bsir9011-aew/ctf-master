@@ -79,7 +79,7 @@ test('preflight disallows modifications, loops, network and hidden shell effects
 
 test('pathblock has independent draft and does not alter old scenarios',()=>{
   assert.deepEqual(workshopScenarios.map(s=>s.id),[
-    'backup','diagnosis','permissions','fallback','transfer','pathblock','repair'
+    'backup','diagnosis','permissions','fallback','transfer','pathblock','repair','service'
   ]);
   assert.equal(workshopInitialScript('pathblock'),PATHBLOCK_DEFAULT);
   assert.equal(runWorkshop(PATHBLOCK_DEFAULT,'pathblock').completed,false);
@@ -140,13 +140,13 @@ test('independent case checks order, real evidence and preflight without changes
   }
 });
 
-test('separate independent draft and blank editor, with seven menu items retained',()=>{
+test('separate independent draft and blank editor, with eight menu items retained',()=>{
   assert.equal(pathblockWorkshopStarter('transfer'),'');
   assert.equal(pathblockWorkshopStarter('intro'),PATHBLOCK_DEFAULT);
   assert.equal(pathblockWorkshopDraftKey('intro'),workshopDraftKey('pathblock'));
   assert.equal(pathblockWorkshopDraftKey('transfer'),
     'ctf-master:bash-workshop-pathblock-transfer-draft-v1');
   assert.notEqual(pathblockWorkshopDraftKey('intro'),pathblockWorkshopDraftKey('transfer'));
-  assert.equal(workshopScenarios.length,7);
+  assert.equal(workshopScenarios.length,8);
   assert.equal(runWorkshop('', 'pathblock','transfer').completed,false);
 });
