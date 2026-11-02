@@ -635,3 +635,15 @@
   .workshop-remediation-controls{flex-direction:column}
   .workshop-remediation-controls button{width:100%}
 }
+
+/* RC.58: same compact mobile result card, no new screen. */
+.workshop-recovery-check{margin-top:9px}
+.workshop-recovery-run{width:100%;min-height:44px;border:1px solid #6e9a82;
+  border-radius:9px;background:#1c4638;color:#e5f5e9;
+  padding:8px 12px;font-size:12px;font-weight:800;cursor:pointer}
+.workshop-recovery-run:disabled{opacity:.72;cursor:default}
+.workshop-recovery-report{margin-top:8px;padding:8px 10px;
+  border:1px solid #55786b;border-radius:9px;background:#1b3029}
+.workshop-recovery-report ul{padding-left:16px;margin:6px 0}
+.workshop-recovery-report li{font-size:12px;line-height:1.5;margin-bottom:4px}
+.workshop-recovery-report small{display:block;margin-top:6px;font-size:11px;overflow-wrap:anywhere}

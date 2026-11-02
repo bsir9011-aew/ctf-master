@@ -1,7 +1,7 @@
 {
   "name": "ctf-master",
   "private": true,
-  "version": "1.0.0-rc.57",
+  "version": "1.0.0-rc.58",
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
