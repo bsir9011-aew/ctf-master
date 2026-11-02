@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {runWorkshop,WORKSHOP_MAX_LINES} from '../src/core/bashWorkshop.ts';
 import {createAcademyState} from '../src/core/commandAcademy.ts';
+import {modeOf} from '../src/core/permissions.ts';
 import {compareCausePrediction} from '../src/core/workshopPrediction.ts';
 import {
   pathblockWorkshopDraftKey,pathblockWorkshopStarter,workshopScenarios,
@@ -46,7 +47,7 @@ test('blind cases share one file path but have genuinely different causes',()=>{
     if(cause==='directory'){
       assert.equal(result.steps[3].blockedAt,'~/practice/diagnostics');
       assert.equal(result.state.permissions[DIR],0o600);
-      assert.equal(result.state.permissions[FILE],0o644);
+      assert.equal(modeOf(result.state,FILE),0o644);
     }else{
       assert.equal(result.steps[3].blockedAt,undefined);
       assert.match(result.steps[3].output,/---------- .*service\.log/);
