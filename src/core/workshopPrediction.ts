@@ -25,28 +25,47 @@ export function compareExitPrediction(
 }
 
 export type CausePrediction=''|'directory'|'file'|'missing';
-/** Only executed evidence can establish a cause. This helper is deliberately
- * unaware of scenario IDs, hidden seeds, expected answers and feedback text.
+/** Evidence must be three actual, distinct commands for the SAME resolved
+ * target. In blind mode the user may inspect the path either before or after
+ * the test/echo pair; echo must immediately follow the failing test.
+ * This is trace evidence, not a scenario label or a forged output string.
  */
+export interface AccessEvidencePlan {
+  testIndex:1|2;
+  inspectIndex:1|3;
+  target:string;
+}
+export function accessEvidencePlan(
+  result:Pick<WorkshopResult,'steps'>
+):AccessEvidencePlan|null {
+  const steps=result.steps;
+  if(steps.length!==4||steps[0]?.command!=='variable')return null;
+  const testIndex=steps.findIndex(step=>
+    step.command==='test'&&step.testFlag==='-r'&&step.exitCode===1&&
+    typeof step.target==='string'&&step.target.startsWith('/'));
+  if(testIndex!==1&&testIndex!==2)return null;
+  const inspectIndex=testIndex===1?3:1;
+  const test=steps[testIndex],echo=steps[testIndex+1],inspect=steps[inspectIndex];
+  if(echo?.command!=='echo'||echo.target!=='previous-exit'||
+     echo.exitCode!==0||echo.output!=='1'||
+     inspect?.command!=='namei'||inspect.target!==test.target||
+     !inspect.output.startsWith('f: '+test.target+'\n'))return null;
+  return {testIndex,inspectIndex:inspectIndex as 1|3,target:test.target!};
+}
+/** Reads the actual namei evidence. No cause or path guessed from task label. */
 export function observedAccessCause(result:Pick<WorkshopResult,'steps'>):
   Exclude<CausePrediction,''>|null {
-  const steps=result.steps;
-  const index=steps.findIndex(step=>
-    step.command==='test'&&step.testFlag==='-r'&&step.exitCode===1&&!!step.target);
-  const testStep=steps[index],echo=steps[index+1],inspect=steps[index+2];
-  let observed:'directory'|'file'|'missing'|null=null;
-  if(index>=0&&echo?.command==='echo'&&echo.output==='1'&&
-     inspect?.command==='namei'&&inspect.target===testStep?.target&&
-     inspect.output.startsWith('f: '+testStep.target+'\n')){
-    const last=inspect.output.trimEnd().split('\n').at(-1);
-    const basename=testStep.target?.split('/').at(-1);
-    if(inspect.exitCode===0&&inspect.blockedAt)observed='directory';
-    else if(inspect.exitCode===0&&last?.startsWith('---------- '))observed='file';
-    else if(inspect.exitCode===1&&!inspect.blockedAt&&
-      last==='??? '+basename+' (No such file or directory)'&&
-      inspect.output.split('\n').length>2)observed='missing';
-  }
-  return observed;
+  const plan=accessEvidencePlan(result);
+  if(!plan)return null;
+  const inspect=result.steps[plan.inspectIndex];
+  const last=inspect.output.trimEnd().split('\n').at(-1);
+  const basename=plan.target.split('/').at(-1);
+  if(inspect.exitCode===0&&inspect.blockedAt)return 'directory';
+  if(inspect.exitCode===0&&last?.startsWith('---------- '))return 'file';
+  if(inspect.exitCode===1&&!inspect.blockedAt&&
+     last==='??? '+basename+' (No such file or directory)'&&
+     inspect.output.split('\n').length>2)return 'missing';
+  return null;
 }
 export function compareCausePrediction(predicted:CausePrediction,result:Pick<WorkshopResult,'steps'>) {
   if(!predicted)return null;
