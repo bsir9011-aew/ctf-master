@@ -112,6 +112,6 @@ test('new file repair is blank, uses isolated local key, leaves menu at seven',(
   assert.equal(repairWorkshopStarter('intro').startsWith('BASE='),true);
   assert.equal(repairWorkshopStarter('transfer'),'');
   assert.equal(repairWorkshopStarter('file'),'');
-  assert.equal(workshopScenarios.length,7);
-  assert.equal(workshopScenarios.at(-1).id,'repair');
+  assert.equal(workshopScenarios.length,8);
+  assert.equal(workshopScenarios.at(-2).id,'repair');
 });
