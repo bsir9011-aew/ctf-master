@@ -9,6 +9,7 @@ import {workshopSourceLines,type SourceLine} from './workshopSourceLines.ts';
 import {type WorkshopId,type RepairWorkshopVariant,type BlindCause} from './workshopScenarios.ts';
 import {accessEvidencePlan} from './workshopPrediction.ts';
 import {blindTicket,type BlindTicketId} from './blindTickets.ts';
+import {runServiceWorkshop,type ServiceTicketId} from './serviceWorkshop.ts';
 export {WORKSHOP_DEFAULT} from './workshopScenarios.ts';
 
 export const WORKSHOP_MAX_LINES=4;
@@ -161,7 +162,8 @@ function preflight(lines:readonly SourceLine[],seed:LinuxState,scenario:Workshop
  */
 export function runWorkshop(script:string,scenario:WorkshopId='backup',
   repairVariant:RepairWorkshopVariant='intro',blindCause:BlindCause|null=null,
-  ticketId:BlindTicketId='service'):WorkshopResult {
+  ticketId:BlindTicketId='service',serviceTicketId:ServiceTicketId='web'):WorkshopResult {
+  if(scenario==='service')return runServiceWorkshop(script,serviceTicketId);
   const academy=createAcademyState();
   const fixture=recoveryFixture(repairVariant==='file'?'intro':repairVariant);
   const isBlind=scenario==='pathblock'&&blindCause!==null;
