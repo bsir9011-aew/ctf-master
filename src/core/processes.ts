@@ -6,6 +6,7 @@ export interface SimProcess {
   running: boolean;
   service?: string;
   essential?: boolean;
+  listeningPort?: number; // Virtual TCP port, never a host socket.
 }
 export interface SimService {
   status: 'active' | 'failed' | 'inactive';

@@ -411,7 +411,12 @@ export default function BashWorkshop(){
       <strong>{currentServiceTicket.title}.</strong> {currentServiceTicket.symptom}
       Sprawdź <code>{currentServiceTicket.service}.service</code> za pomocą
       <code> ps</code>, <code>systemctl status</code> i <code>journalctl -u</code>.
-      Trzy krótkie polecenia, dowolna kolejność. Nie restartuj ani nie kończ procesów.
+      {serviceTicketId==='scheduler'?
+        <>Cztery krótkie polecenia. Dodatkowo sprawdź stan zależności <code>redis.service</code>.</>:
+        serviceTicketId==='gateway'?
+        <>Cztery krótkie polecenia. Dodatkowo ustal właściciela portu poleceniem <code>ss -ltnp</code>.</>:
+        'Trzy krótkie polecenia, dowolna kolejność.'}
+      {' '}Nie restartuj ani nie kończ procesów.
     </p>
     :scenario==='repair'&&repairCase==='file'?<p className="workshop-task">
       Dyżur SOC: wirtualny <code>~/practice/checks/locked.log</code> istnieje,
@@ -461,7 +466,9 @@ export default function BashWorkshop(){
       a potem przez <code>||</code> przejdź do testu zapasowego pliku.
       Użyj <code>echo $?</code>, aby potwierdzić końcowy kod. Nie zmieniaj plików.</p>}
     <label htmlFor="bash-workshop-editor" className="workshop-editor-label">
-      Twój skrypt ({scenario==='service'?'3 polecenia':'maks. 4 linie'})
+      Twój skrypt ({scenario==='service'?
+        (serviceTicketId==='gateway'||serviceTicketId==='scheduler'?'4 polecenia':'3 polecenia'):
+        'maks. 4 linie'})
     </label>
     <textarea id="bash-workshop-editor" ref={editor} value={draft} rows={4}
       spellCheck={false} autoCapitalize="none" autoCorrect="off"

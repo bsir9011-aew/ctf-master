@@ -19,7 +19,9 @@ const allCases=[
   ...newIncidents.map(([id,cause,action])=>[id,cause,action])
 ];
 const steps=(id)=>[
-  'ps aux','systemctl status '+id+'.service','journalctl -u '+id
+  'ps aux','systemctl status '+id+'.service','journalctl -u '+id,
+  ...(id==='scheduler'?['systemctl status redis.service']:
+      id==='gateway'?['ss -ltnp']:[])
 ];
 const perms=(a)=>a.length===1?[a]:
   a.flatMap((x,i)=>perms(a.filter((_,j)=>i!==j)).map(ys=>[x,...ys]));
@@ -34,19 +36,20 @@ test('RC65 has six compact ticket variants, legacy fixtures unchanged',()=>{
     assert.equal(world.services[id].status,'failed');
     assert.equal(world.processes.find(p=>p.service===id).running,false);
     assert.equal(world.services[id].pid,world.processes.find(p=>p.service===id).pid);
-    assert.equal(world.processes.length,createAcademyState().processes.length+1);
-    assert.equal(Object.keys(world.services).length,Object.keys(createAcademyState().services).length+1);
+    const added=id==='reporter'?1:2;
+    assert.equal(world.processes.length,createAcademyState().processes.length+added);
+    assert.equal(Object.keys(world.services).length,Object.keys(createAcademyState().services).length+added);
     assert.equal(serviceTicket(id).service,id);
   }
 });
 
-test('all six cases support all six safe read-only command permutations',()=>{
+test('all six cases support all safe read-only command permutations',()=>{
   for(const [id,cause,action] of allCases){
     for(const order of perms(steps(id))){
       const script=order.join('\n');
       const incident=runServiceWorkshop(script,id);
       assert.equal(incident.completed,true,id+' '+order.join(' → ')+': '+incident.feedback);
-      assert.equal(incident.steps.length,3);
+      assert.equal(incident.steps.length,steps(id).length);
       assert.deepEqual(incident.state,serviceWorldForTicket(id));
       assert.equal(observedServiceDiagnosis(incident,id),cause);
       assert.equal(gradeServiceDiagnosis(incident,id,cause).matched,true);
