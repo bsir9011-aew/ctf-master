@@ -4,7 +4,7 @@ import {fitWorkshopEditor} from '../core/workshopEditorSize';
 import {emptyUndoHistory,recordEditorEdit,undoEditorEdit,
   type EditKind} from '../core/editorUndo';
 import {sourceLineRange} from '../core/workshopSourceLines';
-import {compareExitPrediction,type ExitPrediction} from '../core/workshopPrediction';
+import {compareExitPrediction,compareCausePrediction,type CausePrediction,type ExitPrediction} from '../core/workshopPrediction';
 import type {RecoveryVariant} from '../core/pathRecovery';
 import {workshopScenarios,workshopInitialScript,workshopDraftKey,
   repairWorkshopDraftKey,repairWorkshopStarter,
@@ -69,6 +69,8 @@ export default function BashWorkshop(){
   const [pathCase,setPathCase]=useState<RecoveryVariant>(restorePathCase);
   const [draft,setDraft]=useState(()=>restoreDraft(restoreScenario(),restoreRepairCase(),restorePathCase()));
   const [prediction,setPrediction]=useState<ExitPrediction>('');
+  const [causePrediction,setCausePrediction]=useState<CausePrediction>('');
+  const [submittedCause,setSubmittedCause]=useState<CausePrediction>('');
   const [submittedPrediction,setSubmittedPrediction]=useState<ExitPrediction>('');
   const [result,setResult]=useState<WorkshopResult|null>(null);
   const [editorNotice,setEditorNotice]=useState('');
@@ -99,6 +101,7 @@ export default function BashWorkshop(){
     // An edited script needs a new prediction; never compare a stale guess.
     setPrediction('');
     setSubmittedPrediction('');
+    setSubmittedCause('');
     setEditorNotice('');
     setDraft(next);
     setResult(null);
@@ -110,6 +113,8 @@ export default function BashWorkshop(){
     setDraft(restoreDraft(next,repairCase,pathCase));
     setPrediction('');
     setSubmittedPrediction('');
+    setCausePrediction('');
+    setSubmittedCause('');
     setResult(null);
     setEditorNotice('');
     undoHistory.current=emptyUndoHistory();
@@ -124,6 +129,8 @@ export default function BashWorkshop(){
     setDraft(restoreDraft('repair',next,pathCase));
     setPrediction('');
     setSubmittedPrediction('');
+    setCausePrediction('');
+    setSubmittedCause('');
     setResult(null);
     setEditorNotice('');
     undoHistory.current=emptyUndoHistory();
@@ -138,6 +145,8 @@ export default function BashWorkshop(){
     setDraft(restoreDraft('pathblock',repairCase,next));
     setPrediction('');
     setSubmittedPrediction('');
+    setCausePrediction('');
+    setSubmittedCause('');
     setResult(null);
     setEditorNotice('');
     undoHistory.current=emptyUndoHistory();
@@ -189,6 +198,7 @@ export default function BashWorkshop(){
   const run=()=>{
     // Freeze the answer at run time; edits or post-result selections cannot backfill it.
     setSubmittedPrediction(prediction);
+    setSubmittedCause(scenario==='pathblock'?causePrediction:'');
     setResult(runWorkshop(draft,scenario,scenario==='pathblock'?pathCase:repairCase));
   };
   const focusErrorLine=()=>{
@@ -206,6 +216,7 @@ export default function BashWorkshop(){
   const copies=result?.steps.flatMap(s=>s.changedFiles)
     .filter(path=>path.endsWith('.copy')).length??0;
   const exitComparison=result?compareExitPrediction(scenario,submittedPrediction,result):null;
+  const causeComparison=result&&scenario==='pathblock'?compareCausePrediction(submittedCause,result):null;
   return <section className="bash-workshop" aria-label="Mobilny warsztat Bash">
     <div className="workshop-heading">
       <span className="eyebrow">BASH WORKSHOP</span>
@@ -303,6 +314,15 @@ export default function BashWorkshop(){
         title={item.description}>{item.label}</button>)}
     </div>
     {editorNotice&&<p role="status" className="workshop-editor-notice">{editorNotice}</p>}
+    {scenario==='pathblock'&&<label className="workshop-editor-label" htmlFor="workshop-cause-prediction">
+      Hipoteza przed uruchomieniem
+      <select id="workshop-cause-prediction" value={causePrediction}
+        onChange={e=>{setCausePrediction(e.target.value as CausePrediction);setSubmittedCause('');}}>
+        <option value="">Bez hipotezy</option>
+        <option value="directory">Brak x w katalogu</option>
+        <option value="file">Brak r w pliku</option>
+      </select>
+    </label>}
     <div className={'workshop-controls '+(scenario==='repair'?'repair':scenario!=='backup'?'diagnosis':'')}>
       {scenario!=='repair'&&<label htmlFor="workshop-prediction">{scenario==='backup'?'Przewidź kopie':'Przewidź kod'}
         <select id="workshop-prediction" value={prediction}
@@ -330,6 +350,13 @@ export default function BashWorkshop(){
       </button>}
       {scenario==='backup'&&submittedPrediction&&<p className="workshop-prediction">Przewidywanie: {submittedPrediction} · kopie utworzone: {copies}.
         {Number(submittedPrediction)===copies?' Zgadza się.':' Porównaj to z wykonanymi krokami.'}</p>}
+      {causeComparison&&<p className="workshop-prediction">
+        Hipoteza: {causeComparison.predicted==='directory'?'katalog bez x':'plik bez r'}.
+        {causeComparison.observed===null?' Brak wystarczających dowodów namei.'
+          :<> Dowód: {causeComparison.observed==='directory'?'blokada katalogu':'brak odczytu pliku'}.
+            {causeComparison.matched?' Hipoteza potwierdzona.':' Hipoteza obalona - przeanalizuj namei.'}
+          </>}
+      </p>}
       {exitComparison&&<p className="workshop-prediction">
         Przewidziano kod {exitComparison.predicted}.
         {exitComparison.observed===null
