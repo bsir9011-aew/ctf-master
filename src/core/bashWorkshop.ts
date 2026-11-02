@@ -165,7 +165,21 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup',
   const pathblockFile=isBlind||repairVariant!=='transfer'?BLOCKED_FILE:UNREADABLE_FILE;
   // The alternate incident lives ONLY in this fresh virtual run. No changes
   // to Academy seeds, persisted user data or the guided repair fixture.
-  const initial:LinuxState=isBlind&&blindCause==='file'?{
+  // All three causes use one path in a fresh virtual world.
+  const missingFiles={...academy.files};
+  const missingPermissions={...academy.permissions};
+  const missingOwnership={...academy.ownership};
+  if(isBlind&&blindCause==='missing'){
+    delete missingFiles[BLOCKED_FILE];
+    delete missingPermissions[BLOCKED_FILE];
+    delete missingOwnership[BLOCKED_FILE];
+  }
+  const initial:LinuxState=isBlind&&blindCause==='missing'?{
+    ...academy,
+    files:missingFiles,
+    permissions:{...missingPermissions,[BLOCKED_DIR]:0o700},
+    ownership:missingOwnership
+  }:isBlind&&blindCause==='file'?{
     ...academy,
     permissions:{...academy.permissions,[BLOCKED_DIR]:0o700,[BLOCKED_FILE]:0o000}
   }:scenario==='repair'&&repairVariant==='transfer'?{
@@ -215,7 +229,13 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup',
       result.conditionalTrace?.every(part=>part.command==='test'&&
         (scenario==='permissions'?['-f','-r'].includes(part.testFlag??''):part.testFlag==='-f'))) ||
       (scenario==='pathblock'&&result.command==='test'&&result.testFlag==='-r'&&result.target===pathblockFile);
-    if(!result.ok&&!diagnosticTest)return error('Linia '+lines[index].line+': '+(result.output||'polecenie zakończyło się błędem.'),state,steps,lines[index].line);
+    // For a missing leaf, namei reports ENOENT: evidence, not a fatal error.
+    const expectedMissingNamei=isBlind&&blindCause==='missing'&&
+      result.command==='namei'&&result.target===BLOCKED_FILE&&
+      !result.ok&&!result.blockedAt&&
+      result.output.split('\n').at(-1)==='??? service.log (No such file or directory)';
+    if(!result.ok&&!diagnosticTest&&!expectedMissingNamei)
+      return error('Linia '+lines[index].line+': '+(result.output||'polecenie zakończyło się błędem.'),state,steps,lines[index].line);
   }
 
   if(state.variables?.BASE!=='~/practice')
@@ -299,10 +319,11 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup',
   if(scenario==='pathblock') {
     const test=events[1],status=events[2],inspect=events[3];
     const file=pathblockFile;
-    // Blind variant uses the SAME path for both root causes.
+    // All blind variants use the SAME resolved path.
+    const missing=isBlind&&blindCause==='missing';
     const expectedFileDenial=(isBlind&&blindCause==='file')||
       (!isBlind&&repairVariant==='transfer');
-    const blockedAt=expectedFileDenial?undefined:BLOCKED_DIR;
+    const blockedAt=expectedFileDenial||missing?undefined:BLOCKED_DIR;
     // Inspect actual virtual operations rather than accepting a printed "permission denied".
     const validTest=events.length===4&&events[0].command==='variable'&&
       test?.command==='test'&&test.testFlag==='-r'&&
@@ -311,7 +332,12 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup',
     if(!validTest)return error('Sprawdź odczyt pliku we wskazanej ścieżce przed analizą katalogów.',state,steps,lines[1]?.line);
     if(status?.command!=='echo'||status.target!=='previous-exit'||status.output!=='1')
       return error('Odczytaj wynik nieudanego testu, zanim uruchomisz analizę ścieżki.',state,steps,lines[2]?.line);
-    if(inspect?.command!=='namei'||!inspect.ok||inspect.target!==file||
+    const inspectedMissing=missing&&inspect?.ok===false&&
+      inspect.output.split('\n').at(-1)==='??? service.log (No such file or directory)'&&
+      !Object.hasOwn(initial.files,file)&&initial.dirs.includes(BLOCKED_DIR)&&
+      modeOf(initial,BLOCKED_DIR)===0o700;
+    if(inspect?.command!=='namei'||inspect.target!==file||
+      (missing?!inspectedMissing:!inspect.ok)||
       inspect.blockedAt!==blockedAt||
       (expectedFileDenial&&modeOf(initial,file)!==0o000)||
       !/\$\{?BASE\}?/.test(lines[3]?.raw??''))
@@ -324,9 +350,11 @@ export function runWorkshop(script:string,scenario:WorkshopId='backup',
       return error('Diagnoza musi pozostawić system plików i uprawnienia bez zmian.',state,steps);
     return {completed:true,
       feedback:isBlind?
-        (blindCause==='file'?
-          'Ślepy incydent rozwiązany: namei przeszło przez katalog i wykazało brak r na samym pliku (000). Żadnych zmian danych ani uprawnień.':
-          'Ślepy incydent rozwiązany: namei wskazało brak x w katalogu diagnostics. Sam plik pozostał nienaruszony.'):
+        (blindCause==='missing'?
+          'Ślepy incydent rozwiązany: namei dotarło do katalogu diagnostics, ale pokazało No such file or directory dla service.log. Brakuje pliku, a nie uprawnień. Niczego nie utworzono.':
+          blindCause==='file'?
+            'Ślepy incydent rozwiązany: namei przeszło przez katalog i wykazało brak r na samym pliku (000). Żadnych zmian danych ani uprawnień.':
+            'Ślepy incydent rozwiązany: namei wskazało brak x w katalogu diagnostics. Sam plik pozostał nienaruszony.'):
         repairVariant==='transfer'?
           'Samodzielna diagnoza zaliczona: test -r dał 1; namei -l przeszło przez katalogi i pokazało plik bez prawa odczytu (000). To inny mechanizm niż brak x na katalogu. Nie zmieniono uprawnień ani danych.':
           'Zaliczone: test -r zwrócił 1, mimo że plik istnieje. namei -l wykazało brak prawa x na katalogu diagnostics. Nie zmieniono plików ani uprawnień.',

@@ -48,7 +48,8 @@ function restorePathCase():PathWorkshopVariant {
   }catch{return 'intro';}
 }
 function randomBlindCause():BlindCause {
-  return Math.random()<0.5?'directory':'file';
+  const choices:BlindCause[]=['directory','file','missing'];
+  return choices[Math.floor(Math.random()*choices.length)];
 }
 function initialDraft(id:WorkshopId,repairCase:RepairWorkshopVariant,pathCase:PathWorkshopVariant):string{
   return id==='repair'?repairWorkshopStarter(repairCase):
@@ -282,8 +283,9 @@ export default function BashWorkshop(){
       treści ani innych uprawnień.</p>
     :scenario==='pathblock'&&pathCase==='blind'?<p className="workshop-task">
       Dyżur: plik <code>~/practice/diagnostics/service.log</code> nie daje się odczytać.
-      Przyczyna jest ukryta. Najpierw postaw hipotezę, następnie zbierz dowody
-      i rozstrzygnij problem bez zmieniania plików ani praw.</p>
+      Przyczyna jest ukryta: prawa katalogu, prawa pliku lub brak pliku.
+      Postaw hipotezę, następnie zbierz dowody i rozstrzygnij problem
+      bez zmieniania plików ani praw.</p>
     :scenario==='pathblock'&&pathCase==='transfer'?<p className="workshop-task">
       Incydent: plik <code>~/practice/checks/locked.log</code> istnieje,
       lecz odczyt kończy się odmową dostępu. Zbierz dowód nieudanego testu
@@ -357,6 +359,7 @@ export default function BashWorkshop(){
         <option value="">Bez hipotezy</option>
         <option value="directory">Brak x w katalogu</option>
         <option value="file">Brak r w pliku</option>
+        {pathCase==='blind'&&<option value="missing">Plik nie istnieje</option>}
       </select>
     </label>}
     <div className={'workshop-controls '+(scenario==='repair'?'repair':scenario!=='backup'?'diagnosis':'')}>
@@ -392,9 +395,11 @@ export default function BashWorkshop(){
       {scenario==='backup'&&submittedPrediction&&<p className="workshop-prediction">Przewidywanie: {submittedPrediction} · kopie utworzone: {copies}.
         {Number(submittedPrediction)===copies?' Zgadza się.':' Porównaj to z wykonanymi krokami.'}</p>}
       {causeComparison&&<p className="workshop-prediction">
-        Hipoteza: {causeComparison.predicted==='directory'?'katalog bez x':'plik bez r'}.
+        Hipoteza: {causeComparison.predicted==='directory'?'katalog bez x':
+          causeComparison.predicted==='file'?'plik bez r':'brak pliku'}.
         {causeComparison.observed===null?' Brak wystarczających dowodów namei.'
-          :<> Dowód: {causeComparison.observed==='directory'?'blokada katalogu':'brak odczytu pliku'}.
+          :<> Dowód: {causeComparison.observed==='directory'?'blokada katalogu':
+            causeComparison.observed==='file'?'brak odczytu pliku':'plik nie istnieje'}.
             {causeComparison.matched?' Hipoteza potwierdzona.':' Hipoteza obalona - przeanalizuj namei.'}
           </>}
       </p>}
@@ -443,8 +448,8 @@ export default function BashWorkshop(){
         <code> cat</code>. Możesz też ustawić dokładny tryb <code>700</code>.
         Nie stosuj praw dla grupy lub pozostałych.</p>
        :scenario==='pathblock'&&pathCase==='blind'?<p>Bez gotowego skryptu.
-         Sprawdź odmowę dostępu, kod zakończenia i poszczególne elementy ścieżki.
-         Rozróżnij brak przejścia przez katalog od braku odczytu pliku.</p>
+         Sprawdź test odczytu, kod zakończenia i poszczególne elementy ścieżki.
+         Odróżnij brak pliku od odmowy odczytu istniejącego pliku.</p>
        :scenario==='pathblock'&&pathCase==='transfer'?<p>Bez gotowego skryptu.
         Porównaj zachowanie z wariantem katalogowym. Zwróć uwagę, co naprawdę
         pokazuje wynik polecenia badającego każdy składnik ścieżki.</p>

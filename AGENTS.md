@@ -155,3 +155,10 @@ Next priority: have the user run physical PWA QA per docs/MOBILE_QA.md and perfo
 - The blind incident always targets the same `~/practice/diagnostics/service.log` path, with one of two fresh *local-only* seeds: directory mode 0600/file 0644 or directory mode 0700/file 000. Do not alter global Academy fixtures or real disk. Cause stays stable across script edits and Runs; New incident reseeds, clears script and predictions.
 - Require a cause hypothesis BEFORE Run for blind only. Actual executed test -r → immediate echo $? → namei -l must agree on the exact resolved target; compare hypothesis from genuine trace, never fixture labels or scripted output. Missing/foreign evidence is undecidable, not a win.
 - Existing guided, independent and repair variants remain unchanged. No new menu item or screen, no >4 nonblank lines, no arbitrary shell, network, backend, APK, progress schema, or persistent mastery. Physical Android QA still pending.
+
+## RC.56: three possible causes for the same mobile blind incident
+- Keep the same seven Bash Workshop menu entries, existing blind draft key and four-line limit. No APK or new screen.
+- Randomly choose one of three fresh virtual states for \`~/practice/diagnostics/service.log\`: no x on parent; no r on file; or an absent leaf with a traversable parent. Never mutate the shared Academy fixture.
+- In the third case, \`namei -l\` correctly returns ENOENT and exit code 1. Treat this as valid diagnostic evidence only for the exact missing target; do not treat an unrelated failed command as success.
+- Require a pre-run cause prediction for blind tasks; compare it against the actual failed \`test -r\`, immediate \`echo $?\`, and \`namei\` output, all on the same resolved path. The missing-file conclusion requires a missing leaf rather than a blocked ancestor.
+- Preserve guided and transfer task behavior, legacy draft storage, safe preflight, and simulated-only execution. Physical Android keyboard and scrolling QA remains pending.
