@@ -2,7 +2,7 @@ import type {LinuxState} from './linux.ts';
 import {executeLinux} from './linux.ts';
 import type {WorkshopResult} from './bashWorkshop.ts';
 import {gradeRemediation,type RemediationChoice} from './workshopRemediation.ts';
-import {recoveryFixture} from './pathRecovery.ts';
+import {blindTicket,type BlindTicketId} from './blindTickets.ts';
 import {modeOf} from './permissions.ts';
 
 /** Disposable in-memory preview, never executed on a host OS. */
@@ -20,17 +20,17 @@ export interface RecoveryVerification {
   /** For regression testing only; never persist or apply back to the incident. */
   state:LinuxState;
 }
-const TARGET=recoveryFixture('intro').file;
-const DIR=recoveryFixture('intro').directory;
-const BACKUP='/home/player/practice/service.log.verified-backup';
 const recordsEqual=(a:Record<string,unknown>,b:Record<string,unknown>)=>
   Object.keys(a).length===Object.keys(b).length&&
   Object.keys(a).every(key=>Object.hasOwn(b,key)&&a[key]===b[key]);
 
 export function verifyRecoveryPreview(
   result:Pick<WorkshopResult,'steps'|'completed'|'state'>,
-  choice:RemediationChoice
+  choice:RemediationChoice,
+  ticketId:BlindTicketId='service'
 ):RecoveryVerification|null {
+  const ticket=blindTicket(ticketId);
+  const TARGET=ticket.file,DIR=ticket.directory,BACKUP=ticket.backup;
   const assessment=gradeRemediation(choice,result);
   if(!assessment||assessment.matched!==true||!assessment.cause)return null;
   const test=result.steps.find(s=>s.command==='test'&&s.testFlag==='-r');
@@ -52,7 +52,7 @@ export function verifyRecoveryPreview(
     variables:{...before.variables}
   };
   if(usedTrainingBackup){
-    sandbox.files[BACKUP]=recoveryFixture('intro').content;
+    sandbox.files[BACKUP]=ticket.content;
     sandbox.permissions![BACKUP]=0o400;
     sandbox.ownership![BACKUP]={uid:1000,gid:1000};
   }
@@ -94,7 +94,7 @@ export function verifyRecoveryPreview(
   const integrityPassed=action.ok&&unchangedOtherFiles&&ownershipUntouched&&
     after.files[TARGET]===expectedContent&&
     (!usedTrainingBackup||(
-      sandbox.files[BACKUP]===recoveryFixture('intro').content&&
+      sandbox.files[BACKUP]===ticket.content&&
       after.files[BACKUP]===sandbox.files[BACKUP]));
   const checks:RecoveryCheck[]=[
     {id:'read',passed:readPassed,label:'Odczyt docelowego pliku działa'},
