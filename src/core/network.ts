@@ -113,7 +113,18 @@ export function executeNetworkCommand(state: LinuxState, cmd: string, args: stri
   }
 
   if (cmd==='ss') {
-    if (args.length!==1 || args[0]!=='-lnt') return done('Uzycie: ss -lnt',false);
+    if (args.length===1 && args[0]==='-ltnp'){
+      // Build process/port evidence from the actual simulated process table.
+      // No host socket inspection, and no static fabricated port owner.
+      const listeners=(state.processes??[]).filter(p=>
+        p.running&&Number.isInteger(p.listeningPort)&&
+        p.listeningPort!>=1&&p.listeningPort!<=65535);
+      const rows=listeners.map(p=>'LISTEN 0 128 0.0.0.0:'+p.listeningPort+
+        ' 0.0.0.0:* users:(("'+p.name+'",pid='+p.pid+',fd=3))');
+      return done(['State Recv-Q Send-Q Local Address:Port Peer Address:Port Process',
+        ...rows].join('\n'),true,state,'tcp-listeners');
+    }
+    if (args.length!==1 || args[0]!=='-lnt') return done('Uzycie: ss -lnt|-ltnp',false);
     const services=state.services ?? {};
     const processes=state.processes ?? [];
     const active=(unit:string) => services[unit]?.status==='active' &&
