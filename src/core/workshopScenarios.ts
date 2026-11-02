@@ -1,4 +1,4 @@
-export type WorkshopId='backup'|'diagnosis'|'permissions'|'fallback'|'transfer'|'pathblock'|'repair';
+export type WorkshopId='backup'|'diagnosis'|'permissions'|'fallback'|'transfer'|'pathblock'|'repair'|'service';
 export const WORKSHOP_DEFAULT='BASE=~/practice\nfor FILE in ...; do ...; done\ntest -f ... && test -f ...';
 export const DIAGNOSIS_DEFAULT='BASE=~/practice\ntest -f ... && test -f ...\necho $?';
 export const PERMISSIONS_DEFAULT='BASE=~/practice\ntest -f ... && test -r ...\necho $?';
@@ -12,9 +12,11 @@ export const workshopScenarios=[
   {id:'fallback',label:'04 · Plan awaryjny',title:'Znajdź działający log zastępczy'},
   {id:'transfer',label:'05 · Sprawdzian',title:'Samodzielnie: awaria logowania'},
   {id:'pathblock',label:'06 · Katalog',title:'Dlaczego nie można odczytać pliku?'},
-  {id:'repair',label:'07 · Naprawa',title:'Przywróć dostęp bez nadawania zbędnych praw'}
+  {id:'repair',label:'07 · Naprawa',title:'Przywróć dostęp bez nadawania zbędnych praw'},
+  {id:'service',label:'08 · Usługi',title:'Co stało się z usługą?'}
 ] as const;
 export const workshopInitialScript=(id:WorkshopId)=>
+  id==='service'?'':
   id==='repair'?REPAIR_DEFAULT:
   id==='pathblock'?PATHBLOCK_DEFAULT:
   id==='transfer'?'':
@@ -23,6 +25,7 @@ export const workshopInitialScript=(id:WorkshopId)=>
   id==='diagnosis'?DIAGNOSIS_DEFAULT:WORKSHOP_DEFAULT;
 /** Preserve all RC.38-48 draft keys. */
 export const workshopDraftKey=(id:WorkshopId)=>
+  id==='service'?'ctf-master:bash-workshop-service-draft-v1':
   id==='repair'?'ctf-master:bash-workshop-repair-draft-v1':
   id==='pathblock'?'ctf-master:bash-workshop-pathblock-draft-v1':
   id==='transfer'?'ctf-master:bash-workshop-transfer-draft-v1':
