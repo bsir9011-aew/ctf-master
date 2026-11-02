@@ -91,7 +91,7 @@ export function runServiceWorkshop(script:string,id:ServiceTicketId='web'):Works
     'Do tego zgłoszenia użyj dokładnie trzech krótkich poleceń diagnostycznych (ps, systemctl status, journalctl -u).');
   // Full preflight BEFORE executing any command, blocking kill/restart/stop,
   // redirection, shell chaining and all host/network commands.
-  const categories=lines.map(line=>inputAllowed(line.raw,ticket.service,id));
+  const categories:(string|null)[]=lines.map(line=>inputAllowed(line.raw,ticket.service,id));
   if(categories.some(item=>item===null)){
     const index=categories.indexOf(null);
     return blank(initial,'Polecenie spoza bezpiecznej diagnostyki właściwej usługi. Użyj tylko ps, systemctl status i journalctl -u.',lines[index].line);
@@ -172,7 +172,7 @@ export function observedServiceDiagnosis(
   if(extra==='socket'){
     const socket=executeLinux(result.state,'ss -ltnp');
     const owner=result.state.processes?.find(p=>p.listeningPort===8080&&p.running);
-    const ownerService=owner?.service&&result.state.services?.[owner.service];
+    const ownerService=owner?.service?result.state.services?.[owner.service]:undefined;
     if(!auxiliary||auxiliary.exitCode!==0||!socket.ok||
        auxiliary.output!==socket.output||auxiliary.target!==socket.target||
        !owner||ownerService?.status!=='active'||owner.service==='gateway'||
