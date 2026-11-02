@@ -37,3 +37,10 @@ export const repairWorkshopDraftKey=(variant:'intro'|'transfer')=>
     workshopDraftKey('repair');
 export const repairWorkshopStarter=(variant:'intro'|'transfer')=>
   variant==='transfer'?'':REPAIR_DEFAULT;
+
+/** Independent file-read denial reuses Academy's locked.log and preserves guided draft. */
+export const pathblockWorkshopDraftKey=(variant:'intro'|'transfer')=>
+  variant==='transfer'?'ctf-master:bash-workshop-pathblock-transfer-draft-v1':
+    workshopDraftKey('pathblock');
+export const pathblockWorkshopStarter=(variant:'intro'|'transfer')=>
+  variant==='transfer'?'':PATHBLOCK_DEFAULT;
