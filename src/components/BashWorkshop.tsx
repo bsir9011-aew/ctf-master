@@ -12,6 +12,7 @@ import {serviceTicket,serviceTicketIds,gradeServiceDiagnosis,type ServiceTicketI
 import {gradeReporterFix,previewReporterFix,type ReporterFixChoice,type ReporterFixPreview} from '../core/reporterConfigRepair';
 import {REPORTER_CONFIG_PATH} from '../core/reporterConfigFixture';
 import {verifyReporterStart,type ReporterStartVerification} from '../core/reporterControlledStart';
+import {runReporterSmoke,gradeReporterSmoke,type ReporterSmokeConclusion,type ReporterSmokeResult} from '../core/reporterSmokeTest';
 import {gradeServiceResponse,verifyServiceResponse,
   type ServiceResponseChoice,type ServiceResponseVerification} from '../core/serviceResponse';
 import {concreteRecoveryEvidence,gradeConcreteEvidence,type EvidenceInterpretation} from '../core/workshopConcreteEvidence';
@@ -102,6 +103,9 @@ export default function BashWorkshop(){
   const [submittedReporterFix,setSubmittedReporterFix]=useState<ReporterFixChoice>('');
   const [reporterPreview,setReporterPreview]=useState<ReporterFixPreview|null>(null);
   const [reporterStart,setReporterStart]=useState<ReporterStartVerification|null>(null);
+  const [reporterSmoke,setReporterSmoke]=useState<ReporterSmokeResult|null>(null);
+  const [reporterSmokeAnswer,setReporterSmokeAnswer]=useState<ReporterSmokeConclusion>('');
+  const [submittedSmokeAnswer,setSubmittedSmokeAnswer]=useState<ReporterSmokeConclusion>('');
   const [draft,setDraft]=useState(()=>restoreDraft(restoreScenario(),restoreRepairCase(),restorePathCase()));
   const [prediction,setPrediction]=useState<ExitPrediction>('');
   const [causePrediction,setCausePrediction]=useState<CausePrediction>('');
@@ -151,6 +155,9 @@ export default function BashWorkshop(){
     setSubmittedReporterFix('');
     setReporterPreview(null);
     setReporterStart(null);
+    setReporterSmoke(null);
+    setReporterSmokeAnswer('');
+    setSubmittedSmokeAnswer('');
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -179,6 +186,9 @@ export default function BashWorkshop(){
     setSubmittedReporterFix('');
     setReporterPreview(null);
     setReporterStart(null);
+    setReporterSmoke(null);
+    setReporterSmokeAnswer('');
+    setSubmittedSmokeAnswer('');
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -209,6 +219,9 @@ export default function BashWorkshop(){
     setSubmittedReporterFix('');
     setReporterPreview(null);
     setReporterStart(null);
+    setReporterSmoke(null);
+    setReporterSmokeAnswer('');
+    setSubmittedSmokeAnswer('');
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -243,6 +256,9 @@ export default function BashWorkshop(){
     setSubmittedReporterFix('');
     setReporterPreview(null);
     setReporterStart(null);
+    setReporterSmoke(null);
+    setReporterSmokeAnswer('');
+    setSubmittedSmokeAnswer('');
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -267,6 +283,9 @@ export default function BashWorkshop(){
     setSubmittedReporterFix('');
     setReporterPreview(null);
     setReporterStart(null);
+    setReporterSmoke(null);
+    setReporterSmokeAnswer('');
+    setSubmittedSmokeAnswer('');
     setPrediction('');
     setSubmittedPrediction('');
     setResult(null);
@@ -292,6 +311,9 @@ export default function BashWorkshop(){
     setSubmittedReporterFix('');
     setReporterPreview(null);
     setReporterStart(null);
+    setReporterSmoke(null);
+    setReporterSmokeAnswer('');
+    setSubmittedSmokeAnswer('');
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -362,6 +384,9 @@ export default function BashWorkshop(){
     setSubmittedReporterFix('');
     setReporterPreview(null);
     setReporterStart(null);
+    setReporterSmoke(null);
+    setReporterSmokeAnswer('');
+    setSubmittedSmokeAnswer('');
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -400,6 +425,8 @@ export default function BashWorkshop(){
   const reporterAssessment=scenario==='service'&&serviceTicketId==='reporter'&&
     result?.completed&&serviceEvaluation?.matched===true&&submittedReporterFix?
       gradeReporterFix(result,submittedReporterFix):null;
+  const reporterSmokeEvaluation=serviceTicketId==='reporter'&&submittedSmokeAnswer?
+    gradeReporterSmoke(reporterSmoke,submittedSmokeAnswer):null;
   const decisionFeedback=blindDecision&&result&&submittedRemediation?
     gradeRemediation(submittedRemediation,result):null;
   const concreteEvidence=blindDecision&&result&&recoveryCheck?
@@ -578,8 +605,11 @@ export default function BashWorkshop(){
       role="status" aria-live="polite">
       <strong>{result.completed?
         blindDecision&&!verifiedBlind?'✓ Diagnoza wykonana':
+        scenario==='service'&&serviceTicketId==='reporter'&&reporterSmokeEvaluation?.matched===true&&
+          reporterSmoke?.conclusion==='missing-output-dir'?'✓ Wykryto blokadę eksportu':
         scenario==='service'&&!(serviceTicketId==='reporter'?
-          reporterStart?.verified:serviceVerification?.verified)?'✓ Diagnoza wykonana':
+          reporterSmoke?.conclusion==='report-written'&&reporterSmokeEvaluation?.matched===true:
+          serviceVerification?.verified)?'✓ Diagnoza wykonana':
         '✓ Zadanie wykonane'
         :'Sprawdź i popraw'}</strong>
       <p>{blindDecision&&result.completed&&!verifiedBlind?
@@ -605,6 +635,9 @@ export default function BashWorkshop(){
     setSubmittedReporterFix('');
     setReporterPreview(null);
     setReporterStart(null);
+    setReporterSmoke(null);
+    setReporterSmokeAnswer('');
+    setSubmittedSmokeAnswer('');
             }}>
             <option value="">Wybierz wniosek z dowodów</option>
             <option value="crash">Proces uległ awarii podczas działania</option>
@@ -624,6 +657,9 @@ export default function BashWorkshop(){
     setSubmittedReporterFix('');
     setReporterPreview(null);
     setReporterStart(null);
+    setReporterSmoke(null);
+    setReporterSmokeAnswer('');
+    setSubmittedSmokeAnswer('');
             }}>Sprawdź</button>
         </div>
         {serviceEvaluation&&<p role="status" className="workshop-decision-feedback">
@@ -639,6 +675,9 @@ export default function BashWorkshop(){
                   setSubmittedReporterFix('');
                   setReporterPreview(null);
     setReporterStart(null);
+    setReporterSmoke(null);
+    setReporterSmokeAnswer('');
+    setSubmittedSmokeAnswer('');
                 }}>
                 <option value="">Wskaż minimalną korektę</option>
                 <option value="rename-directive">Zmień output_dir na output_path, bez zmiany wartości</option>
@@ -651,6 +690,9 @@ export default function BashWorkshop(){
                   setSubmittedReporterFix(reporterFix);
                   setReporterPreview(null);
     setReporterStart(null);
+    setReporterSmoke(null);
+    setReporterSmokeAnswer('');
+    setSubmittedSmokeAnswer('');
                 }}>Sprawdź</button>
             </div>
             {reporterAssessment&&<p className="workshop-decision-feedback" role="status">
@@ -696,6 +738,41 @@ export default function BashWorkshop(){
                     <p>{reporterStart.message}</p>
                     <small>Wirtualna operacja: <code>{reporterStart.command}</code></small>
                   </div>}
+                  {reporterStart?.verified&&<div className="workshop-reporter-smoke">
+                    <button type="button" className="workshop-recovery-run"
+                      disabled={reporterSmoke!==null}
+                      onClick={()=>setReporterSmoke(runReporterSmoke(result,reporterPreview,reporterStart))}>
+                      {reporterSmoke?'Próbny zapis wykonany':'Przetestuj zapis próbnego raportu'}
+                    </button>
+                    {reporterSmoke&&<div className="workshop-recovery-report">
+                      <p><code>{reporterSmoke.command}</code></p>
+                      <p>Kod odczytu: {reporterSmoke.readCode} · kod zapisu: {reporterSmoke.writeCode}</p>
+                      <p>{reporterSmoke.writeMessage}</p>
+                      <label htmlFor="workshop-reporter-smoke-answer">
+                        Co naprawdę wynika z próby zapisu?
+                      </label>
+                      <select id="workshop-reporter-smoke-answer" value={reporterSmokeAnswer}
+                        onChange={e=>{
+                          setReporterSmokeAnswer(e.target.value as ReporterSmokeConclusion);
+                          setSubmittedSmokeAnswer('');
+                        }}>
+                        <option value="">Wybierz wniosek z wyników</option>
+                        <option value="missing-output-dir">Nie istnieje katalog wskazany przez output_path</option>
+                        <option value="report-written">Raport został poprawnie zapisany i odczytany</option>
+                        <option value="restart-again">Wystarczy ponownie zrestartować usługę</option>
+                        <option value="change-permissions">Trzeba nadać wszystkim uprawnienia 777</option>
+                      </select>
+                      <button type="button" className="workshop-evidence-submit"
+                        disabled={!reporterSmokeAnswer}
+                        onClick={()=>setSubmittedSmokeAnswer(reporterSmokeAnswer)}>
+                        Oceń wniosek
+                      </button>
+                      {reporterSmokeEvaluation&&<p role="status">
+                        {reporterSmokeEvaluation.message}
+                      </p>}
+                      {reporterSmokeEvaluation?.matched===true&&<p>{reporterSmoke.message}</p>}
+                    </div>}
+                  </div>}
                 </div>}
               </div>}
             </div>}
@@ -713,6 +790,9 @@ export default function BashWorkshop(){
     setSubmittedReporterFix('');
     setReporterPreview(null);
     setReporterStart(null);
+    setReporterSmoke(null);
+    setReporterSmokeAnswer('');
+    setSubmittedSmokeAnswer('');
               }}>
               <option value="">Wybierz najbezpieczniejszą reakcję</option>
               <option value="restart-target">Kontrolowany restart tylko tej usługi</option>
@@ -731,6 +811,9 @@ export default function BashWorkshop(){
     setSubmittedReporterFix('');
     setReporterPreview(null);
     setReporterStart(null);
+    setReporterSmoke(null);
+    setReporterSmokeAnswer('');
+    setSubmittedSmokeAnswer('');
               }}>Sprawdź</button>
           </div>
           {serviceDecision&&<p role="status" className="workshop-decision-feedback">
