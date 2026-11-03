@@ -126,7 +126,7 @@ test('forged port owners, unavailable dependencies, missing and duplicate checks
 });
 
 test('three-command cases remain unchanged; foreign checks cannot be smuggled into their script',()=>{
-  for(const id of ['web','api','queue','reporter']){
+  for(const id of ['web','api','queue']){
     const result=runServiceWorkshop(base(id).join('\n'),id);
     assert.equal(result.completed,true,id);
     for(const injected of ['ss -ltnp','systemctl status redis']){

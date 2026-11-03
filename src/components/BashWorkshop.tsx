@@ -9,6 +9,8 @@ import {gradeRemediation,type RemediationChoice} from '../core/workshopRemediati
 import {verifyRecoveryPreview,type RecoveryVerification} from '../core/workshopRecoveryVerify';
 import {blindTicket,blindTicketIds,type BlindTicketId} from '../core/blindTickets';
 import {serviceTicket,serviceTicketIds,gradeServiceDiagnosis,type ServiceTicketId,type ServiceDiagnosis} from '../core/serviceWorkshop';
+import {gradeReporterFix,previewReporterFix,type ReporterFixChoice,type ReporterFixPreview} from '../core/reporterConfigRepair';
+import {REPORTER_CONFIG_PATH} from '../core/reporterConfigFixture';
 import {gradeServiceResponse,verifyServiceResponse,
   type ServiceResponseChoice,type ServiceResponseVerification} from '../core/serviceResponse';
 import {concreteRecoveryEvidence,gradeConcreteEvidence,type EvidenceInterpretation} from '../core/workshopConcreteEvidence';
@@ -95,6 +97,9 @@ export default function BashWorkshop(){
   const [serviceAction,setServiceAction]=useState<ServiceResponseChoice>('');
   const [submittedServiceAction,setSubmittedServiceAction]=useState<ServiceResponseChoice>('');
   const [serviceVerification,setServiceVerification]=useState<ServiceResponseVerification|null>(null);
+  const [reporterFix,setReporterFix]=useState<ReporterFixChoice>('');
+  const [submittedReporterFix,setSubmittedReporterFix]=useState<ReporterFixChoice>('');
+  const [reporterPreview,setReporterPreview]=useState<ReporterFixPreview|null>(null);
   const [draft,setDraft]=useState(()=>restoreDraft(restoreScenario(),restoreRepairCase(),restorePathCase()));
   const [prediction,setPrediction]=useState<ExitPrediction>('');
   const [causePrediction,setCausePrediction]=useState<CausePrediction>('');
@@ -140,6 +145,9 @@ export default function BashWorkshop(){
     setServiceAction('');
     setSubmittedServiceAction('');
     setServiceVerification(null);
+    setReporterFix('');
+    setSubmittedReporterFix('');
+    setReporterPreview(null);
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -164,6 +172,9 @@ export default function BashWorkshop(){
     setServiceAction('');
     setSubmittedServiceAction('');
     setServiceVerification(null);
+    setReporterFix('');
+    setSubmittedReporterFix('');
+    setReporterPreview(null);
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -190,6 +201,9 @@ export default function BashWorkshop(){
     setServiceAction('');
     setSubmittedServiceAction('');
     setServiceVerification(null);
+    setReporterFix('');
+    setSubmittedReporterFix('');
+    setReporterPreview(null);
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -220,6 +234,9 @@ export default function BashWorkshop(){
     setServiceAction('');
     setSubmittedServiceAction('');
     setServiceVerification(null);
+    setReporterFix('');
+    setSubmittedReporterFix('');
+    setReporterPreview(null);
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -240,6 +257,9 @@ export default function BashWorkshop(){
     setServiceAction('');
     setSubmittedServiceAction('');
     setServiceVerification(null);
+    setReporterFix('');
+    setSubmittedReporterFix('');
+    setReporterPreview(null);
     setPrediction('');
     setSubmittedPrediction('');
     setResult(null);
@@ -261,6 +281,9 @@ export default function BashWorkshop(){
     setServiceAction('');
     setSubmittedServiceAction('');
     setServiceVerification(null);
+    setReporterFix('');
+    setSubmittedReporterFix('');
+    setReporterPreview(null);
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -327,6 +350,9 @@ export default function BashWorkshop(){
     setServiceAction('');
     setSubmittedServiceAction('');
     setServiceVerification(null);
+    setReporterFix('');
+    setSubmittedReporterFix('');
+    setReporterPreview(null);
     setRemediation('');
     setSubmittedRemediation('');
     setRecoveryCheck(null);
@@ -362,6 +388,9 @@ export default function BashWorkshop(){
   const serviceDecision=scenario==='service'&&result?.completed&&
     serviceEvaluation?.matched===true&&submittedServiceAction?
     gradeServiceResponse(result,serviceTicketId,submittedServiceAnswer,submittedServiceAction):null;
+  const reporterAssessment=scenario==='service'&&serviceTicketId==='reporter'&&
+    result?.completed&&serviceEvaluation?.matched===true&&submittedReporterFix?
+      gradeReporterFix(result,submittedReporterFix):null;
   const decisionFeedback=blindDecision&&result&&submittedRemediation?
     gradeRemediation(submittedRemediation,result):null;
   const concreteEvidence=blindDecision&&result&&recoveryCheck?
@@ -415,6 +444,8 @@ export default function BashWorkshop(){
         <>Cztery krótkie polecenia. Dodatkowo sprawdź stan zależności <code>redis.service</code>.</>:
         serviceTicketId==='gateway'?
         <>Cztery krótkie polecenia. Dodatkowo ustal właściciela portu poleceniem <code>ss -ltnp</code>.</>:
+        serviceTicketId==='reporter'?
+        <>Cztery krótkie polecenia. Dodatkowo odczytaj konfigurację przez <code>cat {REPORTER_CONFIG_PATH}</code>.</>:
         'Trzy krótkie polecenia, dowolna kolejność.'}
       {' '}Nie restartuj ani nie kończ procesów.
     </p>
@@ -467,7 +498,7 @@ export default function BashWorkshop(){
       Użyj <code>echo $?</code>, aby potwierdzić końcowy kod. Nie zmieniaj plików.</p>}
     <label htmlFor="bash-workshop-editor" className="workshop-editor-label">
       Twój skrypt ({scenario==='service'?
-        (serviceTicketId==='gateway'||serviceTicketId==='scheduler'?'4 polecenia':'3 polecenia'):
+        (['gateway','scheduler','reporter'].includes(serviceTicketId)?'4 polecenia':'3 polecenia'):
         'maks. 4 linie'})
     </label>
     <textarea id="bash-workshop-editor" ref={editor} value={draft} rows={4}
@@ -538,7 +569,8 @@ export default function BashWorkshop(){
       role="status" aria-live="polite">
       <strong>{result.completed?
         blindDecision&&!verifiedBlind?'✓ Diagnoza wykonana':
-        scenario==='service'&&!serviceVerification?.verified?'✓ Diagnoza wykonana':
+        scenario==='service'&&!(serviceTicketId==='reporter'?
+          reporterPreview?.verified:serviceVerification?.verified)?'✓ Diagnoza wykonana':
         '✓ Zadanie wykonane'
         :'Sprawdź i popraw'}</strong>
       <p>{blindDecision&&result.completed&&!verifiedBlind?
@@ -560,6 +592,9 @@ export default function BashWorkshop(){
               setServiceAction('');
               setSubmittedServiceAction('');
               setServiceVerification(null);
+    setReporterFix('');
+    setSubmittedReporterFix('');
+    setReporterPreview(null);
             }}>
             <option value="">Wybierz wniosek z dowodów</option>
             <option value="crash">Proces uległ awarii podczas działania</option>
@@ -575,12 +610,60 @@ export default function BashWorkshop(){
               setServiceAction('');
               setSubmittedServiceAction('');
               setServiceVerification(null);
+    setReporterFix('');
+    setSubmittedReporterFix('');
+    setReporterPreview(null);
             }}>Sprawdź</button>
         </div>
         {serviceEvaluation&&<p role="status" className="workshop-decision-feedback">
           {serviceEvaluation.message}
         </p>}
-        {serviceEvaluation?.matched===true&&<div className="workshop-service-response">
+        {serviceEvaluation?.matched===true&&serviceTicketId==='reporter'&&
+          <div className="workshop-service-response">
+            <label htmlFor="workshop-reporter-fix">Jaka pojedyncza poprawka wynika z pliku i logów?</label>
+            <div className="workshop-remediation-controls">
+              <select id="workshop-reporter-fix" value={reporterFix}
+                onChange={e=>{
+                  setReporterFix(e.target.value as ReporterFixChoice);
+                  setSubmittedReporterFix('');
+                  setReporterPreview(null);
+                }}>
+                <option value="">Wskaż minimalną korektę</option>
+                <option value="rename-directive">Zmień output_dir na output_path, bez zmiany wartości</option>
+                <option value="delete-directive">Usuń dyrektywę output_dir razem z wartością</option>
+                <option value="chmod-777">Nadaj plikowi konfiguracji 777</option>
+                <option value="restart-only">Zrestartuj usługę bez zmiany konfiguracji</option>
+              </select>
+              <button type="button" disabled={!reporterFix}
+                onClick={()=>{
+                  setSubmittedReporterFix(reporterFix);
+                  setReporterPreview(null);
+                }}>Sprawdź</button>
+            </div>
+            {reporterAssessment&&<p className="workshop-decision-feedback" role="status">
+              {reporterAssessment.message}
+            </p>}
+            {reporterAssessment?.matched===true&&<div className="workshop-service-preview">
+              <button type="button" className="workshop-recovery-run"
+                disabled={reporterPreview!==null}
+                onClick={()=>setReporterPreview(previewReporterFix(result,submittedReporterFix))}>
+                {reporterPreview?'Korekta zweryfikowana':'Zasymuluj i sprawdź jedną zmianę'}
+              </button>
+              {reporterPreview&&<div className="workshop-recovery-report" role="status">
+                <table aria-label="Konfiguracja przed i po poprawce">
+                  <thead><tr><th>Przed</th><th>Po</th></tr></thead>
+                  <tbody><tr><td><code>{reporterPreview.beforeLine}</code></td>
+                    <td><code>{reporterPreview.afterLine}</code></td></tr></tbody>
+                </table>
+                <ul>{reporterPreview.checks.map(check=><li key={check.id}>
+                  <span aria-hidden="true">{check.passed?'✓':'✗'}</span> {check.label}
+                </li>)}</ul>
+                <p>{reporterPreview.message}</p>
+              </div>}
+            </div>}
+          </div>}
+        {serviceEvaluation?.matched===true&&serviceTicketId!=='reporter'&&
+          <div className="workshop-service-response">
           <label htmlFor="workshop-service-response">Co teraz zrobić z usługą?</label>
           <div className="workshop-remediation-controls">
             <select id="workshop-service-response" value={serviceAction}
@@ -588,6 +671,9 @@ export default function BashWorkshop(){
                 setServiceAction(e.target.value as ServiceResponseChoice);
                 setSubmittedServiceAction('');
                 setServiceVerification(null);
+    setReporterFix('');
+    setSubmittedReporterFix('');
+    setReporterPreview(null);
               }}>
               <option value="">Wybierz najbezpieczniejszą reakcję</option>
               <option value="restart-target">Kontrolowany restart tylko tej usługi</option>
@@ -602,6 +688,9 @@ export default function BashWorkshop(){
               onClick={()=>{
                 setSubmittedServiceAction(serviceAction);
                 setServiceVerification(null);
+    setReporterFix('');
+    setSubmittedReporterFix('');
+    setReporterPreview(null);
               }}>Sprawdź</button>
           </div>
           {serviceDecision&&<p role="status" className="workshop-decision-feedback">

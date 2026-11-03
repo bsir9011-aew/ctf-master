@@ -21,7 +21,8 @@ const allCases=[
 const steps=(id)=>[
   'ps aux','systemctl status '+id+'.service','journalctl -u '+id,
   ...(id==='scheduler'?['systemctl status redis.service']:
-      id==='gateway'?['ss -ltnp']:[])
+      id==='gateway'?['ss -ltnp']:
+      id==='reporter'?['cat /home/player/practice/reporterd.conf']:[])
 ];
 const perms=(a)=>a.length===1?[a]:
   a.flatMap((x,i)=>perms(a.filter((_,j)=>i!==j)).map(ys=>[x,...ys]));
