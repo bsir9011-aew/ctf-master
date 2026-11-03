@@ -43,7 +43,6 @@ export function verifyReporterStart(
      !repairedText.output.includes('\noutput_path=/var/reports\n')||
      repairedText.output.includes('\noutput_dir='))return null;
 
-  const original=incident.state;
   const beforeService=corrected.services?.reporter;
   const beforeProcess=corrected.processes?.find(p=>p.service==='reporter');
   if(!beforeService||beforeService.status!=='failed'||!beforeProcess||
