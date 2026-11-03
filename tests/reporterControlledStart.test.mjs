@@ -36,7 +36,7 @@ test('all 24 valid diagnostic orders lead to safe controlled virtual reporter st
     assert.equal(result.state.services.reporter.status,'active');
     assert.equal(result.state.processes.find(x=>x.service==='reporter').running,true);
     assert.equal(executeLinux(result.state,'cat '+REPORTER_CONFIG_PATH).output,
-      ' # '.trimStart()+' reporter.service - konfiguracja treningowa\n'+
+      '# reporter.service - konfiguracja treningowa\n'+
       '# dostępne klucze: format, output_path, retry_limit\n'+
       'format=csv\noutput_path=/var/reports\nretry_limit=3\n');
     assert.deepEqual(incident.state,incidentOriginal,'incident unchanged');
