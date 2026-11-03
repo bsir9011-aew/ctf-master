@@ -695,3 +695,8 @@
   text-align:left;overflow-wrap:anywhere;padding:6px 4px;
   border-bottom:1px solid #446352}
 .workshop-service-preview .workshop-recovery-report th:first-child{width:36%}
+
+/* RC.68: next safe action remains in the same mobile service card. */
+.workshop-reporter-restart{margin-top:10px;padding-top:9px;border-top:1px solid #47605a}
+.workshop-reporter-restart>label{display:block;font-size:12px;font-weight:750;line-height:1.5;margin-bottom:7px}
+.workshop-reporter-restart .workshop-remediation-controls{margin-bottom:8px}
