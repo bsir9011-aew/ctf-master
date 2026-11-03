@@ -43,7 +43,7 @@ export function runReporterSmoke(
   const keys=lines.map(line=>line.split('=')[0]);
   if(keys.length!==3||new Set(keys).size!==3||
      !['format','output_path','retry_limit'].every(k=>keys.includes(k)))return null;
-  const values=new Map(lines.map(line=>{
+  const values=new Map(lines.map((line):[string,string]=>{
     const index=line.indexOf('=');
     return [line.slice(0,index),line.slice(index+1)];
   }));
