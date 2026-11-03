@@ -2,6 +2,7 @@ import {createAcademyState} from './commandAcademy.ts';
 import {executeLinux,type LinuxState} from './linux.ts';
 import type {SimProcess,SimService} from './processes.ts';
 import {workshopSourceLines} from './workshopSourceLines.ts';
+import {REPORTER_CONFIG_PATH,REPORTER_CONFIG_CONTENT} from './reporterConfigFixture.ts';
 import type {WorkshopResult,WorkshopStep} from './bashWorkshop.ts';
 
 /** Real virtual process/service fixtures, never host processes. */
@@ -62,12 +63,18 @@ export function serviceWorldForTicket(id:ServiceTicketId):LinuxState{
     services['legacy-proxy']={pid:615,status:'active',
       journal:['09:00 legacy-proxy: listening on 0.0.0.0:8080']};
   }
-  return {...state,processes,services};
+  return id==='reporter'?{
+    ...state,processes,services,
+    files:{...state.files,[REPORTER_CONFIG_PATH]:REPORTER_CONFIG_CONTENT},
+    permissions:{...state.permissions,[REPORTER_CONFIG_PATH]:0o644}
+  }:{...state,processes,services};
 }
 const blank=(state:LinuxState,feedback:string,line?:number):WorkshopResult=>({
   completed:false,feedback,state,steps:[],errorLine:line
 });
 const inputAllowed=(input:string,service:string,id:ServiceTicketId)=>{
+  if(id==='reporter'&&input==='cat '+REPORTER_CONFIG_PATH)
+    return 'config';
   if(id==='scheduler'&&
      (input==='systemctl status redis'||input==='systemctl status redis.service'))
     return 'dependency';
@@ -83,11 +90,13 @@ export function runServiceWorkshop(script:string,id:ServiceTicketId='web'):Works
   const initial=serviceWorldForTicket(id),ticket=serviceTicket(id);
   if(script.length>700)return blank(initial,'Skrypt jest za długi (maksymalnie 700 znaków).');
   const lines=workshopSourceLines(script);
-  const extra=id==='scheduler'?'dependency':id==='gateway'?'socket':null;
+  const extra=id==='scheduler'?'dependency':
+    id==='gateway'?'socket':id==='reporter'?'config':null;
   const expectedLength=extra?4:3;
   if(lines.length!==expectedLength)return blank(initial,extra?
     'Zbierz cztery dowody: ps, status usługi, jej journal oraz '+(
-      extra==='dependency'?'status redis.service.':'listę portów ss -ltnp.') :
+      extra==='dependency'?'status redis.service.':extra==='socket'?
+        'listę portów ss -ltnp.':'odczyt pliku '+REPORTER_CONFIG_PATH+'.') :
     'Do tego zgłoszenia użyj dokładnie trzech krótkich poleceń diagnostycznych (ps, systemctl status, journalctl -u).');
   // Full preflight BEFORE executing any command, blocking kill/restart/stop,
   // redirection, shell chaining and all host/network commands.
@@ -136,7 +145,8 @@ export function observedServiceDiagnosis(
   result:Pick<WorkshopResult,'steps'|'state'>,id:ServiceTicketId
 ):Exclude<ServiceDiagnosis,''>|null{
   const ticket=serviceTicket(id),steps=result.steps;
-  const extra=id==='scheduler'?'dependency':id==='gateway'?'socket':null;
+  const extra=id==='scheduler'?'dependency':
+    id==='gateway'?'socket':id==='reporter'?'config':null;
   if(steps.length!==(extra?4:3))return null;
   const status=steps.find(s=>s.command==='systemctl'&&
     s.target===ticket.service+'.service');
@@ -144,7 +154,8 @@ export function observedServiceDiagnosis(
   const ps=steps.find(s=>s.command==='ps');
   const auxiliary=extra?steps.find(s=>extra==='dependency'?
     s.command==='systemctl'&&s.target==='redis.service':
-    s.command==='ss'&&s.target==='tcp-listeners'):undefined;
+    extra==='socket'?s.command==='ss'&&s.target==='tcp-listeners':
+    s.command==='cat'&&s.target===REPORTER_CONFIG_PATH):undefined;
   if(!status||!journal||!ps||
      (extra&&!auxiliary)||
      status.exitCode!==0||journal.exitCode!==0||ps.exitCode!==0||
@@ -160,6 +171,17 @@ export function observedServiceDiagnosis(
   if(!actualStatus.ok||!actualJournal.ok||!actualProcesses.ok||
      status.output!==actualStatus.output||journal.output!==actualJournal.output||
      ps.output!==actualProcesses.output)return null;
+  if(extra==='config'){
+    const fileRead=executeLinux(result.state,'cat '+REPORTER_CONFIG_PATH);
+    const source=result.state.files[REPORTER_CONFIG_PATH];
+    const log=result.state.services?.reporter?.journal.join('\n')??'';
+    if(!auxiliary||auxiliary.exitCode!==0||!fileRead.ok||
+       auxiliary.output!==fileRead.output||auxiliary.target!==fileRead.target||
+       source!==REPORTER_CONFIG_CONTENT||
+       !log.includes('unknown directive output_dir')||
+       !source.includes('output_dir=/var/reports\n')||
+       !source.includes('output_path'))return null;
+  }
   if(extra==='dependency'){
     const redis=executeLinux(result.state,'systemctl status redis.service');
     const redisState=result.state.services?.redis;
