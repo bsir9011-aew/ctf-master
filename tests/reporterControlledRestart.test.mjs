@@ -44,7 +44,7 @@ test('24 read-only diagnostic orders permit a guarded virtual reporter restart',
     assert.equal(grade?.matched,true);
     const recovered=verifyReporterRestart(original,corrected,'validate-restart');
     assert.ok(recovered,lines.join(' -> '));
-    assert.equal(recovered.verified,true);
+    assert.equal(recovered.verified,true,JSON.stringify(recovered.checks));
     assert.equal(recovered.command,'systemctl restart reporter.service');
     assert.equal(recovered.beforeStatus,'failed');
     assert.equal(recovered.afterStatus,'active');
