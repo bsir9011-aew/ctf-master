@@ -24,6 +24,11 @@ export interface ReporterRestartVerification {
 const same=(a:unknown,b:unknown)=>JSON.stringify(a)===JSON.stringify(b);
 const unit='reporter.service';
 const command='systemctl restart '+unit;
+const psHasProcess=(output:string,pid:number,name:string):boolean=>
+  output.split('\n').slice(1).some(row=>{
+    const columns=row.trim().split(/\s+/);
+    return columns[0]===String(pid)&&columns.slice(1).join(' ')===name;
+  });
 
 /** Use the actual corrected file content; a restart is never a substitute
  * for validating the configuration first.
@@ -93,7 +98,7 @@ export function verifyReporterRestart(
   if(!configProof.ok||!validReporterConfiguration(configProof.output)||
      configProof.output!==before.files[REPORTER_CONFIG_PATH]||
      !beforeStatus.ok||!beforeStatus.output.includes(' Active: failed\n')||
-     !beforePs.ok||beforePs.output.split('\n').some(row=>row.trim()===oldProc.pid+' '+oldProc.name))return null;
+     !beforePs.ok||psHasProcess(beforePs.output,oldProc.pid,oldProc.name))return null;
   const action=executeLinux(before,command);
   if(!action.ok||action.target!==unit)return null;
   const after=action.state;
@@ -112,7 +117,7 @@ export function verifyReporterRestart(
     status.ok&&status.target===unit&&
     status.output.includes(' Active: active\n')&&
     status.output.includes(' Main PID: '+old.pid+'\n')&&
-    ps.ok&&ps.output.split('\n').some(row=>row.trim()===old.pid+' '+oldProc.name);
+    ps.ok&&psHasProcess(ps.output,old.pid,oldProc.name);
   const otherServicesBefore={...before.services};
   const otherServicesAfter={...after.services};
   delete otherServicesBefore.reporter;delete otherServicesAfter.reporter;
