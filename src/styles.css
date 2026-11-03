@@ -695,3 +695,11 @@
   text-align:left;overflow-wrap:anywhere;padding:6px 4px;
   border-bottom:1px solid #446352}
 .workshop-service-preview .workshop-recovery-report th:first-child{width:36%}
+
+/* RC.69: functional smoke-check stays below the existing reporter start result. */
+.workshop-reporter-smoke{margin-top:10px;padding-top:9px;border-top:1px solid #47605a}
+.workshop-reporter-smoke label{display:block;font-size:12px;font-weight:750;line-height:1.5;margin:8px 0 6px}
+.workshop-reporter-smoke select{width:100%;min-height:44px;max-width:100%;
+  padding:8px;border:1px solid #658574;background:#192e2e;
+  color:#f0fff2;border-radius:9px;font-size:12px}
+.workshop-reporter-smoke .workshop-evidence-submit{margin-top:8px}
