@@ -1,7 +1,8 @@
 /* Install the complete hashed Vite build; work at / and /ctf-master/. */
 const PREFIX = 'ctf-master-';
-const CACHE = PREFIX + 'v1.0.0-rc69-pages';
-const BASE = new URL('./', self.location.href).pathname;
+// A root-hosted app retains its historic cache name; project Pages caches are isolated.
+const BASE = new URL('./', self.location.href ?? self.location.origin + '/sw.js').pathname;
+const CACHE = PREFIX + 'v1.0.0-rc69' + (BASE === '/' ? '' : '-pages');
 const SHELL = BASE;
 const OFFLINE_ASSETS = [
   BASE + 'index.html',
