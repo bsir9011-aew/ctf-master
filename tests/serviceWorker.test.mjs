@@ -6,10 +6,10 @@ import vm from 'node:vm';
 const workerSource=readFileSync(new URL('../public/sw.js',import.meta.url),'utf8');
 const cacheName='ctf-master-v'+JSON.parse(readFileSync(new URL('../package.json',import.meta.url),'utf8')).version.replace(/-rc\.(\d+)$/, '-rc$1');
 
-function mockWorker() {
+function mockWorker(base = '/') {
   const handlers={};
   const data=new Map();
-  const resources={
+  let resources={
     '/':'<html><head><link rel="stylesheet" href="/assets/index-a.css"></head><body><script type="module" src="/assets/index-a.js"></script></body></html>',
     '/index.html':'<html>index</html>',
     '/manifest.webmanifest':'{}',
@@ -18,6 +18,13 @@ function mockWorker() {
     '/assets/index-a.css':'body{color:white}',
     '/assets/index-a.js':'console.log("ok")'
   };
+  // GitHub Pages serves the same compiled shell under /ctf-master/.
+  if (base !== '/') {
+    resources=Object.fromEntries(Object.entries(resources).map(([path,value])=>[
+      base + path.slice(1),
+      typeof value === 'string' ? value.replaceAll('/assets/',base+'assets/') : value
+    ]));
+  }
   let online=true;
   const caches={
     async open(name) {
@@ -34,12 +41,12 @@ function mockWorker() {
   async function fetchMock(input) {
     if(!online) throw Error('network unavailable');
     const path=typeof input==='string' ? input :
-      input.mode==='navigate' ? '/' : new URL(input.url).pathname;
+      input.mode==='navigate' ? base : new URL(input.url).pathname;
     if(!(path in resources)) return new Response('not found',{status:404});
     return new Response(resources[path],{status:200});
   }
   const self={
-    location:{origin:'https://ctf.test'},
+    location:{origin:'https://ctf.test',href:'https://ctf.test'+base+'sw.js'},
     clients:{claim:async()=>{}},
     addEventListener(type,fn){handlers[type]=fn;},
     skipWaiting(){}
@@ -86,4 +93,23 @@ test('activation deletes only stale CTF Master caches, not other apps caches',as
   assert.equal(names.includes('ctf-master-v0.1.0'),false);
   assert.equal(names.includes(cacheName),true);
   assert.equal(names.includes('another-pwa'),true);
+});
+
+
+test('GitHub Pages subpath precaches assets and serves offline missions',async()=>{
+  const base='/ctf-master/';
+  const sw=mockWorker(base);
+  await sw.dispatch('install');
+  const names=await sw.caches.keys();
+  assert.deepEqual(names,[cacheName+'-pages']);
+  const cache=await sw.caches.open(names[0]);
+  for(const path of [base,base+'assets/index-a.js',base+'assets/index-a.css',
+    base+'manifest.webmanifest',base+'icon-192.png']) {
+    assert.ok(await cache.match(path),path);
+  }
+  sw.setOnline(false);
+  const offline=await sw.dispatch('fetch',{
+    method:'GET',url:'https://ctf.test/ctf-master/mission',mode:'navigate'
+  });
+  assert.match(await offline.text(),/index-a\.js/);
 });
