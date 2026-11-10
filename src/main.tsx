@@ -13,6 +13,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 const nativeLocalHost = window.location.hostname === 'localhost';
 if ('serviceWorker' in navigator && import.meta.env.PROD && !nativeLocalHost) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => { /* optional offline support */ });
+    const baseUrl = import.meta.env.BASE_URL;
+    navigator.serviceWorker.register(`${baseUrl}sw.js`, { scope: baseUrl })
+      .catch(() => { /* optional offline support */ });
   });
 }
